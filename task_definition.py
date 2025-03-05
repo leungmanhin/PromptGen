@@ -24,7 +24,7 @@ class TaskDefinition:
         }
     
     @classmethod
-    def from_dict(cls,  Dict[str, Any]) -> 'TaskDefinition':
+    def from_dict(cls, data: Dict[str, Any]) -> 'TaskDefinition':
         return cls(
             name=data.get("name", "CustomTask"),
             input_fields=data.get("input_fields", []),
