@@ -13,6 +13,51 @@
 </div>
 
 <div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Programs</h5>
+            </div>
+            <div class="card-body">
+                <h6>Current Program: 
+                    {% if app_state.current_program_id %}
+                        <span class="badge bg-success">
+                            {{ app_state.programs[app_state.current_program_id].get('task_name', 'Unknown') }} 
+                            ({{ app_state.programs[app_state.current_program_id].get('model', 'Unknown Model') }})
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning">None Selected</span>
+                    {% endif %}
+                </h6>
+                
+                <div class="list-group mt-3" id="program-list">
+                    {% for program_id, metadata in app_state.programs.items() %}
+                        <a href="{{ url_for('main.select_program', program_id=program_id) }}" 
+                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {% if program_id == app_state.current_program_id %}active{% endif %}">
+                            <div>
+                                <strong>{{ metadata.get('task_name', 'Unknown') }}</strong> - 
+                                {{ metadata.get('model', 'Unknown Model') }}
+                                <small class="d-block text-muted">
+                                    Created: {{ metadata.get('created_at')|timestamp_to_date }}
+                                </small>
+                                {% if metadata.get('base_program_id') %}
+                                <small class="d-block text-muted">
+                                    Based on: {{ metadata.get('base_program_id') }}
+                                </small>
+                                {% endif %}
+                            </div>
+                            {% if program_id == app_state.current_program_id %}
+                            <span class="badge bg-primary rounded-pill">Current</span>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
     <div class="col-md-6">
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">

@@ -1,5 +1,6 @@
 import dspy
 from typing import List, Dict, Any, Optional
+import os
 from .samples import SampleManager
 from .state import AppState
 from .optimization import Optimizer
@@ -15,11 +16,35 @@ class Evaluator:
     def load_optimized_task(self):
         """Load the optimized task from disk"""
         try:
-            optimized_task = dspy.load("./program/")
-            print(f"Successfully loaded optimized task: {type(optimized_task)}")
+            # Use the current program ID from app state
+            program_id = self.app_state.current_program_id
+            if not program_id:
+                print("No program selected")
+                return None
+                
+            program_dir = f"./programs/{program_id}/"
+            if not os.path.exists(program_dir):
+                print(f"Program directory not found: {program_dir}")
+                # Try the legacy location as fallback
+                if os.path.exists("./program/program.pkl"):
+                    print("Falling back to legacy program location")
+                    optimized_task = dspy.load("./program/")
+                    return optimized_task
+                return None
+                
+            optimized_task = dspy.load(program_dir)
+            print(f"Successfully loaded optimized task from {program_dir}: {type(optimized_task)}")
             return optimized_task
         except Exception as e:
             print(f"Failed to load optimized task: {e}")
+            # Try the legacy location as fallback
+            try:
+                if os.path.exists("./program/program.pkl"):
+                    print("Falling back to legacy program location after error")
+                    optimized_task = dspy.load("./program/")
+                    return optimized_task
+            except Exception as nested_e:
+                print(f"Failed to load legacy program as well: {nested_e}")
             return None
     
     def evaluate_similarity(self, example_data: Dict[str, Any], prediction: Any, lm: dspy.LM) -> Dict[str, Any]:

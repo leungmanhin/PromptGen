@@ -14,6 +14,32 @@ def create_routes(app_state: AppState, sample_manager: SampleManager,
     """Create Flask routes blueprint"""
     bp = Blueprint('main', __name__)
     
+    @bp.route('/select_program/<program_id>')
+    def select_program(program_id):
+        """Select a program to use"""
+        if app_state.set_current_program(program_id):
+            print(f"Selected program: {program_id}")
+        return redirect(url_for('main.index'))
+    
+    @bp.route('/api/programs')
+    def get_programs():
+        """Get the list of available programs"""
+        programs = []
+        for program_id, metadata in app_state.programs.items():
+            program_data = {
+                "id": program_id,
+                "model": metadata.get("model", "unknown"),
+                "created_at": metadata.get("created_at", 0),
+                "task_name": metadata.get("task_name", "unknown"),
+                "is_current": program_id == app_state.current_program_id
+            }
+            programs.append(program_data)
+        
+        # Sort by creation time (newest first)
+        programs.sort(key=lambda x: x["created_at"], reverse=True)
+        
+        return jsonify({"programs": programs})
+    
     @bp.route('/')
     def index():
         samples = sample_manager.load_samples()
@@ -23,7 +49,8 @@ def create_routes(app_state: AppState, sample_manager: SampleManager,
                             evaluation_results=app_state.evaluation_results,
                             models=app_state.AVAILABLE_MODELS,
                             current_model=app_state.current_model,
-                            task_definition=app_state.task_definition)
+                            task_definition=app_state.task_definition,
+                            app_state=app_state)
 
     @bp.route('/samples')
     def view_samples():

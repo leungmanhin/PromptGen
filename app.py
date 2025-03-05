@@ -29,6 +29,15 @@ def create_app():
         routes.create_routes(app_state, sample_manager, optimizer, evaluator)
     )
     
+    # Add timestamp filter for templates
+    @flask_app.template_filter('timestamp_to_date')
+    def timestamp_to_date(timestamp):
+        """Convert timestamp to readable date"""
+        from datetime import datetime
+        if isinstance(timestamp, (int, float)):
+            return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+        return str(timestamp)
+    
     # Initialize the model
     dspy.configure(lm=dspy.LM(app_state.current_model))
     
@@ -47,6 +56,7 @@ def create_directories():
     os.makedirs("templates", exist_ok=True)
     os.makedirs("static", exist_ok=True)
     os.makedirs("samples", exist_ok=True)
+    os.makedirs("programs", exist_ok=True)
 
 # These functions are no longer needed with the new architecture
 
