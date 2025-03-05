@@ -22,7 +22,7 @@ uv sync && source .venv/bin/activate
 Run the app
 
 ```bash
-flask run
+FLASK_APP=app.py flask run
 ```
 
 3. Open your browser and navigate to:
