@@ -3,10 +3,10 @@ from threading import Thread
 import os
 import json
 import dspy
-from .models import ModelManager
-from .samples import SampleManager
-from .optimization import Optimizer
-from .state import AppState
+from models import ModelManager
+from samples import SampleManager
+from optimization import Optimizer
+from state import AppState
 
 def create_routes(app_state: AppState, model_manager: ModelManager, sample_manager: SampleManager, optimizer: Optimizer):
     """Create Flask routes blueprint"""
