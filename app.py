@@ -3,6 +3,7 @@ from flask import Flask
 from models import ModelManager
 from samples import SampleManager
 from optimization import Optimizer
+from evaluation import Evaluator
 from state import AppState
 
 def create_app():
@@ -14,6 +15,7 @@ def create_app():
     model_manager = ModelManager()
     sample_manager = SampleManager()
     optimizer = Optimizer(model_manager, sample_manager)
+    evaluator = Evaluator(app_state, model_manager, sample_manager)
     
     # Create required directories
     @flask_app.before_request
@@ -25,7 +27,7 @@ def create_app():
     
     # Register routes
     flask_app.register_blueprint(
-        routes.create_routes(app_state, model_manager, sample_manager, optimizer)
+        routes.create_routes(app_state, model_manager, sample_manager, optimizer, evaluator)
     )
     
     # Initialize the model
