@@ -3,13 +3,12 @@ from threading import Thread
 import os
 import json
 import dspy
-from .models import ModelManager
 from .samples import SampleManager
 from .optimization import Optimizer
 from .evaluation import Evaluator
 from .state import AppState
 
-def create_routes(app_state: AppState, model_manager: ModelManager, sample_manager: SampleManager, 
+def create_routes(app_state: AppState, sample_manager: SampleManager, 
                  optimizer: Optimizer, evaluator: Evaluator):
     """Create Flask routes blueprint"""
     bp = Blueprint('main', __name__)
@@ -83,7 +82,7 @@ def create_routes(app_state: AppState, model_manager: ModelManager, sample_manag
         model_name = request.form.get('model', app_state.current_model)
         
         # Get a model instance without configuring DSPy
-        sample_lm = model_manager.get_lm_instance(model_name)
+        sample_lm = dspy.LM(model_name)
         if sample_lm is None:
             return jsonify({
                 "error": f"Failed to initialize model {model_name}",

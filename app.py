@@ -1,6 +1,6 @@
 import os
+import dspy
 from flask import Flask
-from .models import ModelManager
 from .samples import SampleManager
 from .optimization import Optimizer
 from .evaluation import Evaluator
@@ -12,7 +12,6 @@ def create_app():
     
     # Initialize components
     app_state = AppState()
-    model_manager = ModelManager()
     sample_manager = SampleManager()
     optimizer = Optimizer(model_manager, sample_manager)
     evaluator = Evaluator(app_state, model_manager, sample_manager)
@@ -27,18 +26,18 @@ def create_app():
     
     # Register routes
     flask_app.register_blueprint(
-        routes.create_routes(app_state, model_manager, sample_manager, optimizer, evaluator)
+        routes.create_routes(app_state, sample_manager, optimizer, evaluator)
     )
     
     # Initialize the model
-    model_manager.initialize_model(app_state.current_model)
+    dspy.configure(lm=dspy.LM(app_state.current_model))
     
     # Add CLI commands if needed
     @flask_app.cli.command("optimize")
     def optimize_command():
         """Run optimization from command line"""
         from optimization import Optimizer  # Use absolute import
-        optimizer = Optimizer(model_manager, sample_manager)
+        optimizer = Optimizer(sample_manager)
         optimizer.run_optimization(app_state.current_model)
     
     return flask_app

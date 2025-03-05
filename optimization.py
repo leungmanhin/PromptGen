@@ -3,23 +3,13 @@ import dspy
 import json
 import os
 from samples import SampleManager
-from models import ModelManager
 
 class Optimizer:
     """Handles optimization process for the language model"""
     
-    def __init__(self, model_manager: ModelManager, sample_manager: SampleManager):
-        self.model_manager = model_manager
+    def __init__(self, sample_manager: SampleManager):
         self.sample_manager = sample_manager
         self.running = False
-
-    def _load_task_description(self) -> str:
-        """Load task description from file or return default"""
-        try:
-            with open("task.json", "r") as f:
-                return json.load(f)["self"]["extended_signature"]["instructions"]
-        except Exception:
-            return "Convert English to Logic (MeTTa PLN Light)"
 
     def _prepare_training_data(self, samples: List[Dict]) -> List[dspy.Example]:
         """Prepare DSPy examples from loaded samples"""
@@ -40,13 +30,12 @@ class Optimizer:
 
         self.running = True
         try:
-            thread_lm = self.model_manager.get_lm_instance(model_name)
+            thread_lm = dspy.LM(model_name)
             if not thread_lm:
                 return
 
             samples = self.sample_manager.load_samples()
             training_data = self._prepare_training_data(samples)
-            task_description = self._load_task_description()
 
             task = dspy.ChainOfThought(
                 'english -> pln_types: str, pln_statements: str, pln_questions: str'

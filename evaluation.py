@@ -1,15 +1,13 @@
 import dspy
 from typing import List, Dict, Any, Optional
-from .models import ModelManager
 from .samples import SampleManager
 from .state import AppState
 
 class Evaluator:
     """Handles evaluation of the optimized model against sample data"""
     
-    def __init__(self, app_state: AppState, model_manager: ModelManager, sample_manager: SampleManager):
+    def __init__(self, app_state: AppState, sample_manager: SampleManager):
         self.app_state = app_state
-        self.model_manager = model_manager
         self.sample_manager = sample_manager
     
     def load_optimized_task(self):
@@ -80,7 +78,7 @@ class Evaluator:
         """
         try:
             # Get model instances
-            eval_lm = self.model_manager.get_lm_instance(model_name)
+            eval_lm = dspy.LM(model_name)
             if eval_lm is None:
                 return {
                     "error": f"Failed to initialize evaluation model {model_name}",
@@ -92,7 +90,7 @@ class Evaluator:
             if similarity_model_name is None or similarity_model_name == "":
                 similarity_lm = eval_lm
             else:
-                similarity_lm = self.model_manager.get_lm_instance(similarity_model_name)
+                similarity_lm = dspy.LM(similarity_model_name)
                 if similarity_lm is None:
                     return {
                         "error": f"Failed to initialize similarity model {similarity_model_name}",
