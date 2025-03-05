@@ -132,11 +132,6 @@ class Evaluator:
                     with dspy.context(lm=eval_lm):
                         prediction = optimized_task(english=english)
                     
-                    # Calculate exact match metrics
-                    types_match = expected_types.strip() == prediction.pln_types.strip()
-                    statements_match = expected_statements.strip() == prediction.pln_statements.strip()
-                    questions_match = expected_questions.strip() == prediction.pln_questions.strip()
-                    
                     # Calculate holistic similarity score
                     similarity_result = self.evaluate_similarity_with_llm(
                         expected_types=expected_types,
@@ -155,9 +150,6 @@ class Evaluator:
                     results.append({
                         "sample_id": i,
                         "input": english,
-                        "types_match": types_match,
-                        "statements_match": statements_match,
-                        "questions_match": questions_match,
                         "expected_types": expected_types,
                         "predicted_types": prediction.pln_types,
                         "expected_statements": expected_statements,
@@ -172,9 +164,6 @@ class Evaluator:
                     results.append({
                         "sample_id": i,
                         "input": sample["input"],
-                        "types_match": False,
-                        "statements_match": False,
-                        "questions_match": False,
                         "expected_types": sample["types"],
                         "predicted_types": "ERROR",
                         "expected_statements": sample["statements"],
@@ -188,10 +177,6 @@ class Evaluator:
                     
             # Calculate overall metrics
             total = len(results)
-            types_correct = sum(1 for r in results if r.get("types_match", False))
-            statements_correct = sum(1 for r in results if r.get("statements_match", False))
-            questions_correct = sum(1 for r in results if r.get("questions_match", False))
-            all_correct = sum(1 for r in results if r.get("types_match", False) and r.get("statements_match", False) and r.get("questions_match", False))
             errors = sum(1 for r in results if "error" in r)
             
             # Calculate average similarity score
@@ -202,10 +187,7 @@ class Evaluator:
             
             # Generate metrics
             metrics = {
-                "Types Correct": f"{types_correct}/{total} ({types_correct/total:.2%})",
-                "Statements Correct": f"{statements_correct}/{total} ({statements_correct/total:.2%})",
-                "Questions Correct": f"{questions_correct}/{total} ({questions_correct/total:.2%})",
-                "All Components Correct": f"{all_correct}/{total} ({all_correct/total:.2%})",
+                "Total Samples": total,
                 "Errors": f"{errors}/{total} ({errors/total:.2%})",
                 "Avg Similarity Score": f"{avg_overall_score:.1f}/100"
             }
