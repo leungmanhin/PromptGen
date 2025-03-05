@@ -46,7 +46,7 @@ class Optimizer:
                 auto="light"
             ).compile(task, trainset=training_data, requires_permission_to_run=False)
             
-            self._save_optimized_task(optimized_task)
+            optimized_task.save("./program/", save_program=True)
         except Exception as e:
             print(f"Optimization error: {e}")
         finally:
@@ -65,8 +65,3 @@ class Optimizer:
             pred_statements=pred.pln_statements,
             pred_questions=pred.pln_questions
         ).similarity
-
-    def _save_optimized_task(self, task) -> None:
-        """Save optimized task to disk"""
-        os.makedirs("./program/", exist_ok=True)
-        task.save("./program/", save_program=True)
