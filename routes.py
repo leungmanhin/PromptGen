@@ -83,7 +83,7 @@ def create_routes(app_state: AppState, sample_manager: SampleManager,
         # Create an empty sample template based on task definition
         empty_sample = sample_manager.create_empty_sample()
         
-        return render_template('add_sample.html', 
+        return render_template('add_sample_dynamic.html', 
                               models=app_state.AVAILABLE_MODELS, 
                               current_model=app_state.current_model,
                               task_definition=app_state.task_definition,
