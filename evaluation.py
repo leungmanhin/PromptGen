@@ -57,17 +57,34 @@ class Evaluator:
                 "explanation": f"Error: {str(e)}"
             }
     
-    def run_evaluation(self, model_name: str) -> Dict[str, Any]:
-        """Run the evaluation on the optimized model"""
+    def run_evaluation(self, model_name: str, similarity_model_name: Optional[str] = None) -> Dict[str, Any]:
+        """Run the evaluation on the optimized model
+        
+        Args:
+            model_name: Model to use for running the optimized task
+            similarity_model_name: Model to use for similarity scoring (defaults to model_name if None)
+        """
         try:
-            # Get a model instance
+            # Get model instances
             eval_lm = self.model_manager.get_lm_instance(model_name)
             if eval_lm is None:
                 return {
-                    "error": f"Failed to initialize model {model_name}",
+                    "error": f"Failed to initialize evaluation model {model_name}",
                     "metrics": {},
-                    "full_output": f"Error initializing model {model_name}"
+                    "full_output": f"Error initializing evaluation model {model_name}"
                 }
+            
+            # Use the same model for similarity if not specified
+            if similarity_model_name is None or similarity_model_name == "":
+                similarity_lm = eval_lm
+            else:
+                similarity_lm = self.model_manager.get_lm_instance(similarity_model_name)
+                if similarity_lm is None:
+                    return {
+                        "error": f"Failed to initialize similarity model {similarity_model_name}",
+                        "metrics": {},
+                        "full_output": f"Error initializing similarity model {similarity_model_name}"
+                    }
                 
             # Load optimized task
             optimized_task = self.load_optimized_task()
@@ -108,15 +125,15 @@ class Evaluator:
                     
                     # Calculate LLM-based similarity scores
                     types_similarity = self.evaluate_similarity_with_llm(
-                        expected_types, prediction.pln_types, eval_lm
+                        expected_types, prediction.pln_types, similarity_lm
                     )
                     
                     statements_similarity = self.evaluate_similarity_with_llm(
-                        expected_statements, prediction.pln_statements, eval_lm
+                        expected_statements, prediction.pln_statements, similarity_lm
                     )
                     
                     questions_similarity = self.evaluate_similarity_with_llm(
-                        expected_questions, prediction.pln_questions, eval_lm
+                        expected_questions, prediction.pln_questions, similarity_lm
                     )
                     
                     # Calculate overall similarity score

@@ -137,13 +137,18 @@ def create_routes(app_state: AppState, model_manager: ModelManager, sample_manag
     @bp.route('/evaluate', methods=['POST'])
     def evaluate():
         """Run the evaluation on the optimized model."""
-        # Get the model to use for evaluation
+        # Get the models to use for evaluation and similarity
         model_name = request.form.get('model', app_state.current_model)
+        similarity_model_name = request.form.get('similarity_model')
+        
         # Update the current model in app state
         app_state.current_model = model_name
         
         # Run evaluation using the Evaluator class
-        evaluation_results = evaluator.run_evaluation(model_name)
+        evaluation_results = evaluator.run_evaluation(
+            model_name=model_name,
+            similarity_model_name=similarity_model_name
+        )
         
         # Store the evaluation results in app state
         app_state.evaluation_results = evaluation_results
