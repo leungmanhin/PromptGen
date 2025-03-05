@@ -228,9 +228,8 @@
             $.ajax({
                 url: '/optimize',
                 type: 'POST',
-                 {
-                    model: model,
-                    similarity_model: $('#similarity-model').val()
+                data: {
+                    model: model
                 },
                 success: function(data) {
                     if (data.status === 'started') {
