@@ -6,9 +6,11 @@ import dspy
 from .models import ModelManager
 from .samples import SampleManager
 from .optimization import Optimizer
+from .evaluation import Evaluator
 from .state import AppState
 
-def create_routes(app_state: AppState, model_manager: ModelManager, sample_manager: SampleManager, optimizer: Optimizer):
+def create_routes(app_state: AppState, model_manager: ModelManager, sample_manager: SampleManager, 
+                 optimizer: Optimizer, evaluator: Evaluator):
     """Create Flask routes blueprint"""
     bp = Blueprint('main', __name__)
     
@@ -140,118 +142,14 @@ def create_routes(app_state: AppState, model_manager: ModelManager, sample_manag
         # Update the current model in app state
         app_state.current_model = model_name
         
-        # Evaluate directly without calling the script
-        try:
-            # Get a model instance without configuring DSPy globally
-            eval_lm = model_manager.get_lm_instance(model_name)
-            if eval_lm is None:
-                return jsonify({
-                    "error": f"Failed to initialize model {model_name}",
-                    "metrics": {},
-                    "full_output": f"Error initializing model {model_name}"
-                })
-                
-            # Load optimized task
-            try:
-                optimized_task = dspy.load("./program/")
-                print(f"Successfully loaded optimized task: {type(optimized_task)}")
-            except Exception as e:
-                return jsonify({
-                    "error": f"Failed to load optimized task: {e}",
-                    "metrics": {},
-                    "full_output": f"Error: {str(e)}"
-                })
-            
-            # Load samples
-            samples = sample_manager.load_samples()
-            if not samples:
-                return jsonify({
-                    "error": "No samples to evaluate",
-                    "metrics": {},
-                    "full_output": "Error: No samples found"
-                })
-                
-            # Evaluate model on samples
-            results = []
-            for i, sample in enumerate(samples):
-                try:
-                    print(f"Evaluating sample {i+1}/{len(samples)}: {sample['input'][:50]}...")
-                    english = sample["input"]
-                    expected_types = sample["types"]
-                    expected_statements = sample["statements"]
-                    expected_questions = sample.get("questions", "")
-                    
-                    # Run the model on the input with the specific LM instance
-                    with dspy.context(lm=eval_lm):
-                        prediction = optimized_task(english=english)
-                    
-                    # Calculate simple similarity metrics
-                    types_match = expected_types.strip() == prediction.pln_types.strip()
-                    statements_match = expected_statements.strip() == prediction.pln_statements.strip()
-                    questions_match = expected_questions.strip() == prediction.pln_questions.strip()
-                    
-                    # Store the results
-                    results.append({
-                        "sample_id": i,
-                        "input": english,
-                        "types_match": types_match,
-                        "statements_match": statements_match,
-                        "questions_match": questions_match,
-                        "expected_types": expected_types,
-                        "predicted_types": prediction.pln_types,
-                        "expected_statements": expected_statements,
-                        "predicted_statements": prediction.pln_statements,
-                        "expected_questions": expected_questions,
-                        "predicted_questions": prediction.pln_questions
-                    })
-                except Exception as e:
-                    print(f"Error evaluating sample {i+1}: {e}")
-                    results.append({
-                        "sample_id": i,
-                        "input": sample["input"],
-                        "types_match": False,
-                        "statements_match": False,
-                        "questions_match": False,
-                        "expected_types": sample["types"],
-                        "predicted_types": "ERROR",
-                        "expected_statements": sample["statements"],
-                        "predicted_statements": "ERROR",
-                        "expected_questions": sample.get("questions", ""),
-                        "predicted_questions": "ERROR",
-                        "error": str(e)
-                    })
-                    
-            # Calculate overall metrics
-            total = len(results)
-            types_correct = sum(1 for r in results if r.get("types_match", False))
-            statements_correct = sum(1 for r in results if r.get("statements_match", False))
-            questions_correct = sum(1 for r in results if r.get("questions_match", False))
-            all_correct = sum(1 for r in results if r.get("types_match", False) and r.get("statements_match", False) and r.get("questions_match", False))
-            errors = sum(1 for r in results if "error" in r)
-            
-            # Generate metrics
-            metrics = {
-                "Types Correct": f"{types_correct}/{total} ({types_correct/total:.2%})",
-                "Statements Correct": f"{statements_correct}/{total} ({statements_correct/total:.2%})",
-                "Questions Correct": f"{questions_correct}/{total} ({questions_correct/total:.2%})",
-                "All Components Correct": f"{all_correct}/{total} ({all_correct/total:.2%})",
-                "Errors": f"{errors}/{total} ({errors/total:.2%})"
-            }
-            
-            # Store the evaluation results in app state
-            app_state.evaluation_results = {
-                "metrics": metrics,
-                "results": results
-            }
-            
-            # Return the evaluation results
-            return jsonify(app_state.evaluation_results)
-        except Exception as e:
-            return jsonify({
-                "error": f"Evaluation failed: {str(e)}",
-                "metrics": {},
-                "full_output": f"Error: {str(e)}"
-            })
+        # Run evaluation using the Evaluator class
+        evaluation_results = evaluator.run_evaluation(model_name)
+        
+        # Store the evaluation results in app state
+        app_state.evaluation_results = evaluation_results
+        
+        # Return the evaluation results
+        return jsonify(evaluation_results)
 
     @bp.route('/evaluation_results')
     def get_evaluation_results():
