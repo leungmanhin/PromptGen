@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional
 from .samples import SampleManager
 from .state import AppState
 from .optimization import Optimizer
+from .metrics import judge_metric
 
 class Evaluator:
     """Handles evaluation of the optimized model against sample data"""
@@ -25,22 +26,14 @@ class Evaluator:
         """Use the same metric as optimization to evaluate similarity between expected and predicted outputs"""
         
         try:
-            # Create a temporary optimizer to access the metric
-            optimizer = Optimizer(self.app_state, self.sample_manager)
-            
-            # Create a dspy.Example from the example data
-            task_def = self.app_state.task_definition
-            
             # Create example with the data
             example = dspy.Example(**example_data)
-            
-            # Use the optimization metric to calculate similarity
-            with dspy.context(lm=lm):
-                similarity_score = optimizer._optimization_metric(example, prediction) * 100  # Scale to 0-100
+            task_def = self.app_state.task_definition
+            judgeres = judge_metric(example, prediction, task_def)
             
             return {
-                "score": int(similarity_score),
-                "explanation": getattr(prediction, "reasoning", f"Similarity score: {similarity_score:.1f}/100")
+                "score": int(judgeres.similarity * 100),
+                "explanation": judgeres.reasoning
             }
         except Exception as e:
             print(f"Error in similarity evaluation: {e}")
