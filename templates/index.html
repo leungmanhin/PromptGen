@@ -287,8 +287,9 @@
             $.ajax({
                 url: '/evaluate',
                 type: 'POST',
-                data: {
-                    model: model
+                 {
+                    model: model,
+                    similarity_model: $('#similarity-model').val()
                 },
                 success: function(data) {
                     $('#evaluate-btn').prop('disabled', false);
