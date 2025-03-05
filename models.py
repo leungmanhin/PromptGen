@@ -9,7 +9,8 @@ class ModelManager:
         'openrouter/anthropic/claude-3.7-sonnet',
         'deepseek/deepseek-reasoner',
         'anthropic/claude-3-7-sonnet-20250219',
-        'anthropic/claude-3-5-sonnet-20240620'
+        'anthropic/claude-3-5-sonnet-20240620',
+        'openai/gpt-4o'
     ]
 
     def __init__(self):

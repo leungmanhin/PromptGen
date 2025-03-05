@@ -23,7 +23,9 @@ class AppState:
         
         # Available models
         self.AVAILABLE_MODELS = [
-            "anthropic/claude-3-5-sonnet-20241022",
-            "anthropic/claude-3-7-sonnet-20250219",
-            "openai/gpt-4-turbo"
+            'openrouter/anthropic/claude-3.7-sonnet',
+            'deepseek/deepseek-reasoner',
+            'anthropic/claude-3-7-sonnet-20250219',
+            'anthropic/claude-3-5-sonnet-20240620',
+            'openai/gpt-4o'
         ]
