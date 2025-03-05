@@ -20,7 +20,7 @@
                 <h5 class="mb-0">Input</h5>
             </div>
             <div class="card-body">
-                <div class="code-block">{{ sample.input }}</div>
+                <div class="code-block">{{ sample.english }}</div>
             </div>
         </div>
 
@@ -29,7 +29,7 @@
                 <h5 class="mb-0">Types</h5>
             </div>
             <div class="card-body">
-                <div class="code-block">{{ sample.types }}</div>
+                <div class="code-block">{{ sample.pln_types }}</div>
             </div>
         </div>
 
@@ -38,7 +38,7 @@
                 <h5 class="mb-0">Statements</h5>
             </div>
             <div class="card-body">
-                <div class="code-block">{{ sample.statements }}</div>
+                <div class="code-block">{{ sample.pln_statements }}</div>
             </div>
         </div>
 
@@ -47,8 +47,8 @@
                 <h5 class="mb-0">Questions</h5>
             </div>
             <div class="card-body">
-                {% if sample.questions %}
-                <div class="code-block">{{ sample.questions }}</div>
+                {% if sample.pln_questions %}
+                <div class="code-block">{{ sample.pln_questions }}</div>
                 {% else %}
                 <p class="text-muted">No questions provided for this sample.</p>
                 {% endif %}

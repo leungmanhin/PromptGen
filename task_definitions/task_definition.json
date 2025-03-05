@@ -1,0 +1,24 @@
+{
+  "name": "PLNTask",
+  "input_fields": [
+    {
+      "name": "english",
+      "desc": "English text to convert to PLN"
+    }
+  ],
+  "output_fields": [
+    {
+      "name": "pln_types",
+      "desc": "PLN type definitions"
+    },
+    {
+      "name": "pln_statements",
+      "desc": "PLN statements"
+    },
+    {
+      "name": "pln_questions",
+      "desc": "PLN questions"
+    }
+  ],
+  "description": "Convert English text to OpenCog PLN"
+}
