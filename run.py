@@ -2,8 +2,6 @@
 """
 Simple script to run the NL2PLN Promptgen web application
 """
-
-from flask import Flask
 import os
 import sys
 
@@ -14,7 +12,10 @@ if __name__ == "__main__":
         sys.path.insert(0, parent_dir)
     
     # Import the app
-    from NL2PLN.promptgen import app
+    from app import create_app
+
+    # Create the app
+    app = create_app()
     
     # Run the app
     app.run(debug=True)
