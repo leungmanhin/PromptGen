@@ -22,21 +22,35 @@ class Evaluator:
             print(f"Failed to load optimized task: {e}")
             return None
     
-    def evaluate_similarity_with_llm(self, expected: str, predicted: str, lm: dspy.LM) -> Dict[str, Any]:
-        """Use LLM to evaluate similarity between expected and predicted outputs"""
+    def evaluate_similarity_with_llm(self, expected_types: str, expected_statements: str, 
+                                    expected_questions: str, predicted_types: str, 
+                                    predicted_statements: str, predicted_questions: str, 
+                                    lm: dspy.LM) -> Dict[str, Any]:
+        """Use LLM to evaluate similarity between expected and predicted outputs holistically"""
         
-        class SimilarityEvaluator(dspy.Signature):
-            """Evaluate the similarity between expected and predicted outputs."""
-            expected = dspy.InputField(desc="The expected output")
-            predicted = dspy.InputField(desc="The predicted output")
-            explanation = dspy.OutputField(desc="Explanation of the similarity score")
-            similarity_score = dspy.OutputField(desc="Similarity score from 0-100")
+        class HolisticSimilarityEvaluator(dspy.Signature):
+            """Evaluate the similarity between expected and predicted outputs holistically."""
+            expected_types = dspy.InputField(desc="The expected types")
+            expected_statements = dspy.InputField(desc="The expected statements")
+            expected_questions = dspy.InputField(desc="The expected questions")
+            predicted_types = dspy.InputField(desc="The predicted types")
+            predicted_statements = dspy.InputField(desc="The predicted statements")
+            predicted_questions = dspy.InputField(desc="The predicted questions")
+            similarity_score = dspy.OutputField(desc="Overall similarity score from 0-100")
+            explanation = dspy.OutputField(desc="Detailed explanation of the similarity assessment")
         
-        evaluator = dspy.Predict(SimilarityEvaluator)
+        evaluator = dspy.Predict(HolisticSimilarityEvaluator)
         
         try:
             with dspy.context(lm=lm):
-                result = evaluator(expected=expected, predicted=predicted)
+                result = evaluator(
+                    expected_types=expected_types,
+                    expected_statements=expected_statements,
+                    expected_questions=expected_questions,
+                    predicted_types=predicted_types,
+                    predicted_statements=predicted_statements,
+                    predicted_questions=predicted_questions
+                )
                 
             # Try to convert score to int, default to 0 if not possible
             try:
@@ -51,7 +65,7 @@ class Evaluator:
                 "explanation": result.explanation
             }
         except Exception as e:
-            print(f"Error in LLM similarity evaluation: {e}")
+            print(f"Error in LLM holistic similarity evaluation: {e}")
             return {
                 "score": 0,
                 "explanation": f"Error: {str(e)}"
@@ -123,25 +137,19 @@ class Evaluator:
                     statements_match = expected_statements.strip() == prediction.pln_statements.strip()
                     questions_match = expected_questions.strip() == prediction.pln_questions.strip()
                     
-                    # Calculate LLM-based similarity scores
-                    types_similarity = self.evaluate_similarity_with_llm(
-                        expected_types, prediction.pln_types, similarity_lm
+                    # Calculate holistic similarity score
+                    similarity_result = self.evaluate_similarity_with_llm(
+                        expected_types=expected_types,
+                        expected_statements=expected_statements,
+                        expected_questions=expected_questions,
+                        predicted_types=prediction.pln_types,
+                        predicted_statements=prediction.pln_statements,
+                        predicted_questions=prediction.pln_questions,
+                        lm=similarity_lm
                     )
                     
-                    statements_similarity = self.evaluate_similarity_with_llm(
-                        expected_statements, prediction.pln_statements, similarity_lm
-                    )
-                    
-                    questions_similarity = self.evaluate_similarity_with_llm(
-                        expected_questions, prediction.pln_questions, similarity_lm
-                    )
-                    
-                    # Calculate overall similarity score
-                    overall_score = (
-                        types_similarity["score"] + 
-                        statements_similarity["score"] + 
-                        questions_similarity["score"]
-                    ) / 3
+                    # Use the holistic score
+                    overall_score = similarity_result["score"]
                     
                     # Store the results
                     results.append({
@@ -156,9 +164,7 @@ class Evaluator:
                         "predicted_statements": prediction.pln_statements,
                         "expected_questions": expected_questions,
                         "predicted_questions": prediction.pln_questions,
-                        "types_similarity": types_similarity,
-                        "statements_similarity": statements_similarity,
-                        "questions_similarity": questions_similarity,
+                        "similarity_result": similarity_result,
                         "overall_score": overall_score
                     })
                 except Exception as e:
@@ -175,9 +181,7 @@ class Evaluator:
                         "predicted_statements": "ERROR",
                         "expected_questions": sample.get("questions", ""),
                         "predicted_questions": "ERROR",
-                        "types_similarity": {"score": 0, "explanation": "Error"},
-                        "statements_similarity": {"score": 0, "explanation": "Error"},
-                        "questions_similarity": {"score": 0, "explanation": "Error"},
+                        "similarity_result": {"score": 0, "explanation": "Error"},
                         "overall_score": 0,
                         "error": str(e)
                     })
@@ -190,11 +194,11 @@ class Evaluator:
             all_correct = sum(1 for r in results if r.get("types_match", False) and r.get("statements_match", False) and r.get("questions_match", False))
             errors = sum(1 for r in results if "error" in r)
             
-            # Calculate average similarity scores
-            avg_types_similarity = sum(r.get("types_similarity", {}).get("score", 0) for r in results) / total if total > 0 else 0
-            avg_statements_similarity = sum(r.get("statements_similarity", {}).get("score", 0) for r in results) / total if total > 0 else 0
-            avg_questions_similarity = sum(r.get("questions_similarity", {}).get("score", 0) for r in results) / total if total > 0 else 0
+            # Calculate average similarity score
             avg_overall_score = sum(r.get("overall_score", 0) for r in results) / total if total > 0 else 0
+            
+            # Sort results by score (lowest first to identify hardest samples)
+            results.sort(key=lambda r: r.get("overall_score", 0))
             
             # Generate metrics
             metrics = {
@@ -203,10 +207,7 @@ class Evaluator:
                 "Questions Correct": f"{questions_correct}/{total} ({questions_correct/total:.2%})",
                 "All Components Correct": f"{all_correct}/{total} ({all_correct/total:.2%})",
                 "Errors": f"{errors}/{total} ({errors/total:.2%})",
-                "Avg Types Similarity": f"{avg_types_similarity:.1f}/100",
-                "Avg Statements Similarity": f"{avg_statements_similarity:.1f}/100",
-                "Avg Questions Similarity": f"{avg_questions_similarity:.1f}/100",
-                "Avg Overall Score": f"{avg_overall_score:.1f}/100"
+                "Avg Similarity Score": f"{avg_overall_score:.1f}/100"
             }
             
             # Return the evaluation results
