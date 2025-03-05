@@ -29,8 +29,8 @@ class Evaluator:
             """Evaluate the similarity between expected and predicted outputs."""
             expected = dspy.InputField(desc="The expected output")
             predicted = dspy.InputField(desc="The predicted output")
-            similarity_score = dspy.OutputField(desc="Similarity score from 0-100")
             explanation = dspy.OutputField(desc="Explanation of the similarity score")
+            similarity_score = dspy.OutputField(desc="Similarity score from 0-100")
         
         evaluator = dspy.Predict(SimilarityEvaluator)
         
