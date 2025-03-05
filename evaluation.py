@@ -2,6 +2,7 @@ import dspy
 from typing import List, Dict, Any, Optional
 from .samples import SampleManager
 from .state import AppState
+from .optimization import Optimizer
 
 class Evaluator:
     """Handles evaluation of the optimized model against sample data"""
@@ -20,50 +21,55 @@ class Evaluator:
             print(f"Failed to load optimized task: {e}")
             return None
     
-    def evaluate_similarity_with_llm(self, expected_types: str, expected_statements: str, 
-                                    expected_questions: str, predicted_types: str, 
-                                    predicted_statements: str, predicted_questions: str, 
-                                    lm: dspy.LM) -> Dict[str, Any]:
-        """Use LLM to evaluate similarity between expected and predicted outputs holistically"""
-        
-        class HolisticSimilarityEvaluator(dspy.Signature):
-            """Evaluate the similarity between expected and predicted outputs holistically."""
-            expected_types = dspy.InputField(desc="The expected types")
-            expected_statements = dspy.InputField(desc="The expected statements")
-            expected_questions = dspy.InputField(desc="The expected questions")
-            predicted_types = dspy.InputField(desc="The predicted types")
-            predicted_statements = dspy.InputField(desc="The predicted statements")
-            predicted_questions = dspy.InputField(desc="The predicted questions")
-            similarity_score = dspy.OutputField(desc="Overall similarity score from 0-100")
-            explanation = dspy.OutputField(desc="Detailed explanation of the similarity assessment")
-        
-        evaluator = dspy.Predict(HolisticSimilarityEvaluator)
+    def evaluate_similarity(self, example_data: Dict[str, Any], prediction: Any, lm: dspy.LM) -> Dict[str, Any]:
+        """Use the same metric as optimization to evaluate similarity between expected and predicted outputs"""
         
         try:
+            # Create a temporary optimizer to access the metric
+            optimizer = Optimizer(self.app_state, self.sample_manager)
+            
+            # Create a dspy.Example from the example data
+            task_def = self.app_state.task_definition
+            
+            # Create example with the data
+            example = dspy.Example(**example_data)
+            
+            # Use the optimization metric to calculate similarity
             with dspy.context(lm=lm):
-                result = evaluator(
-                    expected_types=expected_types,
-                    expected_statements=expected_statements,
-                    expected_questions=expected_questions,
-                    predicted_types=predicted_types,
-                    predicted_statements=predicted_statements,
-                    predicted_questions=predicted_questions
-                )
-                
-            # Try to convert score to int, default to 0 if not possible
-            try:
-                score = int(result.similarity_score)
-                # Ensure score is within 0-100 range
-                score = max(0, min(100, score))
-            except (ValueError, TypeError):
-                score = 0
-                
+                similarity_score = optimizer._optimization_metric(example, prediction) * 100  # Scale to 0-100
+            
+            # Create a judge signature for explanation
+            judge_signature = 'true_'
+            judge_signature += ', true_'.join([f["name"] for f in task_def.output_fields])
+            judge_signature += ', pred_'
+            judge_signature += ', pred_'.join([f["name"] for f in task_def.output_fields])
+            judge_signature += ' -> similarity: float, explanation: str'
+            
+            judge = dspy.ChainOfThought(judge_signature)
+            
+            # Create arguments for the judge
+            judge_args = {}
+            
+            # Add true values from example
+            for field in task_def.output_fields:
+                field_name = field["name"]
+                judge_args[f"true_{field_name}"] = getattr(example, field_name, "")
+            
+            # Add predicted values
+            for field in task_def.output_fields:
+                field_name = field["name"]
+                judge_args[f"pred_{field_name}"] = getattr(prediction, field_name, "")
+            
+            # Run the judge to get explanation
+            with dspy.context(lm=lm):
+                judge_result = judge(**judge_args)
+            
             return {
-                "score": score,
-                "explanation": result.explanation
+                "score": int(similarity_score),
+                "explanation": getattr(judge_result, "explanation", f"Similarity score: {similarity_score:.1f}/100")
             }
         except Exception as e:
-            print(f"Error in LLM holistic similarity evaluation: {e}")
+            print(f"Error in similarity evaluation: {e}")
             return {
                 "score": 0,
                 "explanation": f"Error: {str(e)}"
@@ -130,14 +136,15 @@ class Evaluator:
                     with dspy.context(lm=eval_lm):
                         prediction = optimized_task(english=english)
                     
-                    # Calculate holistic similarity score
-                    similarity_result = self.evaluate_similarity_with_llm(
-                        expected_types=expected_types,
-                        expected_statements=expected_statements,
-                        expected_questions=expected_questions,
-                        predicted_types=prediction.pln_types,
-                        predicted_statements=prediction.pln_statements,
-                        predicted_questions=prediction.pln_questions,
+                    # Create example data dictionary with all fields
+                    example_data = {field["name"]: sample.get(field["name"], "") 
+                                   for field in self.app_state.task_definition.input_fields + 
+                                                self.app_state.task_definition.output_fields}
+                    
+                    # Calculate similarity using the optimization metric
+                    similarity_result = self.evaluate_similarity(
+                        example_data=example_data,
+                        prediction=prediction,
                         lm=similarity_lm
                     )
                     
