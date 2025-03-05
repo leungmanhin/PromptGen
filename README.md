@@ -16,19 +16,13 @@ A web-based frontend for generating, viewing, editing, and evaluating NL2PLN (Na
 1. Install the required dependencies:
 
 ```bash
-uv sync
+uv sync && source .venv/bin/activate
 ```
 
-2. Run the web application:
+Run the app
 
 ```bash
-python run.py
-```
-
-Or using Flask directly:
-
-```bash
-flask --app app run --debug
+flask run
 ```
 
 3. Open your browser and navigate to:
