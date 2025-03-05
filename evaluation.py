@@ -38,35 +38,9 @@ class Evaluator:
             with dspy.context(lm=lm):
                 similarity_score = optimizer._optimization_metric(example, prediction) * 100  # Scale to 0-100
             
-            # Create a judge signature for explanation
-            judge_signature = 'true_'
-            judge_signature += ', true_'.join([f["name"] for f in task_def.output_fields])
-            judge_signature += ', pred_'
-            judge_signature += ', pred_'.join([f["name"] for f in task_def.output_fields])
-            judge_signature += ' -> similarity: float, explanation: str'
-            
-            judge = dspy.ChainOfThought(judge_signature)
-            
-            # Create arguments for the judge
-            judge_args = {}
-            
-            # Add true values from example
-            for field in task_def.output_fields:
-                field_name = field["name"]
-                judge_args[f"true_{field_name}"] = getattr(example, field_name, "")
-            
-            # Add predicted values
-            for field in task_def.output_fields:
-                field_name = field["name"]
-                judge_args[f"pred_{field_name}"] = getattr(prediction, field_name, "")
-            
-            # Run the judge to get explanation
-            with dspy.context(lm=lm):
-                judge_result = judge(**judge_args)
-            
             return {
                 "score": int(similarity_score),
-                "explanation": getattr(judge_result, "explanation", f"Similarity score: {similarity_score:.1f}/100")
+                "explanation": getattr(prediction, "reasoning", f"Similarity score: {similarity_score:.1f}/100")
             }
         except Exception as e:
             print(f"Error in similarity evaluation: {e}")
