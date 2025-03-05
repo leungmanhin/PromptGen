@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Define Custom Task{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Define Custom Task</h1>
+    
+    <form method="POST" action="/task_definition">
+        <div class="mb-3">
+            <label for="name" class="form-label">Task Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ task.name }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="description" class="form-label">Task Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3">{{ task.description }}</textarea>
+        </div>
+        
+        <h3>Input Fields</h3>
+        <div id="input-fields">
+            {% for field in task.input_fields %}
+            <div class="row mb-2 input-field">
+                <div class="col">
+                    <input type="text" class="form-control" name="input_field_name[]" placeholder="Field Name" value="{{ field.name }}" required>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" name="input_field_desc[]" placeholder="Description" value="{{ field.desc }}" required>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-danger remove-field">Remove</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" class="btn btn-secondary mb-3" id="add-input-field">Add Input Field</button>
+        
+        <h3>Output Fields</h3>
+        <div id="output-fields">
+            {% for field in task.output_fields %}
+            <div class="row mb-2 output-field">
+                <div class="col">
+                    <input type="text" class="form-control" name="output_field_name[]" placeholder="Field Name" value="{{ field.name }}" required>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" name="output_field_desc[]" placeholder="Description" value="{{ field.desc }}" required>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-danger remove-field">Remove</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" class="btn btn-secondary mb-3" id="add-output-field">Add Output Field</button>
+        
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Save Task Definition</button>
+            <a href="/" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.getElementById('add-input-field').addEventListener('click', function() {
+    const container = document.getElementById('input-fields');
+    const newField = document.createElement('div');
+    newField.className = 'row mb-2 input-field';
+    newField.innerHTML = `
+        <div class="col">
+            <input type="text" class="form-control" name="input_field_name[]" placeholder="Field Name" required>
+        </div>
+        <div class="col">
+            <input type="text" class="form-control" name="input_field_desc[]" placeholder="Description" required>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-danger remove-field">Remove</button>
+        </div>
+    `;
+    container.appendChild(newField);
+    
+    // Add event listener to the new remove button
+    newField.querySelector('.remove-field').addEventListener('click', function() {
+        container.removeChild(newField);
+    });
+});
+
+document.getElementById('add-output-field').addEventListener('click', function() {
+    const container = document.getElementById('output-fields');
+    const newField = document.createElement('div');
+    newField.className = 'row mb-2 output-field';
+    newField.innerHTML = `
+        <div class="col">
+            <input type="text" class="form-control" name="output_field_name[]" placeholder="Field Name" required>
+        </div>
+        <div class="col">
+            <input type="text" class="form-control" name="output_field_desc[]" placeholder="Description" required>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-danger remove-field">Remove</button>
+        </div>
+    `;
+    container.appendChild(newField);
+    
+    // Add event listener to the new remove button
+    newField.querySelector('.remove-field').addEventListener('click', function() {
+        container.removeChild(newField);
+    });
+});
+
+// Add event listeners to existing remove buttons
+document.querySelectorAll('.remove-field').forEach(button => {
+    button.addEventListener('click', function() {
+        const fieldDiv = this.closest('.row');
+        fieldDiv.parentNode.removeChild(fieldDiv);
+    });
+});
+</script>
+{% endblock %}

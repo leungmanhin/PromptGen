@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Sample{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Add New Sample</h1>
+    
+    <form method="POST" action="/add_sample">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Input Fields</h5>
+            </div>
+            <div class="card-body">
+                {% for field in task_definition.input_fields %}
+                <div class="mb-3">
+                    <label for="{{ field.name }}" class="form-label">{{ field.name }}</label>
+                    <textarea class="form-control" id="{{ field.name }}" name="{{ field.name }}" rows="3" placeholder="{{ field.desc }}">{{ sample[field.name] }}</textarea>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Output Fields</h5>
+            </div>
+            <div class="card-body">
+                {% for field in task_definition.output_fields %}
+                <div class="mb-3">
+                    <label for="{{ field.name }}" class="form-label">{{ field.name }}</label>
+                    <textarea class="form-control" id="{{ field.name }}" name="{{ field.name }}" rows="3" placeholder="{{ field.desc }}">{{ sample[field.name] }}</textarea>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <label for="model" class="form-label">Model for Generation:</label>
+            <select class="form-select" id="model" name="model">
+                {% for model in models %}
+                <option value="{{ model }}" {% if model == current_model %}selected{% endif %}>{{ model }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Save Sample</button>
+            <button type="button" id="generate-btn" class="btn btn-success">Generate Output</button>
+            <a href="/samples" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#generate-btn').click(function(e) {
+        e.preventDefault();
+        
+        // Disable the button and show loading state
+        $(this).prop('disabled', true);
+        $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...');
+        
+        // Get form data
+        var formData = new FormData($('form')[0]);
+        
+        // Send AJAX request
+        $.ajax({
+            url: '/generate_sample',
+            type: 'POST',
+             formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                // Re-enable the button
+                $('#generate-btn').prop('disabled', false);
+                $('#generate-btn').text('Generate Output');
+                
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+                
+                // Fill in the output fields with generated data
+                {% for field in task_definition.output_fields %}
+                $('#{{ field.name }}').val(data.{{ field.name }});
+                {% endfor %}
+            },
+            error: function() {
+                // Re-enable the button
+                $('#generate-btn').prop('disabled', false);
+                $('#generate-btn').text('Generate Output');
+                alert('Error generating sample');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -12,9 +12,9 @@ def create_app():
     
     # Initialize components
     app_state = AppState()
-    sample_manager = SampleManager()
-    optimizer = Optimizer(model_manager, sample_manager)
-    evaluator = Evaluator(app_state, model_manager, sample_manager)
+    sample_manager = SampleManager(app_state)
+    optimizer = Optimizer(app_state, sample_manager)
+    evaluator = Evaluator(app_state, sample_manager)
     
     # Create required directories
     @flask_app.before_request

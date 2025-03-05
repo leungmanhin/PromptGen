@@ -2,6 +2,7 @@
 Module for managing application state
 """
 import threading
+from .task_definition import TaskDefinition
 
 class AppState:
     """Singleton class for managing application state"""
@@ -29,3 +30,26 @@ class AppState:
             'anthropic/claude-3-5-sonnet-20240620',
             'openai/gpt-4o'
         ]
+        
+        # Task definition
+        self.task_definition = None
+        self.load_task_definition()
+    
+    def load_task_definition(self):
+        """Load the task definition or create a default one"""
+        self.task_definition = TaskDefinition.load()
+        if self.task_definition is None:
+            # Create a default PLN task definition
+            self.task_definition = TaskDefinition(
+                name="PLNTask",
+                description="Convert English text to Programming Language for Thought (PLN)",
+                input_fields=[
+                    {"name": "english", "desc": "English text to convert to PLN"}
+                ],
+                output_fields=[
+                    {"name": "pln_types", "desc": "PLN type definitions"},
+                    {"name": "pln_statements", "desc": "PLN statements"},
+                    {"name": "pln_questions", "desc": "PLN questions"}
+                ]
+            )
+            self.task_definition.save()
