@@ -19,16 +19,16 @@ A web-based frontend for generating, viewing, editing, and evaluating NL2PLN (Na
 uv sync
 ```
 
-2. Run the web application using Flask:
+2. Run the web application:
 
 ```bash
-flask --app NL2PLN/promptgen run
+python run.py
 ```
 
-Or with development mode enabled:
+Or using Flask directly:
 
 ```bash
-flask --app NL2PLN/promptgen run --debug
+flask --app app run --debug
 ```
 
 3. Open your browser and navigate to:

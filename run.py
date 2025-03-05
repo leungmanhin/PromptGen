@@ -12,7 +12,7 @@ if __name__ == "__main__":
         sys.path.insert(0, parent_dir)
     
     # Import the app
-    from app import create_app
+    from app import create_app  # Direct import from the app.py in the same directory
 
     # Create the app
     app = create_app()

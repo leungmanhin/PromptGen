@@ -21,7 +21,7 @@ def create_app():
         create_directories()
     
     # Import routes here to avoid circular imports
-    from . import routes
+    import routes  # Use absolute import instead of relative
     
     # Register routes
     flask_app.register_blueprint(
@@ -35,7 +35,7 @@ def create_app():
     @flask_app.cli.command("optimize")
     def optimize_command():
         """Run optimization from command line"""
-        from .optimization import Optimizer
+        from optimization import Optimizer  # Use absolute import
         optimizer = Optimizer(model_manager, sample_manager)
         optimizer.run_optimization(app_state.current_model)
     
