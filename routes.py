@@ -157,8 +157,14 @@ def create_routes(app_state: AppState, model_manager: ModelManager, sample_manag
         return jsonify(evaluation_results)
 
     @bp.route('/evaluation_results')
+    def view_evaluation_results():
+        """View the evaluation results page."""
+        return render_template('evaluation_results.html', 
+                              evaluation_results=app_state.evaluation_results)
+                              
+    @bp.route('/api/evaluation_results')
     def get_evaluation_results():
-        """Get the current evaluation results."""
+        """Get the current evaluation results as JSON."""
         return jsonify(app_state.evaluation_results)
 
     return bp
