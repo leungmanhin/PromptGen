@@ -37,7 +37,7 @@ class Optimizer:
             # Create example with the first input field as the input
             if task_def.input_fields:
                 input_field = task_def.input_fields[0]["name"]
-                if input_field in example_
+                if input_field in example_data:
                     example = dspy.Example(**example_data).with_inputs(input_field)
                     examples.append(example)
         
@@ -65,7 +65,7 @@ class Optimizer:
             samples = self.sample_manager.load_samples()
             training_data = self._prepare_training_data(samples)
             
-            if not training_
+            if not training_data:
                 raise ValueError("No valid training data found")
 
             # Create task using the custom signature
