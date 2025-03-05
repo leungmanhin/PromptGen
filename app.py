@@ -1,10 +1,10 @@
 import os
 from flask import Flask
-from models import ModelManager
-from samples import SampleManager
-from optimization import Optimizer
-from evaluation import Evaluator
-from state import AppState
+from .models import ModelManager
+from .samples import SampleManager
+from .optimization import Optimizer
+from .evaluation import Evaluator
+from .state import AppState
 
 def create_app():
     """Application factory function"""
@@ -23,7 +23,7 @@ def create_app():
         create_directories()
     
     # Import routes here to avoid circular imports
-    import routes  # Use absolute import instead of relative
+    from . import routes
     
     # Register routes
     flask_app.register_blueprint(
