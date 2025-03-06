@@ -220,9 +220,7 @@ def create_routes(app_state: AppState, sample_manager: SampleManager,
     @bp.route('/evaluation_results')
     def view_evaluation_results():
         """View the evaluation results page."""
-        return render_template('evaluation_results.html', 
-                              evaluation_results=app_state.evaluation_results,
-                              app_state=app_state)
+        return render_template('evaluation_results.html', app_state=app_state)
                               
     @bp.route('/api/evaluation_results')
     def get_evaluation_results():

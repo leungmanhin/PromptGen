@@ -26,8 +26,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% if evaluation_results and evaluation_results.metrics %}
-                                {% for metric, value in evaluation_results.metrics.items() %}
+                            {% if app_state.evaluation_results and app_state.evaluation_results.metrics %}
+                                {% for metric, value in app_state.evaluation_results.metrics.items() %}
                                 <tr>
                                     <td>{{ metric }}</td>
                                     <td>{{ value }}</td>
@@ -44,14 +44,14 @@
             </div>
         </div>
 
-        {% if evaluation_results and evaluation_results.results %}
+        {% if app_state.evaluation_results and app_state.evaluation_results.results %}
         <div class="card mb-4">
             <div class="card-header bg-info text-white">
                 <h5 class="mb-0">Sample Results (Sorted by Difficulty)</h5>
             </div>
             <div class="card-body">
                 <div class="accordion" id="sampleResultsAccordion">
-                    {% for result in evaluation_results.results %}
+                    {% for result in app_state.evaluation_results.results %}
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading{{ result.sample_id }}">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
