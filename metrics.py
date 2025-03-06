@@ -17,15 +17,20 @@ class PLNJudgeSignature(dspy.Signature):
     pred_pln_questions = dspy.InputField(desc="Predicted PLN questions from the model")
     similarity = dspy.OutputField(desc="Similarity score between true and predicted outputs (0.0 to 1.0)")
 
-def clean_pln_list(pln_list: List[str]) -> Tuple[List[str], float]:
-    """Clean a list of PLN statements or questions and return the cleaned list and minimum score."""
+def clean_pln_list(pln_text: str) -> Tuple[List[str], float]:
+    """Clean a string of PLN statements or questions and return the cleaned list and minimum score."""
     cleaned_list = []
     min_score = 1.0
     
-    for item in pln_list:
-        cleaned_item, score = cleanAndScore(item)
-        cleaned_list.append(cleaned_item)
-        min_score = min(min_score, score)
+    # Split the text into individual lines
+    lines = pln_text.strip().split('\n')
+    
+    for line in lines:
+        line = line.strip()
+        if line:  # Skip empty lines
+            cleaned_item, score = cleanAndScore(line)
+            cleaned_list.append(cleaned_item)
+            min_score = min(min_score, score)
     
     return cleaned_list, min_score
 
