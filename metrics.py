@@ -1,5 +1,5 @@
 import dspy
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 
 class PLNJudgeSignature(dspy.Signature):
     """You are a Judge for the following task:
@@ -16,17 +16,18 @@ class PLNJudgeSignature(dspy.Signature):
     pred_pln_questions = dspy.InputField(desc="Predicted PLN questions from the model")
     similarity = dspy.OutputField(desc="Similarity score between true and predicted outputs (0.0 to 1.0)")
 
-def judge_metric(example, pred, trace=None) -> float:
+def judge_metric(example, pred, trace=None) -> Tuple[float, str]:
     # Create a ChainOfThought module with the signature
     judge = dspy.ChainOfThought(PLNJudgeSignature)
-    
-    # Run the judge
-    return judge(
-        task_input=getattr(example, "english", ""),
-        true_pln_types=getattr(example, "pln_types", ""),
-        true_pln_statements=getattr(example, "pln_statements", ""),
-        true_pln_questions=getattr(example, "pln_questions", ""),
-        pred_pln_types=getattr(pred, "pln_types", ""),
-        pred_pln_statements=getattr(pred, "pln_statements", ""),
-        pred_pln_questions=getattr(pred, "pln_questions", ""),
+
+    res = judge(
+        task_input=example.english,
+        true_pln_types=example.pln_types,
+        true_pln_statements=example.pln_statements,
+        true_pln_questions=example.pln_questions,
+        pred_pln_types=pred.pln_types,
+        pred_pln_statements=pred.pln_statements,
+        pred_pln_questions=pred.pln_questions,
     )
+    # Run the judge
+    return res.similarity , res.reasoning 
