@@ -30,9 +30,15 @@ def clean_pln_list(pln_list: List[str]) -> Tuple[List[str], float]:
     return cleaned_list, min_score
 
 def judge_metric(example, pred, trace=None) -> Tuple[float, str]:
+
+    print(f"comparing {example} with {pred}")
+
     # Clean and score the predicted PLN statements and questions
     cleaned_pred_statements, stmt_score = clean_pln_list(pred.pln_statements)
     cleaned_pred_questions, ques_score = clean_pln_list(pred.pln_questions)
+
+    print(pred.pln_statements)
+    print(cleaned_pred_statements)
     
     # Create a ChainOfThought module with the signature
     judge = dspy.ChainOfThought(PLNJudgeSignature)
