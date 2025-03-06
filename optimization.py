@@ -49,7 +49,6 @@ class Optimizer:
 
             # Define the PLN signature
             class PLNTask(dspy.Signature):
-                """Convert English text to Programming Language for Thought (PLN)"""
                 english = dspy.InputField(desc="English text to convert to PLN")
                 pln_types = dspy.OutputField(desc="PLN type definitions")
                 pln_statements = dspy.OutputField(desc="PLN statements")
@@ -71,7 +70,8 @@ class Optimizer:
                 except Exception as e:
                     print(f"Failed to load base task, creating new one: {e}")
                     # Fall back to creating a new task
-                    task = dspy.ChainOfThought(PLNTask)
+                    task = dspy.ChainOfThought("english -> pln_types,pln_statements,pln_questions")
+                    task.predict.signature.instructions = "Convert English text to Probabilistic Logic Networks (PLN)"
                     optimized_task = dspy.MIPROv2(
                         metric=self._optimization_metric,
                         auto="light"
@@ -79,7 +79,8 @@ class Optimizer:
             else:
                 # Create a new task using the PLN signature
                 print("Creating new base task")
-                task = dspy.ChainOfThought(PLNTask)
+                task = dspy.ChainOfThought("english -> pln_types,pln_statements,pln_questions")
+                task.predict.signature.instructions = "Convert English text to Probabilistic Logic Networks (PLN)"
                 optimized_task = dspy.MIPROv2(
                     metric=self._optimization_metric,
                     auto="light"
@@ -121,4 +122,5 @@ class Optimizer:
 
     def _optimization_metric(self, example, pred, trace=None) -> float:
         """Metric for optimization process"""
-        return judge_metric(example, pred).similarity
+        score, _ = judge_metric(example, pred).similarity
+        return score

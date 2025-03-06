@@ -52,4 +52,4 @@ def judge_metric(example, pred, trace=None) -> Tuple[float, str]:
     adjusted_similarity = res.similarity * cleaning_score
     
     # Run the judge
-    return adjusted_similarity, f"Original similarity: {res.similarity}, Cleaning score: {cleaning_score}, Adjusted: {adjusted_similarity}\n{res.reasoning}"
+    return adjusted_similarity, res.reasoning
