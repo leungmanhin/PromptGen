@@ -6,8 +6,16 @@ def create_judge_signature(task_def):
     
     # Create a new class dynamically
     attrs = {
-        "__doc__": f"Judge signature for {task_def.name} task evaluation",
+        "__doc__": f"""You are a Judge for the following task:
+        {task_def.description}
+        Slight differences in naming or the structure of the true output and the predicted output are allowed.
+        But the predicted output should not contain anything more or less than the true output.
+        """
     }
+
+    attrs["task_input"] = dspy.InputField(
+        desc=f"Input to the {task_def.name} task"
+    )
     
     # Add input fields for true values
     for field in task_def.output_fields:
