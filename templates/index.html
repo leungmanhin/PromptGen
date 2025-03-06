@@ -285,7 +285,7 @@
                         // Reload the page to show the summary metrics
                         location.reload();
                     } else {
-                        alert('Error running evaluation: ' + data.message);
+                        alert('Error running evaluation: ' + (data.error || data.message || 'Unknown error'));
                     }
                 },
                 error: function() {

@@ -250,11 +250,13 @@ class Evaluator:
             
             # Return the evaluation results
             return {
+                "status": "success",
                 "metrics": metrics,
                 "results": results
             }
         except Exception as e:
             return {
+                "status": "error",
                 "error": f"Evaluation failed: {str(e)}",
                 "metrics": {},
                 "full_output": f"Error: {str(e)}"
