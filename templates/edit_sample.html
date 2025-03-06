@@ -21,20 +21,20 @@
             <div class="card-body">
                 <form method="POST">
                     <div class="mb-3">
-                        <label for="input" class="form-label">Input:</label>
-                        <textarea class="form-control" id="input" name="input" rows="3" required>{{ sample.input }}</textarea>
+                        <label for="english" class="form-label">English Input:</label>
+                        <textarea class="form-control" id="english" name="english" rows="3" required>{{ sample.english }}</textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="types" class="form-label">Types:</label>
-                        <textarea class="form-control font-monospace" id="types" name="types" rows="5" required>{{ sample.types }}</textarea>
+                        <label for="pln_types" class="form-label">PLN Types:</label>
+                        <textarea class="form-control font-monospace" id="pln_types" name="pln_types" rows="5" required>{{ sample.pln_types }}</textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="statements" class="form-label">Statements:</label>
-                        <textarea class="form-control font-monospace" id="statements" name="statements" rows="8" required>{{ sample.statements }}</textarea>
+                        <label for="pln_statements" class="form-label">PLN Statements:</label>
+                        <textarea class="form-control font-monospace" id="pln_statements" name="pln_statements" rows="8" required>{{ sample.pln_statements }}</textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="questions" class="form-label">Questions:</label>
-                        <textarea class="form-control font-monospace" id="questions" name="questions" rows="3">{{ sample.questions }}</textarea>
+                        <label for="pln_questions" class="form-label">PLN Questions:</label>
+                        <textarea class="form-control font-monospace" id="pln_questions" name="pln_questions" rows="3">{{ sample.pln_questions }}</textarea>
                         <div class="form-text">Optional. Leave blank if there are no questions.</div>
                     </div>
                     <div class="d-grid gap-2">

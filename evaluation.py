@@ -53,8 +53,7 @@ class Evaluator:
         try:
             # Create example with the data
             example = dspy.Example(**example_data)
-            task_def = self.app_state.task_definition
-            judgeres = judge_metric(example, prediction, task_def)
+            judgeres = judge_metric(example, prediction)
             
             return {
                 "score": int(judgeres.similarity * 100),
@@ -66,36 +65,6 @@ class Evaluator:
                 "score": 0,
                 "explanation": f"Error: {str(e)}"
             }
-    
-    def _prepare_evaluation_data(self, samples: List[Dict]) -> List[dspy.Example]:
-        """Prepare DSPy examples from loaded samples based on task definition"""
-        task_def = self.app_state.task_definition
-        
-        examples = []
-        for d in samples:
-            # Create example with dynamic fields based on task definition
-            example_data = {}
-            
-            # Add input fields
-            for field in task_def.input_fields:
-                field_name = field["name"]
-                if field_name in d:
-                    example_data[field_name] = d[field_name]
-            
-            # Add output fields
-            for field in task_def.output_fields:
-                field_name = field["name"]
-                if field_name in d:
-                    example_data[field_name] = d[field_name]
-            
-            # Create example with the first input field as the input
-            if task_def.input_fields:
-                input_field = task_def.input_fields[0]["name"]
-                if input_field in example_data:
-                    example = dspy.Example(**example_data).with_inputs(input_field)
-                    examples.append(example)
-        
-        return examples
 
     def run_evaluation(self, model_name: str, similarity_model_name: Optional[str] = None) -> Dict[str, Any]:
         """Run the evaluation on the optimized model
@@ -143,40 +112,30 @@ class Evaluator:
                     "metrics": {},
                     "full_output": "Error: No samples found"
                 }
-            
-            # Get task definition
-            task_def = self.app_state.task_definition
-            if task_def is None:
-                return {
-                    "error": "No task definition found",
-                    "metrics": {},
-                    "full_output": "Error: No task definition found"
-                }
                 
             # Evaluate model on samples
             results = []
             for i, sample in enumerate(samples):
                 try:
-                    # Get the first input field name from task definition
-                    input_field_name = task_def.input_fields[0]["name"] if task_def.input_fields else "input"
-                    input_value = sample.get(input_field_name, "")
+                    # Check if sample has required fields
+                    if not all(field in sample for field in ["english", "pln_types", "pln_statements", "pln_questions"]):
+                        print(f"Skipping sample {i+1}: missing required fields")
+                        continue
                     
+                    input_value = sample.get("english", "")
                     print(f"Evaluating sample {i+1}/{len(samples)}: {input_value[:50]}...")
-                    
-                    # Prepare input for the model based on task definition
-                    model_input = {}
-                    for field in task_def.input_fields:
-                        field_name = field["name"]
-                        if field_name in sample:
-                            model_input[field_name] = sample[field_name]
                     
                     # Run the model on the input with the specific LM instance
                     with dspy.context(lm=eval_lm):
-                        prediction = optimized_task(**model_input)
+                        prediction = optimized_task(english=input_value)
                     
-                    # Create example data dictionary with all fields
-                    example_data = {field["name"]: sample.get(field["name"], "") 
-                                   for field in task_def.input_fields + task_def.output_fields}
+                    # Create example data dictionary
+                    example_data = {
+                        "english": sample.get("english", ""),
+                        "pln_types": sample.get("pln_types", ""),
+                        "pln_statements": sample.get("pln_statements", ""),
+                        "pln_questions": sample.get("pln_questions", "")
+                    }
                     
                     # Calculate similarity using the optimization metric
                     similarity_result = self.evaluate_similarity(
@@ -188,46 +147,38 @@ class Evaluator:
                     # Use the holistic score
                     overall_score = similarity_result["score"]
                     
-                    # Create result dictionary with dynamic fields
+                    # Create result dictionary
                     result = {
                         "sample_id": i,
                         "similarity_result": similarity_result,
-                        "overall_score": overall_score
+                        "overall_score": overall_score,
+                        "input_english": sample.get("english", ""),
+                        "expected_pln_types": sample.get("pln_types", ""),
+                        "expected_pln_statements": sample.get("pln_statements", ""),
+                        "expected_pln_questions": sample.get("pln_questions", ""),
+                        "predicted_pln_types": getattr(prediction, "pln_types", "N/A"),
+                        "predicted_pln_statements": getattr(prediction, "pln_statements", "N/A"),
+                        "predicted_pln_questions": getattr(prediction, "pln_questions", "N/A")
                     }
-                    
-                    # Add input fields to result
-                    for field in task_def.input_fields:
-                        field_name = field["name"]
-                        result[f"input_{field_name}"] = sample.get(field_name, "")
-                    
-                    # Add expected and predicted output fields to result
-                    for field in task_def.output_fields:
-                        field_name = field["name"]
-                        result[f"expected_{field_name}"] = sample.get(field_name, "")
-                        result[f"predicted_{field_name}"] = getattr(prediction, field_name, "N/A")
                     
                     results.append(result)
                 except Exception as e:
                     print(f"Error evaluating sample {i+1}: {e}")
                     
-                    # Create error result with dynamic fields
+                    # Create error result
                     error_result = {
                         "sample_id": i,
                         "similarity_result": {"score": 0, "explanation": "Error"},
                         "overall_score": 0,
-                        "error": str(e)
+                        "error": str(e),
+                        "input_english": sample.get("english", ""),
+                        "expected_pln_types": sample.get("pln_types", ""),
+                        "expected_pln_statements": sample.get("pln_statements", ""),
+                        "expected_pln_questions": sample.get("pln_questions", ""),
+                        "predicted_pln_types": "ERROR",
+                        "predicted_pln_statements": "ERROR",
+                        "predicted_pln_questions": "ERROR"
                     }
-                    
-                    # Add input fields to error result
-                    for field in task_def.input_fields:
-                        field_name = field["name"]
-                        error_result[f"input_{field_name}"] = sample.get(field_name, "")
-                    
-                    # Add expected output fields to error result
-                    for field in task_def.output_fields:
-                        field_name = field["name"]
-                        error_result[f"expected_{field_name}"] = sample.get(field_name, "")
-                        error_result[f"predicted_{field_name}"] = "ERROR"
                     
                     results.append(error_result)
                     

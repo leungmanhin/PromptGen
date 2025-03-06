@@ -21,9 +21,9 @@
             <div class="card-body">
                 <form method="POST" id="add-sample-form">
                     <div class="mb-3">
-                        <label for="input" class="form-label">Input:</label>
+                        <label for="english" class="form-label">English Input:</label>
                         <div class="input-group">
-                            <textarea class="form-control" id="input" name="input" rows="3" required placeholder="Enter English text, e.g., 'Max is a Dog'"></textarea>
+                            <textarea class="form-control" id="english" name="english" rows="3" required placeholder="Enter English text, e.g., 'Max is a Dog'">{{ sample.english }}</textarea>
                             <div class="input-group-append">
                                 <button type="button" id="generate-btn" class="btn btn-primary h-100">Generate</button>
                             </div>
@@ -39,19 +39,19 @@
                         <div class="form-text">Select the model to use for generation.</div>
                     </div>
                     <div class="mb-3">
-                        <label for="types" class="form-label">Types:</label>
-                        <textarea class="form-control font-monospace" id="types" name="types" rows="5" required placeholder="(: dog (-> (: $dog Object) Type))
-(: name (-> (: $named Object) (: $name String) Type))"></textarea>
+                        <label for="pln_types" class="form-label">PLN Types:</label>
+                        <textarea class="form-control font-monospace" id="pln_types" name="pln_types" rows="5" required placeholder="(: dog (-> (: $dog Object) Type))
+(: name (-> (: $named Object) (: $name String) Type))">{{ sample.pln_types }}</textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="statements" class="form-label">Statements:</label>
-                        <textarea class="form-control font-monospace" id="statements" name="statements" rows="8" required placeholder="(: max Object)
+                        <label for="pln_statements" class="form-label">PLN Statements:</label>
+                        <textarea class="form-control font-monospace" id="pln_statements" name="pln_statements" rows="8" required placeholder="(: max Object)
 (: max_named_max (WithTV (name max 'Max') (STV 1.0 1.0)))
-(: max_dog (WithTV (dog max) (STV 1.0 1.0)))"></textarea>
+(: max_dog (WithTV (dog max) (STV 1.0 1.0)))">{{ sample.pln_statements }}</textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="questions" class="form-label">Questions:</label>
-                        <textarea class="form-control font-monospace" id="questions" name="questions" rows="3" placeholder="(: $query (Implication (dog $x) (animal $x)))"></textarea>
+                        <label for="pln_questions" class="form-label">PLN Questions:</label>
+                        <textarea class="form-control font-monospace" id="pln_questions" name="pln_questions" rows="3" placeholder="(: $query (Implication (dog $x) (animal $x)))">{{ sample.pln_questions }}</textarea>
                         <div class="form-text">Optional. Leave blank if there are no questions.</div>
                     </div>
                     <div class="d-grid gap-2">
@@ -70,10 +70,10 @@
     $(document).ready(function() {
         // Handle generate button click
         $("#generate-btn").click(function() {
-            const input = $("#input").val().trim();
+            const english = $("#english").val().trim();
             const model = $("#model-select").val();
             
-            if (!input) {
+            if (!english) {
                 alert("Please enter some English text first.");
                 return;
             }
@@ -86,7 +86,7 @@
                 url: "/generate_sample",
                 method: "POST",
                 data: {
-                    input: input,
+                    english: english,
                     model: model
                 },
                 success: function(data) {
@@ -94,9 +94,9 @@
                         alert("Error: " + data.error);
                     } else {
                         // Fill in the form fields with generated data
-                        $("#types").val(data.types);
-                        $("#statements").val(data.statements);
-                        $("#questions").val(data.questions);
+                        $("#pln_types").val(data.pln_types);
+                        $("#pln_statements").val(data.pln_statements);
+                        $("#pln_questions").val(data.pln_questions);
                     }
                 },
                 error: function() {

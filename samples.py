@@ -25,37 +25,15 @@ class SampleManager:
             json.dump(samples, f, indent=2)
 
     def validate_sample(self, sample: Dict) -> bool:
-        """Validate sample structure based on task definition"""
-        task_def = self.app_state.task_definition
-        if not task_def:
-            return False
-            
-        # Check that all input fields are present
-        for field in task_def.input_fields:
-            if field["name"] not in sample:
-                return False
-                
-        # Check that all output fields are present
-        for field in task_def.output_fields:
-            if field["name"] not in sample:
-                return False
-                
-        return True
+        """Validate sample structure for PLN task"""
+        required_fields = ["english", "pln_types", "pln_statements", "pln_questions"]
+        return all(field in sample for field in required_fields)
         
     def create_empty_sample(self) -> Dict:
-        """Create an empty sample based on the current task definition"""
-        task_def = self.app_state.task_definition
-        if not task_def:
-            return {}
-            
-        sample = {}
-        
-        # Add input fields
-        for field in task_def.input_fields:
-            sample[field["name"]] = ""
-            
-        # Add output fields
-        for field in task_def.output_fields:
-            sample[field["name"]] = ""
-            
-        return sample
+        """Create an empty sample for PLN task"""
+        return {
+            "english": "",
+            "pln_types": "",
+            "pln_statements": "",
+            "pln_questions": ""
+        }

@@ -16,32 +16,17 @@ class Optimizer:
         self.running = False
 
     def _prepare_training_data(self, samples: List[Dict]) -> List[dspy.Example]:
-        """Prepare DSPy examples from loaded samples based on task definition"""
-        task_def = self.app_state.task_definition
-        
+        """Prepare DSPy examples from loaded samples"""
         examples = []
         for d in samples:
-            # Create example with dynamic fields based on task definition
-            example_data = {}
-            
-            # Add input fields
-            for field in task_def.input_fields:
-                field_name = field["name"]
-                if field_name in d:
-                    example_data[field_name] = d[field_name]
-            
-            # Add output fields
-            for field in task_def.output_fields:
-                field_name = field["name"]
-                if field_name in d:
-                    example_data[field_name] = d[field_name]
-            
-            # Create example with the first input field as the input
-            if task_def.input_fields:
-                input_field = task_def.input_fields[0]["name"]
-                if input_field in example_data:
-                    example = dspy.Example(**example_data).with_inputs(input_field)
-                    examples.append(example)
+            if "english" in d and "pln_types" in d and "pln_statements" in d and "pln_questions" in d:
+                example = dspy.Example(
+                    english=d["english"],
+                    pln_types=d["pln_types"],
+                    pln_statements=d["pln_statements"],
+                    pln_questions=d["pln_questions"]
+                ).with_inputs("english")
+                examples.append(example)
         
         return examples
 
@@ -55,20 +40,20 @@ class Optimizer:
             thread_lm = dspy.LM(model_name)
             if not thread_lm:
                 return
-
-            # Get the task definition
-            task_def = self.app_state.task_definition
-            if task_def is None:
-                raise ValueError("No task definition found")
-            
-            # Create the DSPy signature from the task definition
-            signature_class = task_def.create_dspy_signature()
             
             samples = self.sample_manager.load_samples()
             training_data = self._prepare_training_data(samples)
             
             if not training_data:
                 raise ValueError("No valid training data found")
+
+            # Define the PLN signature
+            class PLNTask(dspy.Signature):
+                """Convert English text to Programming Language for Thought (PLN)"""
+                english = dspy.InputField(desc="English text to convert to PLN")
+                pln_types = dspy.OutputField(desc="PLN type definitions")
+                pln_statements = dspy.OutputField(desc="PLN statements")
+                pln_questions = dspy.OutputField(desc="PLN questions")
 
             # Base task can either be a new one or loaded from the current program
             if self.app_state.current_program_id and os.path.exists(f"./programs/{self.app_state.current_program_id}/program.pkl"):
@@ -86,15 +71,15 @@ class Optimizer:
                 except Exception as e:
                     print(f"Failed to load base task, creating new one: {e}")
                     # Fall back to creating a new task
-                    task = dspy.ChainOfThought(signature_class)
+                    task = dspy.ChainOfThought(PLNTask)
                     optimized_task = dspy.MIPROv2(
                         metric=self._optimization_metric,
                         auto="light"
                     ).compile(task, trainset=training_data, requires_permission_to_run=False)
             else:
-                # Create a new task using the custom signature
+                # Create a new task using the PLN signature
                 print("Creating new base task")
-                task = dspy.ChainOfThought(signature_class)
+                task = dspy.ChainOfThought(PLNTask)
                 optimized_task = dspy.MIPROv2(
                     metric=self._optimization_metric,
                     auto="light"
@@ -120,7 +105,7 @@ class Optimizer:
                 # Add additional metadata
                 metadata["model"] = model_name
                 metadata["created_at"] = time.time()
-                metadata["task_name"] = self.app_state.task_definition.name
+                metadata["task_name"] = "English to PLN Converter"
                 metadata["base_program_id"] = self.app_state.current_program_id
                 
                 with open(metadata_path, "w") as f:
@@ -135,6 +120,5 @@ class Optimizer:
             self.running = False
 
     def _optimization_metric(self, example, pred, trace=None) -> float:
-        """Metric for optimization process using dynamic fields from task definition"""
-        task_def = self.app_state.task_definition
-        return judge_metric(example, pred, task_def).similarity
+        """Metric for optimization process"""
+        return judge_metric(example, pred).similarity

@@ -5,7 +5,6 @@ import threading
 import os
 import json
 import time
-from .task_definition import TaskDefinition
 
 class AppState:
     """Singleton class for managing application state"""
@@ -34,35 +33,12 @@ class AppState:
             'openai/gpt-4o'
         ]
         
-        # Task definition
-        self.task_definition = None
-        self.load_task_definition()
-        
         # Program management
         self.programs = {}  # Dictionary of program_id -> metadata
         self.current_program_id = None
         self._ensure_programs_directory()
         self.load_available_programs()
         self._migrate_legacy_program()
-    
-    def load_task_definition(self):
-        """Load the task definition or create a default one"""
-        self.task_definition = TaskDefinition.load()
-        if self.task_definition is None:
-            # Create a default PLN task definition
-            self.task_definition = TaskDefinition(
-                name="PLNTask",
-                description="Convert English text to Programming Language for Thought (PLN)",
-                input_fields=[
-                    {"name": "english", "desc": "English text to convert to PLN"}
-                ],
-                output_fields=[
-                    {"name": "pln_types", "desc": "PLN type definitions"},
-                    {"name": "pln_statements", "desc": "PLN statements"},
-                    {"name": "pln_questions", "desc": "PLN questions"}
-                ]
-            )
-            self.task_definition.save()
     
     def _ensure_programs_directory(self):
         """Create programs directory if it doesn't exist"""
@@ -132,7 +108,7 @@ class AppState:
                         },
                         "created_at": os.path.getctime(legacy_program_file),
                         "model": self.current_model,
-                        "task_name": "Legacy Program"
+                        "task_name": "English to PLN Converter"
                     }
                     
                     with open(os.path.join(program_dir, "metadata.json"), "w") as f:

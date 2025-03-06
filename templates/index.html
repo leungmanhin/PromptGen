@@ -5,10 +5,7 @@
 {% block content %}
 <div class="row">
     <div class="col-md-12">
-        <h1 class="mb-4">Dashboard</h1>
-        <div class="mb-3">
-            <a href="/task_definition" class="btn btn-primary">Define Custom Task</a>
-        </div>
+        <h1 class="mb-4">PLN Program Dashboard</h1>
     </div>
 </div>
 
@@ -25,6 +22,7 @@
                             {{ app_state.programs[app_state.current_program_id].get('task_name', 'Unknown') }} 
                             ({{ app_state.programs[app_state.current_program_id].get('model', 'Unknown Model') }})
                         </span>
+                        <a href="{{ url_for('main.edit_program_instructions') }}" class="btn btn-sm btn-outline-secondary ms-2">Edit Instructions</a>
                     {% else %}
                         <span class="badge bg-warning">None Selected</span>
                     {% endif %}
@@ -172,19 +170,9 @@
                         {% for sample in samples[:3] %}
                             <a href="/sample/{{ loop.index0 }}" class="list-group-item list-group-item-action">
                                 <div class="d-flex w-100 justify-content-between">
-                                    {% if app_state.task_definition and app_state.task_definition.input_fields %}
-                                        {% set first_input_field = app_state.task_definition.input_fields[0].name %}
-                                        <h5 class="mb-1">{{ sample[first_input_field]|default('No input')|truncate(50) }}</h5>
-                                    {% else %}
-                                        <h5 class="mb-1">{{ sample.input|default('No input')|truncate(50) }}</h5>
-                                    {% endif %}
+                                            <h5 class="mb-1">{{ sample.english|default('No input')|truncate(50) }}</h5>
                                 </div>
-                                {% if app_state.task_definition and app_state.task_definition.output_fields %}
-                                    {% set first_output_field = app_state.task_definition.output_fields[0].name %}
-                                    <p class="mb-1">{{ first_output_field }}: {{ sample[first_output_field]|default('N/A')|truncate(50) }}</p>
-                                {% else %}
-                                    <p class="mb-1">Types: {{ sample.types|default('N/A')|truncate(50) }}</p>
-                                {% endif %}
+                                <p class="mb-1">Types: {{ sample.pln_types|default('N/A')|truncate(50) }}</p>
                             </a>
                         {% endfor %}
                         {% if samples|length > 3 %}
