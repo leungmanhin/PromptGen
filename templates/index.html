@@ -172,9 +172,19 @@
                         {% for sample in samples[:3] %}
                             <a href="/sample/{{ loop.index0 }}" class="list-group-item list-group-item-action">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">{{ sample.input|truncate(50) }}</h5>
+                                    {% if app_state.task_definition and app_state.task_definition.input_fields %}
+                                        {% set first_input_field = app_state.task_definition.input_fields[0].name %}
+                                        <h5 class="mb-1">{{ sample[first_input_field]|default('No input')|truncate(50) }}</h5>
+                                    {% else %}
+                                        <h5 class="mb-1">{{ sample.input|default('No input')|truncate(50) }}</h5>
+                                    {% endif %}
                                 </div>
-                                <p class="mb-1">Types: {{ sample.types|truncate(50) }}</p>
+                                {% if app_state.task_definition and app_state.task_definition.output_fields %}
+                                    {% set first_output_field = app_state.task_definition.output_fields[0].name %}
+                                    <p class="mb-1">{{ first_output_field }}: {{ sample[first_output_field]|default('N/A')|truncate(50) }}</p>
+                                {% else %}
+                                    <p class="mb-1">Types: {{ sample.types|default('N/A')|truncate(50) }}</p>
+                                {% endif %}
                             </a>
                         {% endfor %}
                         {% if samples|length > 3 %}
