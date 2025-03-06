@@ -1,5 +1,6 @@
 import dspy
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List
+from cleanpln import cleanAndScore
 
 class PLNJudgeSignature(dspy.Signature):
     """You are a Judge for the following task:
@@ -16,7 +17,23 @@ class PLNJudgeSignature(dspy.Signature):
     pred_pln_questions = dspy.InputField(desc="Predicted PLN questions from the model")
     similarity = dspy.OutputField(desc="Similarity score between true and predicted outputs (0.0 to 1.0)")
 
+def clean_pln_list(pln_list: List[str]) -> Tuple[List[str], float]:
+    """Clean a list of PLN statements or questions and return the cleaned list and minimum score."""
+    cleaned_list = []
+    min_score = 1.0
+    
+    for item in pln_list:
+        cleaned_item, score = cleanAndScore(item)
+        cleaned_list.append(cleaned_item)
+        min_score = min(min_score, score)
+    
+    return cleaned_list, min_score
+
 def judge_metric(example, pred, trace=None) -> Tuple[float, str]:
+    # Clean and score the predicted PLN statements and questions
+    cleaned_pred_statements, stmt_score = clean_pln_list(pred.pln_statements)
+    cleaned_pred_questions, ques_score = clean_pln_list(pred.pln_questions)
+    
     # Create a ChainOfThought module with the signature
     judge = dspy.ChainOfThought(PLNJudgeSignature)
 
@@ -26,8 +43,13 @@ def judge_metric(example, pred, trace=None) -> Tuple[float, str]:
         true_pln_statements=example.pln_statements,
         true_pln_questions=example.pln_questions,
         pred_pln_types=pred.pln_types,
-        pred_pln_statements=pred.pln_statements,
-        pred_pln_questions=pred.pln_questions,
+        pred_pln_statements=cleaned_pred_statements,
+        pred_pln_questions=cleaned_pred_questions,
     )
+    
+    # Adjust the similarity score based on the cleaning scores
+    cleaning_score = min(stmt_score, ques_score)
+    adjusted_similarity = res.similarity * cleaning_score
+    
     # Run the judge
-    return res.similarity , res.reasoning 
+    return adjusted_similarity, f"Original similarity: {res.similarity}, Cleaning score: {cleaning_score}, Adjusted: {adjusted_similarity}\n{res.reasoning}"
