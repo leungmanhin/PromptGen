@@ -38,7 +38,6 @@ class AppState:
         self.current_program_id = None
         self._ensure_programs_directory()
         self.load_available_programs()
-        self._migrate_legacy_program()
     
     def _ensure_programs_directory(self):
         """Create programs directory if it doesn't exist"""
@@ -77,51 +76,6 @@ class AppState:
                                     reverse=True)
             self.current_program_id = sorted_programs[0][0]
     
-    def _migrate_legacy_program(self):
-        """Migrate legacy program from ./program/ to new structure if it exists"""
-        legacy_program_dir = "./program/"
-        legacy_program_file = os.path.join(legacy_program_dir, "program.pkl")
-        
-        if os.path.exists(legacy_program_file) and not any(self.programs):
-            try:
-                # Create new program directory
-                program_id = f"legacy_program"
-                program_dir = f"./programs/{program_id}/"
-                
-                # Ensure directory exists
-                os.makedirs(program_dir, exist_ok=True)
-                
-                # Copy program.pkl
-                import shutil
-                shutil.copy(legacy_program_file, os.path.join(program_dir, "program.pkl"))
-                
-                # Copy or create metadata.json
-                legacy_metadata_file = os.path.join(legacy_program_dir, "metadata.json")
-                if os.path.exists(legacy_metadata_file):
-                    shutil.copy(legacy_metadata_file, os.path.join(program_dir, "metadata.json"))
-                else:
-                    # Create basic metadata
-                    metadata = {
-                        "dependency_versions": {
-                            "python": "3.12", 
-                            "dspy": "2.6.10"
-                        },
-                        "created_at": os.path.getctime(legacy_program_file),
-                        "model": self.current_model,
-                        "task_name": "English to PLN Converter"
-                    }
-                    
-                    with open(os.path.join(program_dir, "metadata.json"), "w") as f:
-                        json.dump(metadata, f, indent=2)
-                
-                print(f"Migrated legacy program to {program_dir}")
-                
-                # Set as current program
-                self.current_program_id = program_id
-                self.load_available_programs()  # Refresh program list
-            except Exception as e:
-                print(f"Error migrating legacy program: {e}")
-                
     def set_current_program(self, program_id):
         """Set the current program"""
         if program_id in self.programs:

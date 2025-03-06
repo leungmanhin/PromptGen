@@ -25,11 +25,6 @@ class Evaluator:
             program_dir = f"./programs/{program_id}/"
             if not os.path.exists(program_dir):
                 print(f"Program directory not found: {program_dir}")
-                # Try the legacy location as fallback
-                if os.path.exists("./program/program.pkl"):
-                    print("Falling back to legacy program location")
-                    optimized_task = dspy.load("./program/")
-                    return optimized_task
                 return None
                 
             optimized_task = dspy.load(program_dir)
@@ -37,14 +32,6 @@ class Evaluator:
             return optimized_task
         except Exception as e:
             print(f"Failed to load optimized task: {e}")
-            # Try the legacy location as fallback
-            try:
-                if os.path.exists("./program/program.pkl"):
-                    print("Falling back to legacy program location after error")
-                    optimized_task = dspy.load("./program/")
-                    return optimized_task
-            except Exception as nested_e:
-                print(f"Failed to load legacy program as well: {nested_e}")
             return None
     
     def evaluate_similarity(self, example_data: Dict[str, Any], prediction: Any, lm: dspy.LM) -> Dict[str, Any]:
@@ -53,11 +40,11 @@ class Evaluator:
         try:
             # Create example with the data
             example = dspy.Example(**example_data)
-            judgeres = judge_metric(example, prediction)
+            score , reasoning = judge_metric(example, prediction)
             
             return {
-                "score": int(judgeres.similarity * 100),
-                "explanation": judgeres.reasoning
+                "score": int(score * 100),
+                "explanation": reasoning
             }
         except Exception as e:
             print(f"Error in similarity evaluation: {e}")
