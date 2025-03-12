@@ -1,0 +1,13 @@
+{
+  "name": "PLNTask",
+  "signature_class_def": "class PLNTask(dspy.Signature):\n    \"\"\"\n    Convert the given english to PLN.\n    If it is a question construct one ore more queries to answer it.\n    If it is a statement construct one or more statements to add the knowledge to the KB.\n    Provide type definitions for all predicates.\n\n    Given Types are:\n    (: Implication (-> (: $implicant Type) (: $consequent Type) Type))\n    (: And (-> (: $a Type) (: $b Type) Type))\n    (: Or (-> (: $a Type) (: $b Type) Type))\n    (: Equivalence (-> (: $a Type) (: $b Type) Type))\n    (: WithTV (-> (: $a Type) (: $tv TV) Type))\n    (: STV (-> (: $strength Number) (: $confidence Number) TV))\n\n    All queries or statments should be wrapped in WithTV.\n    Example Statment:\n    (: proofname (WithTV (Predicate object) (STV 1.0 1.0)))\n    Example Query :\n    (: $query (WithTV (Predicate object) $tv))\n    meaning (try to find a proof $query that Predicate applies to object and get me the $tv)\n    Predicate or object could also be varaibles in a query.\n    \"\"\"\n    english = dspy.InputField(desc=\"English text to convert to PLN\")\n    pln_types = dspy.OutputField(desc=\"PLN type definitions\")\n    pln_statements = dspy.OutputField(desc=\"PLN statements\")\n    pln_query = dspy.OutputField(desc=\"PLN query\")",
+  "description": "Convert English to PLN (Probabilistic Logic Network) syntax",
+  "input_fields": [
+    "english"
+  ],
+  "output_fields": [
+    "pln_types",
+    "pln_statements",
+    "pln_query"
+  ]
+}
