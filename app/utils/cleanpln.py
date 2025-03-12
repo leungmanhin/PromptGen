@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from metta.metta_handler import MeTTaHandler
+from .metta.metta_handler import MeTTaHandler
 
 def balance_parentheses(expr: str) -> Tuple[str,float]:
     score = 1.0

@@ -5,7 +5,73 @@
 {% block content %}
 <div class="row">
     <div class="col-md-12">
-        <h1 class="mb-4">PLN Program Dashboard</h1>
+        <h1 class="mb-4">DSPy Program Dashboard</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Signatures</h5>
+                <div>
+                    <a href="{{ url_for('signatures.view_signatures') }}" class="btn btn-sm btn-light">
+                        <i class="fas fa-list"></i> View All
+                    </a>
+                    <a href="{{ url_for('signatures.add_signature') }}" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus"></i> New Signature
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <h6>Current Signature: 
+                    {% if app_state.current_signature_name %}
+                        <span class="badge bg-info">
+                            {{ app_state.current_signature_name }}
+                        </span>
+                        <a href="{{ url_for('signatures.edit_signature', signature_name=app_state.current_signature_name) }}" class="btn btn-sm btn-outline-secondary ms-2">Edit Signature</a>
+                        <a href="{{ url_for('samples.view_signature_samples', signature_name=app_state.current_signature_name) }}" class="btn btn-sm btn-outline-primary ms-2">View Samples</a>
+                    {% else %}
+                        <span class="badge bg-warning">None Selected</span>
+                        <div class="alert alert-warning mt-2">
+                            <strong>Warning:</strong> You must select or create a signature first.
+                        </div>
+                    {% endif %}
+                </h6>
+                
+                {% if app_state.signatures %}
+                    <div class="list-group mt-3">
+                        {% for name, signature in app_state.signatures.items() %}
+                            <div class="list-group-item {% if name == app_state.current_signature_name %}active{% endif %}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ url_for('signatures.select_signature', signature_name=name) }}" 
+                                       class="text-decoration-none {% if name == app_state.current_signature_name %}text-white{% endif %} flex-grow-1">
+                                        <div>
+                                            <strong>{{ name }}</strong>
+                                            <small class="d-block {% if name == app_state.current_signature_name %}text-light{% else %}text-muted{% endif %}">
+                                                {{ signature.description }}
+                                            </small>
+                                            <small class="d-block {% if name == app_state.current_signature_name %}text-light{% else %}text-muted{% endif %}">
+                                                Input: {{ signature.input_fields|join(', ') }} | Output: {{ signature.output_fields|join(', ') }}
+                                            </small>
+                                        </div>
+                                    </a>
+                                    <div class="d-flex">
+                                        {% if name == app_state.current_signature_name %}
+                                        <span class="badge bg-primary rounded-pill me-2">Current</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info mt-3">
+                        <strong>No signatures found!</strong> Click the "New Signature" button above to create your first signature.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 
@@ -27,7 +93,7 @@
                             {{ app_state.programs[app_state.current_program_id].get('task_name', 'Unknown') }} 
                             ({{ app_state.programs[app_state.current_program_id].get('model', 'Unknown Model') }})
                         </span>
-                        <a href="{{ url_for('main.edit_program_instructions') }}" class="btn btn-sm btn-outline-secondary ms-2">Edit Instructions</a>
+                        <a href="{{ url_for('programs.edit_program_instructions') }}" class="btn btn-sm btn-outline-secondary ms-2">Edit Instructions</a>
                     {% else %}
                         <span class="badge bg-warning">None Selected</span>
                         <div class="alert alert-warning mt-2">
@@ -41,7 +107,7 @@
                         {% for program_id, metadata in app_state.programs.items() %}
                             <div class="list-group-item {% if program_id == app_state.current_program_id %}active{% endif %}">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <a href="{{ url_for('main.select_program', program_id=program_id) }}" 
+                                    <a href="{{ url_for('programs.select_program', program_id=program_id) }}" 
                                        class="text-decoration-none {% if program_id == app_state.current_program_id %}text-white{% endif %} flex-grow-1">
                                         <div>
                                             <strong>{{ metadata.get('task_name', 'Unknown') }}</strong> - 
@@ -60,7 +126,7 @@
                                         {% if program_id == app_state.current_program_id %}
                                         <span class="badge bg-primary rounded-pill me-2">Current</span>
                                         {% endif %}
-                                        <form method="POST" action="{{ url_for('main.delete_program', program_id=program_id) }}" 
+                                        <form method="POST" action="{{ url_for('programs.delete_program', program_id=program_id) }}" 
                                               onsubmit="return confirm('Are you sure you want to delete this program?')">
                                             <button type="submit" class="btn btn-sm btn-outline-danger">
                                                 <i class="fas fa-trash"></i>
@@ -100,6 +166,16 @@
             </div>
             <div class="card-body">
                 <p>Optimize the model using the current samples.</p>
+                <div class="mb-3">
+                    <label for="optimization-signature" class="form-label">Signature:</label>
+                    <select class="form-select" id="optimization-signature">
+                        {% for name, signature in app_state.signatures.items() %}
+                        <option value="{{ name }}" {% if name == app_state.current_signature_name %}selected{% endif %}>
+                            {{ name }} - {{ signature.description }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
                 <div class="mb-3">
                     <label for="optimization-model" class="form-label">Model:</label>
                     <select class="form-select" id="optimization-model">
@@ -221,8 +297,19 @@
                 <h5 class="modal-title" id="createProgramModalLabel">Create New Program</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST" action="{{ url_for('main.create_program') }}">
+            <form method="POST" action="{{ url_for('programs.create_program') }}">
                 <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="signature-name" class="form-label">Signature:</label>
+                        <select class="form-select" id="signature-name" name="signature_name">
+                            {% for name, signature in app_state.signatures.items() %}
+                            <option value="{{ name }}" {% if name == app_state.current_signature_name %}selected{% endif %}>
+                                {{ name }} - {{ signature.description }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Signature to use for the new program</small>
+                    </div>
                     <div class="mb-3">
                         <label for="create-program-model" class="form-label">Program Model:</label>
                         <select class="form-select" id="create-program-model" name="model">
@@ -237,9 +324,11 @@
                         <select class="form-select" id="base-program-id" name="base_program_id">
                             <option value="">None (Create Empty Program)</option>
                             {% for program_id, metadata in app_state.programs.items() %}
-                            <option value="{{ program_id }}" {% if program_id == app_state.current_program_id %}selected{% endif %}>
-                                {{ metadata.get('task_name', 'Unknown') }} ({{ program_id }})
-                            </option>
+                                {% if metadata.get('signature_name') == app_state.current_signature_name %}
+                                <option value="{{ program_id }}" {% if program_id == app_state.current_program_id %}selected{% endif %}>
+                                    {{ metadata.get('task_name', 'Unknown') }} ({{ program_id }})
+                                </option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                         <small class="form-text text-muted">Base program to use as a starting point</small>
@@ -264,14 +353,16 @@
             $(this).text('Optimization Running...');
             $('#optimization-status').show();
             
-            // Get the selected model
+            // Get the selected model and signature
             var model = $('#optimization-model').val();
+            var signature_name = $('#optimization-signature').val();
             
             $.ajax({
                 url: '/optimize',
                 type: 'POST',
                 data: {
-                    model: model
+                    model: model,
+                    signature_name: signature_name
                 },
                 success: function(data) {
                     if (data.status === 'started') {

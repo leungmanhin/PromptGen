@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}DSPy Signatures{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>DSPy Signatures</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Available Signatures</h5>
+                    <a href="{{ url_for('signatures.add_signature') }}" class="btn btn-primary btn-sm">Add New Signature</a>
+                </div>
+                <div class="card-body">
+                    {% if signatures %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Input Fields</th>
+                                        <th>Output Fields</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for name, signature in signatures.items() %}
+                                        <tr {% if current_signature and current_signature.name == name %}class="table-active"{% endif %}>
+                                            <td>{{ name }}</td>
+                                            <td>{{ signature.description }}</td>
+                                            <td>{{ signature.input_fields|join(', ') }}</td>
+                                            <td>{{ signature.output_fields|join(', ') }}</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ url_for('signatures.select_signature', signature_name=name) }}" class="btn btn-sm btn-primary">Select</a>
+                                                    <a href="{{ url_for('signatures.edit_signature', signature_name=name) }}" class="btn btn-sm btn-secondary">Edit</a>
+                                                    <a href="{{ url_for('samples.view_signature_samples', signature_name=name) }}" class="btn btn-sm btn-info">Samples</a>
+                                                    <a href="{{ url_for('samples.import_samples', signature_name=name) }}" class="btn btn-sm btn-outline-success">Import</a>
+                                                    <a href="{{ url_for('samples.export_samples', signature_name=name) }}" class="btn btn-sm btn-outline-primary">Export</a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">No signatures available. Please add a signature.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if current_signature %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Current Signature: {{ current_signature.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Description:</h6>
+                        <p>{{ current_signature.description }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Input Fields:</h6>
+                        <p>{{ current_signature.input_fields|join(', ') }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Output Fields:</h6>
+                        <p>{{ current_signature.output_fields|join(', ') }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Class Definition:</h6>
+                        <pre><code>{{ current_signature.signature_class_def }}</code></pre>
+                    </div>
+                    
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('samples.view_signature_samples', signature_name=current_signature.name) }}" class="btn btn-primary">View Samples</a>
+                        <a href="{{ url_for('samples.add_signature_sample', signature_name=current_signature.name) }}" class="btn btn-success">Add Sample</a>
+                        <a href="{{ url_for('signatures.edit_signature', signature_name=current_signature.name) }}" class="btn btn-secondary">Edit Signature</a>
+                        <a href="{{ url_for('samples.import_samples', signature_name=current_signature.name) }}" class="btn btn-outline-success">Import Samples</a>
+                        <a href="{{ url_for('samples.export_samples', signature_name=current_signature.name) }}" class="btn btn-outline-primary">Export Samples</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
