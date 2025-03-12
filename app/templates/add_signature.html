@@ -44,6 +44,23 @@
                 </div>
                 
                 <div class="mb-3">
+                    <label for="field_processors" class="form-label">Field Processors</label>
+                    <input type="text" class="form-control" id="field_processors" name="field_processors"
+                           placeholder="field1:processor1, field2:processor2 (e.g., pln_statements:clean_pln_list, pln_query:clean_pln_list)"
+                           value="{{ ((signature.field_processors.items()|list)|map('join', ':'))|join(', ') if signature and signature.field_processors else '' }}">
+                    <div class="form-text">
+                        <p>Comma-separated list of field:processor pairs.</p>
+                        <p>Available processors:</p>
+                        <ul>
+                            <li><code>clean_pln_list</code>: Clean and score a list of PLN statements or queries</li>
+                            <li><code>cleanAndScore</code>: Clean and score a single PLN statement</li>
+                            <li><code>cleanPLN</code>: Clean a single PLN statement without scoring</li>
+                            <li><code>balance_parentheses</code>: Balance parentheses in an expression</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
                     <label for="signature_class_def" class="form-label">Class Definition <span class="text-danger">*</span></label>
                     <textarea class="form-control" id="signature_class_def" name="signature_class_def" rows="15" required
                               placeholder="class MyTask(dspy.Signature):

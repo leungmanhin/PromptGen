@@ -7,7 +7,7 @@
     <div class="col-md-12">
         <h1 class="mb-4">Add New Sample</h1>
         <div class="mb-3">
-            <a href="/samples" class="btn btn-outline-secondary btn-sm">← Back to Samples</a>
+            <a href="/samples/{{ signature_name }}" class="btn btn-outline-secondary btn-sm">← Back to Samples</a>
             {% if from_evaluation %}
             <a href="/evaluation_results" class="btn btn-outline-info btn-sm">← Back to Evaluation Results</a>
             {% endif %}
@@ -23,15 +23,27 @@
             </div>
             <div class="card-body">
                 <form method="POST" id="add-sample-form">
+                    {% for field in signature.input_fields %}
                     <div class="mb-3">
-                        <label for="english" class="form-label">English Input:</label>
+                        <label for="{{ field }}" class="form-label">{{ field|title }}:</label>
+                        {% if field == signature.input_fields[0] %}
                         <div class="input-group">
-                            <textarea class="form-control" id="english" name="english" rows="3" required placeholder="Enter English text, e.g., 'Max is a Dog'">{{ sample.english }}</textarea>
+                            <textarea class="form-control {% if field != 'english' %}font-monospace{% endif %}" 
+                                     id="{{ field }}" name="{{ field }}" rows="3" required 
+                                     placeholder="Enter {{ field|title }}...">{{ sample[field] }}</textarea>
                             <div class="input-group-append">
                                 <button type="button" id="generate-btn" class="btn btn-primary h-100">Generate</button>
                             </div>
                         </div>
+                        {% else %}
+                        <textarea class="form-control {% if field != 'english' %}font-monospace{% endif %}" 
+                                 id="{{ field }}" name="{{ field }}" rows="3" required 
+                                 placeholder="Enter {{ field|title }}...">{{ sample[field] }}</textarea>
+                        {% endif %}
                     </div>
+                    {% endfor %}
+                    
+                    {% if signature.input_fields %}
                     <div class="mb-3">
                         <label for="model" class="form-label">Model:</label>
                         <select class="form-select" id="model-select" name="model">
@@ -41,22 +53,20 @@
                         </select>
                         <div class="form-text">Select the model to use for generation.</div>
                     </div>
+                    {% endif %}
+                    
+                    {% for field in signature.output_fields %}
                     <div class="mb-3">
-                        <label for="pln_types" class="form-label">PLN Types:</label>
-                        <textarea class="form-control font-monospace" id="pln_types" name="pln_types" rows="5" placeholder="(: dog (-> (: $dog Object) Type))
-(: name (-> (: $named Object) (: $name String) Type))">{{ sample.pln_types }}</textarea>
+                        <label for="{{ field }}" class="form-label">{{ field|title }}:</label>
+                        <textarea class="form-control font-monospace" id="{{ field }}" name="{{ field }}" 
+                                 rows="{% if 'statements' in field %}8{% elif 'types' in field %}5{% else %}3{% endif %}" 
+                                 placeholder="Enter {{ field|title }}...">{{ sample[field] }}</textarea>
+                        {% if not field in signature.required_output_fields|default([]) %}
+                        <div class="form-text">Optional. Leave blank if not needed.</div>
+                        {% endif %}
                     </div>
-                    <div class="mb-3">
-                        <label for="pln_statements" class="form-label">PLN Statements:</label>
-                        <textarea class="form-control font-monospace" id="pln_statements" name="pln_statements" rows="8" placeholder="(: max Object)
-(: max_named_max (WithTV (name max 'Max') (STV 1.0 1.0)))
-(: max_dog (WithTV (dog max) (STV 1.0 1.0)))">{{ sample.pln_statements }}</textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="pln_query" class="form-label">PLN Questions:</label>
-                        <textarea class="form-control font-monospace" id="pln_query" name="pln_query" rows="3" placeholder="(: $query (Implication (dog $x) (animal $x)))">{{ sample.pln_query }}</textarea>
-                        <div class="form-text">Optional. Leave blank if there are no questions.</div>
-                    </div>
+                    {% endfor %}
+                    
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-success">Add Sample</button>
                     </div>
@@ -73,11 +83,11 @@
     $(document).ready(function() {
         // Handle generate button click
         $("#generate-btn").click(function() {
-            const english = $("#english").val().trim();
+            const primary_input = $("#{{ signature.input_fields[0] }}").val().trim();
             const model = $("#model-select").val();
             
-            if (!english) {
-                alert("Please enter some English text first.");
+            if (!primary_input) {
+                alert("Please enter {{ signature.input_fields[0]|title }} first.");
                 return;
             }
             
@@ -89,7 +99,8 @@
                 url: "/generate_sample",
                 method: "POST",
                 data: {
-                    english: english,
+                    primary_input: primary_input,
+                    signature_name: "{{ signature_name }}",
                     model: model
                 },
                 success: function(data) {
@@ -104,9 +115,9 @@
                         }
                     } else {
                         // Fill in the form fields with generated data
-                        $("#pln_types").val(data.pln_types);
-                        $("#pln_statements").val(data.pln_statements);
-                        $("#pln_query").val(data.pln_query);
+                        {% for field in signature.output_fields %}
+                        $("#{{ field }}").val(data.{{ field }});
+                        {% endfor %}
                     }
                 },
                 error: function() {

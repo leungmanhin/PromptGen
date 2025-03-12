@@ -23,6 +23,7 @@
                                         <th>Description</th>
                                         <th>Input Fields</th>
                                         <th>Output Fields</th>
+                                        <th>Field Processors</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -33,6 +34,15 @@
                                             <td>{{ signature.description }}</td>
                                             <td>{{ signature.input_fields|join(', ') }}</td>
                                             <td>{{ signature.output_fields|join(', ') }}</td>
+                                            <td>
+                                                {% if signature.field_processors %}
+                                                    {% for field, processor in signature.field_processors.items() %}
+                                                        <span class="badge bg-info">{{ field }}:{{ processor }}</span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
                                             <td>
                                                 <div class="btn-group" role="group">
                                                     <a href="{{ url_for('signatures.select_signature', signature_name=name) }}" class="btn btn-sm btn-primary">Select</a>
@@ -76,6 +86,19 @@
                     <div class="mb-3">
                         <h6>Output Fields:</h6>
                         <p>{{ current_signature.output_fields|join(', ') }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Field Processors:</h6>
+                        {% if current_signature.field_processors %}
+                            <ul>
+                                {% for field, processor in current_signature.field_processors.items() %}
+                                    <li><strong>{{ field }}</strong>: <code>{{ processor }}</code></li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No field processors configured.</p>
+                        {% endif %}
                     </div>
                     
                     <div class="mb-3">

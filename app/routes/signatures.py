@@ -1,7 +1,7 @@
 """
 Routes for managing signatures
 """
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from ..models.signature import SignatureDefinition
 
 def create_signature_routes(app_state, sample_manager):
@@ -27,6 +27,10 @@ def create_signature_routes(app_state, sample_manager):
                                        key=lambda x: x[1].get("created_at", 0), 
                                        reverse=True)
                 app_state.set_current_program(sorted_programs[0][0])
+            else:
+                # Reset current program if no compatible programs exist
+                app_state.current_program_id = None
+                flash("No compatible programs found for this signature. You'll need to create a new program.")
         return redirect(url_for('main.index'))
         
     @bp.route('/add', methods=['GET', 'POST'])
@@ -43,13 +47,23 @@ def create_signature_routes(app_state, sample_manager):
             input_fields = [field.strip() for field in input_fields if field.strip()]
             output_fields = [field.strip() for field in output_fields if field.strip()]
             
+            # Parse field processors
+            field_processors = {}
+            field_processors_str = request.form.get('field_processors', '')
+            if field_processors_str.strip():
+                for pair in field_processors_str.split(','):
+                    if ':' in pair:
+                        field, processor = pair.split(':', 1)
+                        field_processors[field.strip()] = processor.strip()
+            
             # Create signature
             new_signature = SignatureDefinition(
                 name=name,
                 description=description,
                 signature_class_def=signature_class_def,
                 input_fields=input_fields,
-                output_fields=output_fields
+                output_fields=output_fields,
+                field_processors=field_processors
             )
             
             # Add to app state
@@ -82,11 +96,21 @@ def create_signature_routes(app_state, sample_manager):
             input_fields = [field.strip() for field in input_fields if field.strip()]
             output_fields = [field.strip() for field in output_fields if field.strip()]
             
+            # Parse field processors
+            field_processors = {}
+            field_processors_str = request.form.get('field_processors', '')
+            if field_processors_str.strip():
+                for pair in field_processors_str.split(','):
+                    if ':' in pair:
+                        field, processor = pair.split(':', 1)
+                        field_processors[field.strip()] = processor.strip()
+            
             # Update signature
             signature.description = description
             signature.signature_class_def = signature_class_def
             signature.input_fields = input_fields
             signature.output_fields = output_fields
+            signature.field_processors = field_processors
             
             # Save signature
             app_state._save_signature(signature)

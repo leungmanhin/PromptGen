@@ -198,7 +198,11 @@ class AppState:
         return False
     
     def get_programs_for_signature(self, signature_name: str) -> Dict:
-        """Get all programs for a specific signature"""
+        """Get all programs for a specific signature
+        
+        This will only return programs that are compatible with the given signature.
+        Programs are only compatible if they were created with exactly the same signature.
+        """
         return {
             program_id: metadata for program_id, metadata in self.programs.items()
             if metadata.get("signature_name") == signature_name

@@ -43,7 +43,7 @@ class GenericJudgeSignature(dspy.Signature):
     explanation = dspy.OutputField(desc="Detailed explanation of the similarity score")
     similarity: float = dspy.OutputField(desc="Overall similarity score between true and predicted outputs (0.0 to 1.0)")
 
-def clean_pln_list(pln_text: str) -> Tuple[List[str], float]:
+def clean_pln_list(pln_text: List[str]) -> Tuple[List[str], float]:
     """Clean a string of PLN statements or questions and return the cleaned list and minimum score."""
     from ..utils import cleanAndScore
     
@@ -51,10 +51,7 @@ def clean_pln_list(pln_text: str) -> Tuple[List[str], float]:
     score_sum = 0.0
     cnt = 0.0
     
-    # Split the text into individual lines
-    lines = pln_text.strip().split('\n')
-    
-    for line in lines:
+    for line in pln_text:
         line = line.strip()
         if line:  # Skip empty lines
             cleaned_item, score = cleanAndScore(line)
@@ -67,8 +64,8 @@ def clean_pln_list(pln_text: str) -> Tuple[List[str], float]:
 def judge_metric(example, pred, trace=None) -> Tuple[float, str]:
     """Judge metric that handles different signature types
     
-    For PLN tasks, uses the specific PLN judge with cleaning.
-    For other tasks, uses a generic judge.
+    Uses a generic judge for all signature types.
+    Field processors are applied based on signature configuration.
     
     Args:
         example: The example (reference) to compare against
@@ -78,40 +75,32 @@ def judge_metric(example, pred, trace=None) -> Tuple[float, str]:
     Returns:
         Tuple[float, str]: A tuple of (score, explanation)
     """
-    # Check if this is a PLN task by looking for specific fields
+    # For backward compatibility with PLN tasks
     if (hasattr(example, 'english') and 
         hasattr(example, 'pln_types') and 
         hasattr(example, 'pln_statements') and 
         hasattr(example, 'pln_query')):
-        return judge_pln_metric(example, pred, trace)
-    else:
-        return judge_generic_metric(example, pred, trace)
-
-def judge_pln_metric(example, pred, trace=None) -> Tuple[float, str]:
-    """Judge metric specifically for PLN tasks"""
-    # Clean and score the predicted PLN statements and questions
-    cleaned_pred_statements, stmt_score = clean_pln_list(pred.pln_statements)
-    cleaned_pred_questions, ques_score = clean_pln_list(pred.pln_query)
+        
+        # Get the app state
+        app_state = AppState()
+        
+        # Check if PLN signature exists, otherwise create a temporary one
+        if 'PLN' not in app_state.signatures:
+            # Create a temporary PLN signature with field processors
+            app_state.signatures['PLN'] = SignatureDefinition(
+                name="PLN",
+                signature_class_def="",
+                description="Convert English text to Programming Language for Thought (PLN).",
+                input_fields=["english"],
+                output_fields=["pln_types", "pln_statements", "pln_query"],
+                field_processors={
+                    "pln_statements": "clean_pln_list",
+                    "pln_query": "clean_pln_list"
+                }
+            )
     
-    # Create a ChainOfThought module with the signature
-    judge = dspy.ChainOfThought(PLNJudgeSignature)
-
-    res = judge(
-        task_input=example.english,
-        true_pln_types=example.pln_types,
-        true_pln_statements=example.pln_statements,
-        true_pln_query=example.pln_query,
-        pred_pln_types=pred.pln_types,
-        pred_pln_statements='\n'.join(cleaned_pred_statements),
-        pred_pln_query='\n'.join(cleaned_pred_questions),
-    )
-    
-    # Adjust the similarity score based on the cleaning scores
-    cleaning_score = (stmt_score + ques_score) / 2
-    adjusted_similarity = res.similarity * cleaning_score
-    
-    # Return the score and reasoning
-    return adjusted_similarity, getattr(res, 'reasoning', '')
+    # Use the generic judge for all signatures
+    return judge_generic_metric(example, pred, trace)
 
 def create_dynamic_judge(signature: SignatureDefinition) -> type:
     """Create a dynamic judge signature for a specific task signature
@@ -171,6 +160,67 @@ def create_dynamic_judge(signature: SignatureDefinition) -> type:
     judge_class = getattr(module, f"{signature.name}JudgeSignature")
     return judge_class
 
+def get_processor_by_name(processor_name: str):
+    """Get a processor function by name
+    
+    Args:
+        processor_name: Name of the processor function
+        
+    Returns:
+        Callable: The processor function, or None if not found
+    """
+    # Import possible processor modules
+    from ..utils import cleanpln
+    
+    # Map of processor names to functions
+    processors = {
+        "clean_pln_list": clean_pln_list,
+        "cleanAndScore": cleanpln.cleanAndScore,
+        "cleanPLN": cleanpln.cleanPLN,
+        "balance_parentheses": cleanpln.balance_parentheses,
+        "checkStmt": cleanpln.checkStmt,
+    }
+    
+    return processors.get(processor_name)
+
+def process_field(field_name: str, field_value: str, signature: SignatureDefinition) -> Tuple[str, float]:
+    """Process a field value according to the signature's field processor
+    
+    Args:
+        field_name: Name of the field
+        field_value: Value of the field
+        signature: Signature definition
+        
+    Returns:
+        Tuple[str, float]: Processed value and score
+    """
+    # If no field processor is defined, return the original value with a perfect score
+    if not signature.field_processors or field_name not in signature.field_processors:
+        return field_value, 1.0
+    
+    # Get the processor function
+    processor_name = signature.field_processors[field_name]
+    processor_fn = get_processor_by_name(processor_name)
+    
+    # If processor not found, return the original value with a perfect score
+    if not processor_fn:
+        return field_value, 1.0
+    
+    # Apply the processor
+    if processor_name == "clean_pln_list":
+        # Clean PLN list returns a tuple of (list, score)
+        if not isinstance(field_value, list):
+            processed_list, score = processor_fn(field_value.split('\n'))
+            return '\n'.join(processed_list), score
+        return processor_fn(field_value)
+    elif processor_name in ["cleanAndScore", "balance_parentheses"]:
+        # These processors return a tuple of (value, score)
+        processed_value, score = processor_fn(field_value)
+        return processed_value, score
+    else:
+        # Other processors just return a value (no score)
+        return processor_fn(field_value), 1.0
+
 def judge_generic_metric(example, pred, trace=None) -> Tuple[float, str]:
     """Judge metric for any signature type
     
@@ -215,13 +265,26 @@ def judge_generic_metric(example, pred, trace=None) -> Tuple[float, str]:
     for field in signature.input_fields:
         judge_inputs[field] = getattr(example, field, "")
     
-    # Add true and predicted output fields
+    # Add true output fields
     for field in signature.output_fields:
         judge_inputs[f"true_{field}"] = getattr(example, field, "")
-        judge_inputs[f"pred_{field}"] = getattr(pred, field, "")
+    
+    # Add predicted output fields with processing if configured
+    processing_scores = []
+    for field in signature.output_fields:
+        field_value = getattr(pred, field, "")
+        processed_value, score = process_field(field, field_value, signature)
+        judge_inputs[f"pred_{field}"] = processed_value
+        processing_scores.append(score)
     
     # Run the judge
     res = judge(**judge_inputs)
     
+    # Calculate average processing score
+    avg_processing_score = sum(processing_scores) / len(processing_scores) if processing_scores else 1.0
+    
+    # Adjust similarity by processing score
+    adjusted_similarity = res.similarity * avg_processing_score
+    
     # Return the score and explanation
-    return res.similarity, res.explanation
+    return adjusted_similarity, res.explanation

@@ -129,7 +129,7 @@ class Optimizer:
                     optimized_task = dspy.MIPROv2(
                         metric=self._optimization_metric,
                         auto="light"
-                    ).compile(base_task, trainset=training_data, max_bootstrapped_demos=0, requires_permission_to_run=False)
+                    ).compile(base_task, trainset=training_data, requires_permission_to_run=False)
                 except Exception as e:
                     print(f"Failed to load base task, creating new one: {e}")
                     # Fall back to creating a new task
@@ -137,7 +137,7 @@ class Optimizer:
                     optimized_task = dspy.MIPROv2(
                         metric=self._optimization_metric,
                         auto="light"
-                    ).compile(task, trainset=training_data, max_bootstrapped_demos=0, requires_permission_to_run=False)
+                    ).compile(task, trainset=training_data, requires_permission_to_run=False)
             else:
                 # Create a new task using the specified signature
                 print(f"Creating new base task for signature {sig_name}")
@@ -145,7 +145,7 @@ class Optimizer:
                 optimized_task = dspy.MIPROv2(
                     metric=self._optimization_metric,
                     auto="light"
-                ).compile(task, trainset=training_data, max_bootstrapped_demos=0, requires_permission_to_run=False)
+                ).compile(task, trainset=training_data, requires_permission_to_run=False)
             
             # Create a new program directory
             program_id = f"program_{int(time.time())}"
