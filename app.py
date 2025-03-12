@@ -9,6 +9,8 @@ from .state import AppState
 def create_app():
     """Application factory function"""
     flask_app = Flask(__name__)
+
+    flask_app.secret_key = "super secret key"
     
     # Initialize components
     app_state = AppState()

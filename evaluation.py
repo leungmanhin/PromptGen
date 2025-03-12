@@ -25,6 +25,11 @@ class Evaluator:
             program_dir = f"./programs/{program_id}/"
             if not os.path.exists(program_dir):
                 print(f"Program directory not found: {program_dir}")
+                # Try the legacy location as fallback
+                if os.path.exists("./program/program.pkl"):
+                    print("Falling back to legacy program location")
+                    optimized_task = dspy.load("./program/")
+                    return optimized_task
                 return None
                 
             optimized_task = dspy.load(program_dir)
@@ -32,9 +37,17 @@ class Evaluator:
             return optimized_task
         except Exception as e:
             print(f"Failed to load optimized task: {e}")
+            # Try the legacy location as fallback
+            try:
+                if os.path.exists("./program/program.pkl"):
+                    print("Falling back to legacy program location after error")
+                    optimized_task = dspy.load("./program/")
+                    return optimized_task
+            except Exception as nested_e:
+                print(f"Failed to load legacy program as well: {nested_e}")
             return None
     
-    def evaluate_similarity(self, example_data: Dict[str, Any], prediction: Any, lm: dspy.LM) -> Dict[str, Any]:
+    def evaluate_similarity(self, example_data: Dict[str, Any], prediction: Any) -> Dict[str, Any]:
         """Use the same metric as optimization to evaluate similarity between expected and predicted outputs"""
         
         try:
@@ -105,7 +118,7 @@ class Evaluator:
             for i, sample in enumerate(samples):
                 try:
                     # Check if sample has required fields
-                    if not all(field in sample for field in ["english", "pln_types", "pln_statements", "pln_questions"]):
+                    if not all(field in sample for field in ["english", "pln_types", "pln_statements", "pln_query"]):
                         print(f"Skipping sample {i+1}: missing required fields")
                         continue
                     
@@ -121,14 +134,13 @@ class Evaluator:
                         "english": sample.get("english", ""),
                         "pln_types": sample.get("pln_types", ""),
                         "pln_statements": sample.get("pln_statements", ""),
-                        "pln_questions": sample.get("pln_questions", "")
+                        "pln_query": sample.get("pln_query", "")
                     }
                     
                     # Calculate similarity using the optimization metric
                     similarity_result = self.evaluate_similarity(
                         example_data=example_data,
                         prediction=prediction,
-                        lm=similarity_lm
                     )
                     
                     # Use the holistic score
@@ -142,10 +154,10 @@ class Evaluator:
                         "input_english": sample.get("english", ""),
                         "expected_pln_types": sample.get("pln_types", ""),
                         "expected_pln_statements": sample.get("pln_statements", ""),
-                        "expected_pln_questions": sample.get("pln_questions", ""),
+                        "expected_pln_query": sample.get("pln_query", ""),
                         "predicted_pln_types": getattr(prediction, "pln_types", "N/A"),
                         "predicted_pln_statements": getattr(prediction, "pln_statements", "N/A"),
-                        "predicted_pln_questions": getattr(prediction, "pln_questions", "N/A")
+                        "predicted_pln_query": getattr(prediction, "pln_query", "N/A")
                     }
                     
                     results.append(result)
@@ -161,10 +173,10 @@ class Evaluator:
                         "input_english": sample.get("english", ""),
                         "expected_pln_types": sample.get("pln_types", ""),
                         "expected_pln_statements": sample.get("pln_statements", ""),
-                        "expected_pln_questions": sample.get("pln_questions", ""),
+                        "expected_pln_query": sample.get("pln_query", ""),
                         "predicted_pln_types": "ERROR",
                         "predicted_pln_statements": "ERROR",
-                        "predicted_pln_questions": "ERROR"
+                        "predicted_pln_query": "ERROR"
                     }
                     
                     results.append(error_result)

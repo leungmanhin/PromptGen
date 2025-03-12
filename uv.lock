@@ -493,6 +493,17 @@ wheels = [
 ]
 
 [[package]]
+name = "hyperon"
+version = "0.2.2"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4f/c1/3f1c789b0d4b46312267786ec7b23cabf4ba3a8ec13b1f117a73f8c58b8b/hyperon-0.2.2-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:9b51b82b3046b85576f308062c78fbe26873379fb79671531f08b7f1e69dfa65", size = 5374477 },
+    { url = "https://files.pythonhosted.org/packages/90/65/692664838b14ac185fa2c5b7e127d17b4ee8381cf29f7d86820a7c68ebb7/hyperon-0.2.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:14b7b092872be2f897e3a14dc9c32023c12c1490c4ba9fba62d03cc12e9188f0", size = 5376371 },
+    { url = "https://files.pythonhosted.org/packages/43/73/7157675bd97776a2cbb6de26ce47c3bbf81305263be9facb733478455c2b/hyperon-0.2.2-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:bb4a457fd8f0e407263a21f9e83bb2fefaba451d7ede360811479a94e490afb3", size = 5526840 },
+    { url = "https://files.pythonhosted.org/packages/0b/0e/b7057d2c3812157b1533ef661b266604142593c3cdf352ae7bc3c459b9de/hyperon-0.2.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ddd5fe3bc8eab42ae26f7987482574b3de4a8fe1d78a66e7b6f6a6dde71a0559", size = 5628127 },
+]
+
+[[package]]
 name = "idna"
 version = "3.10"
 source = { registry = "https://pypi.org/simple" }
@@ -874,6 +885,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "dspy" },
     { name = "flask" },
+    { name = "hyperon" },
     { name = "tabulate" },
 ]
 
@@ -881,6 +893,7 @@ dependencies = [
 requires-dist = [
     { name = "dspy", specifier = ">=2.6.10" },
     { name = "flask", specifier = ">=3.1.0" },
+    { name = "hyperon", specifier = ">=0.2.2" },
     { name = "tabulate", specifier = ">=0.9.0" },
 ]
 

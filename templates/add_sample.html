@@ -8,6 +8,9 @@
         <h1 class="mb-4">Add New Sample</h1>
         <div class="mb-3">
             <a href="/samples" class="btn btn-outline-secondary btn-sm">← Back to Samples</a>
+            {% if from_evaluation %}
+            <a href="/evaluation_results" class="btn btn-outline-info btn-sm">← Back to Evaluation Results</a>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -16,7 +19,7 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0">New Sample</h5>
+                <h5 class="mb-0">{% if from_evaluation %}Create New Sample from Evaluation Result{% else %}Create New Sample{% endif %}</h5>
             </div>
             <div class="card-body">
                 <form method="POST" id="add-sample-form">
@@ -40,18 +43,18 @@
                     </div>
                     <div class="mb-3">
                         <label for="pln_types" class="form-label">PLN Types:</label>
-                        <textarea class="form-control font-monospace" id="pln_types" name="pln_types" rows="5" required placeholder="(: dog (-> (: $dog Object) Type))
+                        <textarea class="form-control font-monospace" id="pln_types" name="pln_types" rows="5" placeholder="(: dog (-> (: $dog Object) Type))
 (: name (-> (: $named Object) (: $name String) Type))">{{ sample.pln_types }}</textarea>
                     </div>
                     <div class="mb-3">
                         <label for="pln_statements" class="form-label">PLN Statements:</label>
-                        <textarea class="form-control font-monospace" id="pln_statements" name="pln_statements" rows="8" required placeholder="(: max Object)
+                        <textarea class="form-control font-monospace" id="pln_statements" name="pln_statements" rows="8" placeholder="(: max Object)
 (: max_named_max (WithTV (name max 'Max') (STV 1.0 1.0)))
 (: max_dog (WithTV (dog max) (STV 1.0 1.0)))">{{ sample.pln_statements }}</textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="pln_questions" class="form-label">PLN Questions:</label>
-                        <textarea class="form-control font-monospace" id="pln_questions" name="pln_questions" rows="3" placeholder="(: $query (Implication (dog $x) (animal $x)))">{{ sample.pln_questions }}</textarea>
+                        <label for="pln_query" class="form-label">PLN Questions:</label>
+                        <textarea class="form-control font-monospace" id="pln_query" name="pln_query" rows="3" placeholder="(: $query (Implication (dog $x) (animal $x)))">{{ sample.pln_query }}</textarea>
                         <div class="form-text">Optional. Leave blank if there are no questions.</div>
                     </div>
                     <div class="d-grid gap-2">
@@ -92,11 +95,18 @@
                 success: function(data) {
                     if (data.error) {
                         alert("Error: " + data.error);
+                        
+                        // If the error is about program selection, provide a helpful message
+                        if (data.error.includes("No program selected")) {
+                            if (confirm("No program selected. Would you like to create one now?")) {
+                                window.location.href = "/";  // Redirect to homepage to create a program
+                            }
+                        }
                     } else {
                         // Fill in the form fields with generated data
                         $("#pln_types").val(data.pln_types);
                         $("#pln_statements").val(data.pln_statements);
-                        $("#pln_questions").val(data.pln_questions);
+                        $("#pln_query").val(data.pln_query);
                     }
                 },
                 error: function() {

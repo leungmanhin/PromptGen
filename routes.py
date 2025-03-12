@@ -85,7 +85,7 @@ def create_routes(app_state: AppState, sample_manager: SampleManager,
                 samples[sample_id]['english'] = request.form.get('english', '')
                 samples[sample_id]['pln_types'] = request.form.get('pln_types', '')
                 samples[sample_id]['pln_statements'] = request.form.get('pln_statements', '')
-                samples[sample_id]['pln_questions'] = request.form.get('pln_questions', '')
+                samples[sample_id]['pln_query'] = request.form.get('pln_query', '')
                 sample_manager.save_samples(samples)
                 return redirect(url_for('main.view_sample', sample_id=sample_id))
         
@@ -102,7 +102,7 @@ def create_routes(app_state: AppState, sample_manager: SampleManager,
                 "english": request.form.get('english', ''),
                 "pln_types": request.form.get('pln_types', ''),
                 "pln_statements": request.form.get('pln_statements', ''),
-                "pln_questions": request.form.get('pln_questions', '')
+                "pln_query": request.form.get('pln_query', '')
             }
             
             samples = sample_manager.load_samples()
@@ -116,7 +116,77 @@ def create_routes(app_state: AppState, sample_manager: SampleManager,
         return render_template('add_sample.html', 
                               models=app_state.AVAILABLE_MODELS, 
                               current_model=app_state.current_model,
-                              sample=empty_sample)
+                              sample=empty_sample,
+                              from_evaluation=False)
+                              
+    @bp.route('/add_sample_from_evaluation/<int:sample_id>', methods=['GET', 'POST'])
+    def add_sample_from_evaluation(sample_id):
+        """Add a new sample based on evaluation results."""
+        if request.method == 'POST':
+            # Create a new sample
+            new_sample = {
+                "english": request.form.get('english', ''),
+                "pln_types": request.form.get('pln_types', ''),
+                "pln_statements": request.form.get('pln_statements', ''),
+                "pln_query": request.form.get('pln_query', '')
+            }
+            
+            samples = sample_manager.load_samples()
+            samples.append(new_sample)
+            sample_manager.save_samples(samples)
+            return redirect(url_for('main.view_samples'))
+        
+        # Get data from evaluation results
+        if not app_state.evaluation_results or not app_state.evaluation_results.get("results"):
+            return redirect(url_for('main.view_evaluation_results'))
+            
+        # Find the evaluation result for the specified sample ID
+        eval_result = None
+        for result in app_state.evaluation_results.get("results", []):
+            if result.get("sample_id") == sample_id:
+                eval_result = result
+                break
+                
+        if not eval_result:
+            flash("Evaluation result not found.")
+            return redirect(url_for('main.view_evaluation_results'))
+            
+        # Get the model to use for generating the sample
+        model_name = app_state.current_model
+        
+        # Try to get program instructions
+        program_instructions = ""
+        if app_state.current_program_id:
+            try:
+                program_path = f"./programs/{app_state.current_program_id}/"
+                program = dspy.load(program_path)
+                if hasattr(program, 'predict') and hasattr(program.predict, 'signature'):
+                    program_instructions = program.predict.signature.instructions
+            except Exception as e:
+                print(f"Failed to load program instructions: {e}")
+        
+        try:
+            # Generate a new sample using the LLM
+            new_sample = sample_manager.generate_new_sample_from_evaluation(
+                eval_result=eval_result,
+                model_name=model_name,
+                program_instructions=program_instructions
+            )
+        except Exception as e:
+            flash(f"Error generating new sample: {str(e)}")
+            # Fall back to using the evaluation data directly
+            new_sample = {
+                "english": eval_result.get("input_english", ""),
+                "pln_types": eval_result.get("predicted_pln_types", ""),
+                "pln_statements": eval_result.get("predicted_pln_statements", ""),
+                "pln_query": eval_result.get("predicted_pln_query", "")
+            }
+        
+        return render_template('add_sample.html', 
+                              models=app_state.AVAILABLE_MODELS, 
+                              current_model=app_state.current_model,
+                              sample=new_sample,
+                              from_evaluation=True)
 
     @bp.route('/generate_sample', methods=['POST'])
     def generate_sample():
@@ -125,6 +195,26 @@ def create_routes(app_state: AppState, sample_manager: SampleManager,
         model_name = request.form.get('model', app_state.current_model)
         english_input = request.form.get('english', '')
         
+        # Check if a program is selected
+        if not app_state.current_program_id:
+            return jsonify({
+                "error": "No program selected. Please create and select a program first.",
+                "english": english_input,
+                "pln_types": "",
+                "pln_statements": "",
+                "pln_query": ""
+            })
+            
+        # Check if the program exists
+        if not os.path.exists(f"./programs/{app_state.current_program_id}/program.pkl"):
+            return jsonify({
+                "error": f"Selected program {app_state.current_program_id} not found or corrupted.",
+                "english": english_input,
+                "pln_types": "",
+                "pln_statements": "",
+                "pln_query": ""
+            })
+            
         # Get a model instance without configuring DSPy
         sample_lm = dspy.LM(model_name)
         if sample_lm is None:
@@ -133,46 +223,53 @@ def create_routes(app_state: AppState, sample_manager: SampleManager,
                 "english": english_input,
                 "pln_types": "",
                 "pln_statements": "",
-                "pln_questions": ""
+                "pln_query": ""
             })
         
         try:
-            # Create a PLN signature for sample generation
-            class PLNSampleGen(dspy.Signature):
-                """Convert English text to Programming Language for Thought (PLN)"""
-                english = dspy.InputField(desc="English text to convert to PLN")
-                pln_types = dspy.OutputField(desc="PLN type definitions")
-                pln_statements = dspy.OutputField(desc="PLN statements")
-                pln_questions = dspy.OutputField(desc="PLN questions")
+            # Load the selected program for generation
+            print(f"Using selected program {app_state.current_program_id} for sample generation")
+            program = dspy.load(f"./programs/{app_state.current_program_id}/")
             
-            # Create a basic example generator with the specific LM instance
-            gen_example = dspy.ChainOfThought(PLNSampleGen)
-            
-            # Generate the sample using the specific LM instance
+            # Generate the sample using the loaded program and specific LM instance
             with dspy.context(lm=sample_lm):
-                pred = gen_example(english=english_input)
+                pred = program(english=english_input)
             
             # Prepare response
             response = {
                 "english": english_input,
                 "pln_types": getattr(pred, "pln_types", ""),
                 "pln_statements": getattr(pred, "pln_statements", ""),
-                "pln_questions": getattr(pred, "pln_questions", "")
+                "pln_query": getattr(pred, "pln_query", "")
             }
             
             # Return the generated sample
             return jsonify(response)
         except Exception as e:
             return jsonify({
-                "error": str(e),
+                "error": f"Error using selected program: {str(e)}",
                 "english": english_input,
                 "pln_types": "",
                 "pln_statements": "",
-                "pln_questions": ""
+                "pln_query": ""
             })
     
     @bp.route('/optimize', methods=['POST'])
     def optimize():
+        # Check if a program is selected
+        if not app_state.current_program_id:
+            return jsonify({
+                "status": "error",
+                "message": "No program selected. Please create and select a program first."
+            })
+            
+        # Check if the program exists
+        if not os.path.exists(f"./programs/{app_state.current_program_id}/program.pkl"):
+            return jsonify({
+                "status": "error",
+                "message": f"Selected program {app_state.current_program_id} not found or corrupted."
+            })
+            
         if not optimizer.running:
             model_name = request.form.get('model', app_state.current_model)
             # Update the current model in app state
@@ -216,6 +313,36 @@ def create_routes(app_state: AppState, sample_manager: SampleManager,
     def get_evaluation_results():
         """Get the current evaluation results as JSON."""
         return jsonify(app_state.evaluation_results)
+        
+    @bp.route('/create_program', methods=['POST'])
+    def create_program():
+        """Create a new empty program"""
+        model_name = request.form.get('model', app_state.current_model)
+        base_program_id = request.form.get('base_program_id')
+        
+        try:
+            # Create a new program
+            program_id = app_state.create_new_program(model_name, base_program_id)
+            flash(f"Created new program: {program_id}")
+            return redirect(url_for('main.index'))
+        except Exception as e:
+            flash(f"Failed to create program: {e}")
+            print(f"Error creating program: {e}")
+            return redirect(url_for('main.index'))
+    
+    @bp.route('/delete_program/<program_id>', methods=['POST'])
+    def delete_program(program_id):
+        """Delete a program"""
+        try:
+            if app_state.delete_program(program_id):
+                flash(f"Deleted program: {program_id}")
+            else:
+                flash(f"Failed to delete program: {program_id}")
+        except Exception as e:
+            flash(f"Error deleting program: {e}")
+            print(f"Error deleting program {program_id}: {e}")
+        
+        return redirect(url_for('main.index'))
 
     @bp.route('/edit_program_instructions', methods=['GET', 'POST'])
     def edit_program_instructions():

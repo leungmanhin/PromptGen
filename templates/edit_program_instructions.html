@@ -6,6 +6,10 @@
 <div class="container mt-4">
     <h1>Edit Program Instructions</h1>
     
+    <div class="alert alert-info mb-3">
+        <strong>Editing program:</strong> {{ program_id }}
+    </div>
+    
     <form method="POST" action="{{ url_for('main.edit_program_instructions') }}">
         <div class="mb-3">
             <label for="instructions" class="form-label">Program Instructions</label>

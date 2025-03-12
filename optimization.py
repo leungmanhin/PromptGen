@@ -19,12 +19,12 @@ class Optimizer:
         """Prepare DSPy examples from loaded samples"""
         examples = []
         for d in samples:
-            if "english" in d and "pln_types" in d and "pln_statements" in d and "pln_questions" in d:
+            if "english" in d and "pln_types" in d and "pln_statements" in d and "pln_query" in d:
                 example = dspy.Example(
                     english=d["english"],
                     pln_types=d["pln_types"],
                     pln_statements=d["pln_statements"],
-                    pln_questions=d["pln_questions"]
+                    pln_query=d["pln_query"]
                 ).with_inputs("english")
                 examples.append(example)
         
@@ -49,10 +49,32 @@ class Optimizer:
 
             # Define the PLN signature
             class PLNTask(dspy.Signature):
+                """
+                Conver the given english to PLN.
+                If it is a question construct one ore more queries to answer it.
+                If it is a statement construct one or more statements to add the knowledge to the KB.
+                Provide type definitions for all predicates.
+
+                Given Types are:
+                (: Implication (-> (: $implicant Type) (: $consequent Type) Type))
+                (: And (-> (: $a Type) (: $b Type) Type))
+                (: Or (-> (: $a Type) (: $b Type) Type))
+                (: Equivalence (-> (: $a Type) (: $b Type) Type))
+                (: WithTV (-> (: $a Type) (: $tv TV) Type))
+                (: STV (-> (: $strength Number) (: $confidence Number) TV))
+
+                All queries or statments should be wrapped in WithTV.
+                Example Statment:
+                (: proofname (WithTV (Predicate object) (STV 1.0 1.0)))
+                Example Query :
+                (: $query (WithTV (Predicate object) $tv))
+                meaning (try to find a proof $query that Predicate applies to object and get me the $tv)
+                Predicate or object could also be varaibles in a query.
+                """
                 english = dspy.InputField(desc="English text to convert to PLN")
                 pln_types = dspy.OutputField(desc="PLN type definitions")
                 pln_statements = dspy.OutputField(desc="PLN statements")
-                pln_questions = dspy.OutputField(desc="PLN questions")
+                pln_query = dspy.OutputField(desc="PLN query")
 
             # Base task can either be a new one or loaded from the current program
             if self.app_state.current_program_id and os.path.exists(f"./programs/{self.app_state.current_program_id}/program.pkl"):
@@ -66,27 +88,25 @@ class Optimizer:
                     optimized_task = dspy.MIPROv2(
                         metric=self._optimization_metric,
                         auto="light"
-                    ).compile(base_task, trainset=training_data, requires_permission_to_run=False)
+                    ).compile(base_task, trainset=training_data, max_bootstrapped_demos=0, requires_permission_to_run=False)
                 except Exception as e:
                     print(f"Failed to load base task, creating new one: {e}")
                     # Fall back to creating a new task
-                    task = dspy.ChainOfThought("english -> pln_types,pln_statements,pln_questions")
-                    task.predict.signature.instructions = "Convert English text to Probabilistic Logic Networks (PLN)"
+                    task = dspy.ChainOfThought(PLNTask)
                     optimized_task = dspy.MIPROv2(
                         metric=self._optimization_metric,
                         auto="light"
-                    ).compile(task, trainset=training_data, requires_permission_to_run=False)
+                    ).compile(task, trainset=training_data, max_bootstrapped_demos=0, requires_permission_to_run=False)
             else:
                 # Create a new task using the PLN signature
                 print("Creating new base task")
-                task = dspy.ChainOfThought("english -> pln_types,pln_statements,pln_questions")
-                task.predict.signature.instructions = "Convert English text to Probabilistic Logic Networks (PLN)"
+                task = dspy.ChainOfThought(PLNTask)
                 optimized_task = dspy.MIPROv2(
                     metric=self._optimization_metric,
                     auto="light"
-                ).compile(task, trainset=training_data, requires_permission_to_run=False)
+                ).compile(task, trainset=training_data, max_bootstrapped_demos=0, requires_permission_to_run=False)
             
-            # Generate a unique ID for the program
+            # Create a new program directory using the app state
             program_id = f"program_{int(time.time())}"
             program_dir = f"./programs/{program_id}/"
             
@@ -122,5 +142,9 @@ class Optimizer:
 
     def _optimization_metric(self, example, pred, trace=None) -> float:
         """Metric for optimization process"""
-        score, _ = judge_metric(example, pred).similarity
+        score, _ = judge_metric(example, pred)
+        print("\n")
+        print("score:")
+        print(score)
+        print("\n")
         return score

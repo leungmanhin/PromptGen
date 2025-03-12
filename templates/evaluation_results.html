@@ -98,11 +98,11 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <h6>Expected PLN Questions:</h6>
-                                        <pre class="bg-light p-2">{{ result.expected_pln_questions|default('N/A') }}</pre>
+                                        <pre class="bg-light p-2">{{ result.expected_pln_query|default('N/A') }}</pre>
                                     </div>
                                     <div class="col-md-6">
                                         <h6>Predicted PLN Questions:</h6>
-                                        <pre class="bg-light p-2">{{ result.predicted_pln_questions|default('N/A') }}</pre>
+                                        <pre class="bg-light p-2">{{ result.predicted_pln_query|default('N/A') }}</pre>
                                     </div>
                                 </div>
                                 
@@ -119,6 +119,7 @@
                                 <div class="text-end">
                                     <a href="/sample/{{ result.sample_id }}" class="btn btn-sm btn-primary">View Sample</a>
                                     <a href="/sample/{{ result.sample_id }}/edit" class="btn btn-sm btn-warning">Edit Sample</a>
+                                    <a href="/add_sample_from_evaluation/{{ result.sample_id }}" class="btn btn-sm btn-success">Create New Sample</a>
                                 </div>
                             </div>
                         </div>

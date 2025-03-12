@@ -37,9 +37,11 @@ def balance_parentheses(expr: str) -> Tuple[str,float]:
 
 def checkStmt(expr: str) -> float:
     metta = MeTTaHandler('tmp.json',read_only=True)
-    res = metta.run_clean(f"!(unify {expr} (: $prf (WithTV $stmt (STV $s $c))) 1.0 0.0)")
-
-    return res[0]
+    try:
+     res = metta.run_clean(f"!(unify {expr} (: $123prf (WithTV $123stmt (STV $123s $123c))) 1.0 0.0)")
+     return float(res[0])
+    except:
+     return 0.0
 
 def cleanPLN(expr: str) -> str:
     expr , _ = balance_parentheses(expr)
@@ -49,3 +51,6 @@ def cleanAndScore(expr: str) -> Tuple[str,float]:
     expr , s1 = balance_parentheses(expr)
     s2 = checkStmt(expr)
     return expr , min(s1,s2)
+
+if __name__ == "__main__":
+    print(cleanAndScore("(: $prf (WithTV (Dog max) (STV 1.0 1.0)))"))
