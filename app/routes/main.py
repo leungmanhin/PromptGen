@@ -46,5 +46,14 @@ def create_main_routes(app_state, sample_manager, optimizer, evaluator):
     def optimization_status():
         """Check optimization status"""
         return jsonify({"running": optimizer.running})
+        
+    @bp.route('/evaluation_results')
+    def evaluation_results():
+        """View detailed evaluation results"""
+        if not app_state.evaluation_results:
+            flash("No evaluation results available. Please run an evaluation first.")
+            return redirect(url_for('main.index'))
+            
+        return render_template('evaluation_results.html', app_state=app_state)
 
     return bp

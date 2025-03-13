@@ -52,27 +52,6 @@ class Optimizer:
         
         return examples
 
-    def _create_signature_class(self, signature: SignatureDefinition) -> type:
-        """Create a dynamic signature class from a signature definition
-        
-        Args:
-            signature (SignatureDefinition): The signature definition
-            
-        Returns:
-            type: The signature class
-        """
-        # Create a module to execute the signature class definition
-        module_name = f"dynamic_signature_{int(time.time())}"
-        spec = importlib.util.spec_from_loader(module_name, loader=None)
-        module = importlib.util.module_from_spec(spec)
-        module.dspy = dspy
-        
-        # Execute the signature class definition in the module's context
-        exec(signature.signature_class_def, module.__dict__)
-        
-        # Get the class from the module
-        return getattr(module, signature.name)
-
     def run_optimization(self, model_name: str, signature_name: Optional[str] = None) -> None:
         """Run the optimization process with thread safety
         
@@ -107,10 +86,7 @@ class Optimizer:
             if not training_data:
                 raise ValueError(f"No valid training data found for signature {sig_name}")
 
-            # Create the signature class
-            signature_class = self._create_signature_class(signature)
-
-            # Base task can either be a new one or loaded from the current program
+            # Base task must be loaded from an existing program
             current_program = self.app_state.current_program_id
             current_program_sig = self.app_state.programs.get(current_program, {}).get("signature_name")
             
@@ -126,26 +102,20 @@ class Optimizer:
                     print(f"Successfully loaded base task: {type(base_task)}")
                     
                     # Use the same optimization technique
-                    optimized_task = dspy.MIPROv2(
-                        metric=self._optimization_metric,
-                        auto="light"
-                    ).compile(base_task, trainset=training_data, requires_permission_to_run=False)
+                    with dspy.context(lm=thread_lm):
+                        optimized_task = dspy.MIPROv2(
+                            metric=self._optimization_metric,
+                            auto="light"
+                        ).compile(base_task, trainset=training_data, requires_permission_to_run=False)
                 except Exception as e:
-                    print(f"Failed to load base task, creating new one: {e}")
-                    # Fall back to creating a new task
-                    task = dspy.ChainOfThought(signature_class)
-                    optimized_task = dspy.MIPROv2(
-                        metric=self._optimization_metric,
-                        auto="light"
-                    ).compile(task, trainset=training_data, requires_permission_to_run=False)
+                    error_msg = f"Failed to load program: {e}"
+                    print(error_msg)
+                    raise ValueError(error_msg)
             else:
-                # Create a new task using the specified signature
-                print(f"Creating new base task for signature {sig_name}")
-                task = dspy.ChainOfThought(signature_class)
-                optimized_task = dspy.MIPROv2(
-                    metric=self._optimization_metric,
-                    auto="light"
-                ).compile(task, trainset=training_data, requires_permission_to_run=False)
+                # No program selected or program doesn't match signature
+                error_msg = "No valid program selected. Please create or select a program for this signature first."
+                print(error_msg)
+                raise ValueError(error_msg)
             
             # Create a new program directory
             program_id = f"program_{int(time.time())}"

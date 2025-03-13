@@ -256,7 +256,7 @@
                     
                     {% if evaluation_results %}
                     <div class="text-center mt-3">
-                        <a href="/evaluation_results" class="btn btn-primary">View Detailed Results</a>
+                        <a href="{{ url_for('main.evaluation_results') }}" class="btn btn-primary">View Detailed Results</a>
                     </div>
                     {% endif %}
                 </div>
@@ -271,7 +271,7 @@
                 <div class="list-group">
                     {% if samples %}
                         {% for sample in samples[:3] %}
-                            <a href="/sample/{{ loop.index0 }}" class="list-group-item list-group-item-action">
+                            <a href="{{ url_for('samples.view_sample', sample_id=loop.index0) }}" class="list-group-item list-group-item-action">
                                 <div class="d-flex w-100 justify-content-between">
                                             <h5 class="mb-1">{{ sample.english|default('No input')|truncate(50) }}</h5>
                                 </div>
@@ -279,7 +279,7 @@
                             </a>
                         {% endfor %}
                         {% if samples|length > 3 %}
-                            <a href="/samples" class="list-group-item list-group-item-action text-center">View all samples</a>
+                            <a href="{{ url_for('samples.view_samples') }}" class="list-group-item list-group-item-action text-center">View all samples</a>
                         {% endif %}
                     {% else %}
                         <div class="list-group-item">No samples available.</div>
@@ -342,21 +342,54 @@
 {% block scripts %}
 <script>
     $(document).ready(function() {
-        // Program data mapping (signature name -> program list)
-        const programData = {
-            {% for signature_name in app_state.signatures %}
-            "{{ signature_name }}": [
-                {% set programs_for_sig = app_state.get_programs_for_signature(signature_name) %}
-                {% for program_id, metadata in programs_for_sig.items() %}
-                {
-                    id: "{{ program_id }}",
-                    name: "{{ metadata.get('task_name', 'Unknown') }} ({{ program_id }})",
-                    isCurrent: {% if program_id == app_state.current_program_id %}true{% else %}false{% endif %}
-                },
-                {% endfor %}
-            ],
-            {% endfor %}
+        // Store current selections in localStorage
+        const storeSelections = function() {
+            if ("{{ app_state.current_signature_name }}") {
+                localStorage.setItem('current_signature', "{{ app_state.current_signature_name }}");
+            }
+            if ("{{ app_state.current_program_id }}") {
+                localStorage.setItem('current_program', "{{ app_state.current_program_id }}");
+            }
         };
+        
+        // Initial storage of current selections
+        storeSelections();
+        
+        // Check if we need to restore selections from localStorage
+        const restoreSelections = function() {
+            const storedSignature = localStorage.getItem('current_signature');
+            const storedProgram = localStorage.getItem('current_program');
+            
+            // Only restore if current selections don't match stored selections
+            if (storedSignature && storedSignature !== "{{ app_state.current_signature_name }}") {
+                // Redirect to select the stored signature
+                window.location.href = "{{ url_for('signatures.select_signature', signature_name='REPLACE_ME') }}".replace('REPLACE_ME', storedSignature);
+                return true;
+            } else if (storedProgram && storedProgram !== "{{ app_state.current_program_id }}") {
+                // Redirect to select the stored program
+                window.location.href = "{{ url_for('programs.select_program', program_id='REPLACE_ME') }}".replace('REPLACE_ME', storedProgram);
+                return true;
+            }
+            return false;
+        };
+        
+        // Try to restore selections if needed (only proceed with other code if not redirecting)
+        if (!restoreSelections()) {
+            // Program data mapping (signature name -> program list)
+            const programData = {
+                {% for signature_name in app_state.signatures %}
+                "{{ signature_name }}": [
+                    {% set programs_for_sig = app_state.get_programs_for_signature(signature_name) %}
+                    {% for program_id, metadata in programs_for_sig.items() %}
+                    {
+                        id: "{{ program_id }}",
+                        name: "{{ metadata.get('task_name', 'Unknown') }} ({{ program_id }})",
+                        isCurrent: {% if program_id == app_state.current_program_id %}true{% else %}false{% endif %}
+                    },
+                    {% endfor %}
+                ],
+                {% endfor %}
+            };
         
         // Update base program options when signature is changed
         $('#signature-name').change(function() {
@@ -406,7 +439,7 @@
             var signature_name = $('#optimization-signature').val();
             
             $.ajax({
-                url: '/optimize',
+                url: '/programs/optimize',
                 type: 'POST',
                 data: {
                     model: model,
@@ -443,7 +476,7 @@
         
         function checkOptimizationStatus() {
             $.ajax({
-                url: '/optimization_status',
+                url: "{{ url_for('api.optimization_status') }}",
                 type: 'GET',
                 success: function(data) {
                     if (data.running) {
@@ -473,7 +506,7 @@
             var model = $('#evaluation-model').val();
             
             $.ajax({
-                url: '/evaluate',
+                url: "{{ url_for('api.evaluate') }}",
                 type: 'POST',
                 data: {
                     model: model,
@@ -502,6 +535,7 @@
         // Check status if optimization is already running
         checkOptimizationStatus();
         {% endif %}
+        } // Close the if(!restoreSelections()) block
     });
 </script>
 {% endblock %}

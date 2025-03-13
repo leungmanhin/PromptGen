@@ -152,14 +152,28 @@ def create_api_routes(app_state, sample_manager, optimizer, evaluator):
                 response[field] = ""
             return jsonify(response)
     
-    @bp.route('/evaluation_results')
-    def get_evaluation_results():
-        """Get the current evaluation results as JSON."""
-        return jsonify(app_state.evaluation_results)
-    
     @bp.route('/optimization_status')
     def optimization_status():
         """Check optimization status"""
         return jsonify({"running": optimizer.running})
+    
+    @bp.route('/evaluate', methods=['POST'])
+    def evaluate():
+        """Evaluate the current program against samples"""
+        model_name = request.form.get('model', app_state.current_model)
+        similarity_model = request.form.get('similarity_model')
+        
+        # If similarity model is empty, use None (defaults to same as evaluation model)
+        if similarity_model == '':
+            similarity_model = None
+            
+        # Run evaluation
+        results = evaluator.run_evaluation(model_name, similarity_model)
+        
+        # Store results in app state
+        if results.get('status') == 'success':
+            app_state.evaluation_results = results
+            
+        return jsonify(results)
         
     return bp

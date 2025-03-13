@@ -88,6 +88,7 @@ class Evaluator:
             # Evaluate each sample
             with dspy.context(lm=eval_lm):
                 for i, sample in enumerate(samples):
+                    print(i)
                     try:
                         # Prepare input data
                         input_data = {}

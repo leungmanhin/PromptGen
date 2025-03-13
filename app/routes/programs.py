@@ -136,6 +136,15 @@ def create_program_routes(app_state, optimizer):
                 "message": f"Signature '{signature_name}' not found."
             })
         
+        # Check if a valid program is selected for this signature
+        current_program = app_state.current_program_id
+        current_program_sig = app_state.programs.get(current_program, {}).get("signature_name")
+        if not current_program or current_program_sig != signature_name:
+            return jsonify({
+                "status": "error",
+                "message": "No valid program selected. Please create or select a program for this signature first."
+            })
+        
         # Start optimization in a separate thread
         if not optimizer.running:
             model_name = request.form.get('model', app_state.current_model)

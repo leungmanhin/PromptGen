@@ -6,7 +6,7 @@
 <div class="row">
     <div class="col-md-12">
         <h1 class="mb-4">Evaluation Results</h1>
-        <a href="/" class="btn btn-outline-primary mb-4">← Back to Dashboard</a>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary mb-4">← Back to Dashboard</a>
     </div>
 </div>
 
@@ -46,13 +46,17 @@
 
         {% if app_state.evaluation_results and app_state.evaluation_results.results %}
         <div class="card mb-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">Sample Results (Sorted by Difficulty)</h5>
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Sample Results</h5>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-light" id="sortByScoreBtn">Sort by Score</button>
+                    <button class="btn btn-sm btn-outline-light" id="sortByDifficultyBtn">Sort by Difficulty</button>
+                </div>
             </div>
             <div class="card-body">
                 <div class="accordion" id="sampleResultsAccordion">
-                    {% for result in app_state.evaluation_results.results %}
-                    <div class="accordion-item">
+                    {% for result in app_state.evaluation_results.results|sort(reverse=true, attribute='overall_score') %}
+                    <div class="accordion-item result-item" data-score="{{ result.overall_score|round|int }}">
                         <h2 class="accordion-header" id="heading{{ result.sample_id }}">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
                                     data-bs-target="#collapse{{ result.sample_id }}" aria-expanded="false" 
@@ -73,38 +77,18 @@
                                 </div>
                                 
                                 <!-- Output Fields -->
+                                {% for field in app_state.get_current_signature().output_fields %}
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <h6>Expected PLN Types:</h6>
-                                        <pre class="bg-light p-2">{{ result.expected_pln_types|default('N/A') }}</pre>
+                                        <h6>Expected {{ field|replace('_', ' ')|title }}:</h6>
+                                        <pre class="bg-light p-2">{{ result['expected_' + field]|default('N/A') }}</pre>
                                     </div>
                                     <div class="col-md-6">
-                                        <h6>Predicted PLN Types:</h6>
-                                        <pre class="bg-light p-2">{{ result.predicted_pln_types|default('N/A') }}</pre>
+                                        <h6>Predicted {{ field|replace('_', ' ')|title }}:</h6>
+                                        <pre class="bg-light p-2">{{ result['predicted_' + field]|default('N/A') }}</pre>
                                     </div>
                                 </div>
-                                
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <h6>Expected PLN Statements:</h6>
-                                        <pre class="bg-light p-2">{{ result.expected_pln_statements|default('N/A') }}</pre>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>Predicted PLN Statements:</h6>
-                                        <pre class="bg-light p-2">{{ result.predicted_pln_statements|default('N/A') }}</pre>
-                                    </div>
-                                </div>
-                                
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <h6>Expected PLN Questions:</h6>
-                                        <pre class="bg-light p-2">{{ result.expected_pln_query|default('N/A') }}</pre>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>Predicted PLN Questions:</h6>
-                                        <pre class="bg-light p-2">{{ result.predicted_pln_query|default('N/A') }}</pre>
-                                    </div>
-                                </div>
+                                {% endfor %}
                                 
                                 <div class="card border-info mb-3">
                                     <div class="card-header bg-info text-white">
@@ -117,9 +101,18 @@
                                 </div>
                                 
                                 <div class="text-end">
-                                    <a href="/sample/{{ result.sample_id }}" class="btn btn-sm btn-primary">View Sample</a>
-                                    <a href="/sample/{{ result.sample_id }}/edit" class="btn btn-sm btn-warning">Edit Sample</a>
-                                    <a href="/add_sample_from_evaluation/{{ result.sample_id }}" class="btn btn-sm btn-success">Create New Sample</a>
+                                    <a href="{{ url_for('samples.view_sample', sample_id=result.sample_id) }}" class="btn btn-sm btn-primary">View Sample</a>
+                                    <a href="{{ url_for('samples.edit_sample', sample_id=result.sample_id) }}" class="btn btn-sm btn-warning">Edit Sample</a>
+                                    <button type="button" class="btn btn-sm btn-success create-sample-btn" 
+                                            data-bs-toggle="modal" data-bs-target="#createNewSampleModal"
+                                            {% for field in app_state.get_current_signature().input_fields %}
+                                            data-{{ field }}="{{ result['input_' + field]|default('') }}"
+                                            {% endfor %}
+                                            {% for field in app_state.get_current_signature().output_fields %}
+                                            data-{{ field }}="{{ result['predicted_' + field]|default('') }}"
+                                            {% endfor %}>
+                                        Create New Sample
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -135,4 +128,81 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Create New Sample Modal -->
+<div class="modal fade" id="createNewSampleModal" tabindex="-1" aria-labelledby="createNewSampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createNewSampleModalLabel">Create New Sample</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('samples.add_sample') }}" method="post">
+                <div class="modal-body">
+                    {% for field in app_state.get_current_signature().input_fields %}
+                    <div class="mb-3">
+                        <label for="{{ field }}" class="form-label">{{ field|replace('_', ' ')|title }}</label>
+                        <textarea class="form-control" id="modal_{{ field }}" name="{{ field }}" rows="3" required></textarea>
+                    </div>
+                    {% endfor %}
+                    
+                    {% for field in app_state.get_current_signature().output_fields %}
+                    <div class="mb-3">
+                        <label for="{{ field }}" class="form-label">{{ field|replace('_', ' ')|title }}</label>
+                        <textarea class="form-control" id="modal_{{ field }}" name="{{ field }}" rows="3"></textarea>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Sample</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create sample from evaluation result
+    const createSampleBtns = document.querySelectorAll('.create-sample-btn');
+    createSampleBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Get all data attributes and populate the form fields
+            const dataset = this.dataset;
+            
+            // Loop through all data attributes
+            Object.keys(dataset).forEach(key => {
+                // Find matching form fields
+                const field = document.getElementById('modal_' + key);
+                if (field) {
+                    field.value = dataset[key];
+                }
+            });
+        });
+    });
+    
+    // Sorting functionality
+    document.getElementById('sortByScoreBtn').addEventListener('click', function() {
+        sortResults('score', true);
+    });
+    
+    document.getElementById('sortByDifficultyBtn').addEventListener('click', function() {
+        sortResults('score', false);
+    });
+    
+    function sortResults(attr, descending) {
+        const container = document.getElementById('sampleResultsAccordion');
+        const items = Array.from(container.querySelectorAll('.result-item'));
+        
+        items.sort((a, b) => {
+            const aVal = parseInt(a.getAttribute(`data-${attr}`));
+            const bVal = parseInt(b.getAttribute(`data-${attr}`));
+            return descending ? bVal - aVal : aVal - bVal;
+        });
+        
+        items.forEach(item => container.appendChild(item));
+    }
+});
+</script>
 {% endblock %}

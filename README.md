@@ -117,3 +117,28 @@ Samples can be created, imported, and exported for each signature:
 - DSPy: Deep learning framework for prompting
 - Bootstrap 5: Frontend framework (via CDN)
 - jQuery: JavaScript library (via CDN)
+
+## Testing
+
+The project includes tests for core components:
+
+```bash
+# Run all tests
+pytest
+
+# Run tests with verbose output
+pytest -v
+
+# Run specific test categories
+pytest tests/test_state.py
+pytest tests/test_metrics.py
+pytest tests/test_cleanpln.py
+pytest tests/test_samples.py
+```
+
+Tests cover the following components:
+
+- **AppState**: Singleton pattern, directory initialization, signature management
+- **Metrics**: Evaluation metrics, dynamic judge creation, PLN statement processing
+- **CleanPLN**: PLN statement cleaning and validation
+- **Samples**: Sample creation, validation, and storage

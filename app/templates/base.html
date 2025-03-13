@@ -32,13 +32,13 @@
 <body>
     <div class="container">
         <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+            <a href="{{ url_for('main.index') }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
                 <span class="fs-4">NL2PLN Promptgen</span>
             </a>
             <ul class="nav nav-pills">
-                <li class="nav-item"><a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">Dashboard</a></li>
-                <li class="nav-item"><a href="/samples" class="nav-link {% if request.path == '/samples' %}active{% endif %}">Samples</a></li>
-                <li class="nav-item"><a href="/add_sample" class="nav-link {% if request.path == '/add_sample' %}active{% endif %}">Add Sample</a></li>
+                <li class="nav-item"><a href="{{ url_for('main.index') }}" class="nav-link {% if request.path == '/' %}active{% endif %}">Dashboard</a></li>
+                <li class="nav-item"><a href="{{ url_for('samples.view_samples') }}" class="nav-link {% if request.path == '/samples' %}active{% endif %}">Samples</a></li>
+                <li class="nav-item"><a href="{{ url_for('samples.add_sample') }}" class="nav-link {% if request.path == '/samples/add' %}active{% endif %}">Add Sample</a></li>
             </ul>
         </header>
 

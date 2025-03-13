@@ -38,8 +38,8 @@ def balance_parentheses(expr: str) -> Tuple[str,float]:
 def checkStmt(expr: str) -> float:
     metta = MeTTaHandler('tmp.json',read_only=True)
     try:
-     res = metta.run_clean(f"!(unify {expr} (: $123prf (WithTV $123stmt (STV $123s $123c))) 1.0 0.0)")
-     return float(res[0])
+        res = metta.run_clean(f"!(unify {expr} (: $123prf (WithTV $123stmt (STV $123s $123c))) 1.0 (unify {expr} (: $prf ($implicatonequivalence $a $b (STV $s $c))) 1.0 0.0))")
+        return float(res[0])
     except:
      return 0.0
 

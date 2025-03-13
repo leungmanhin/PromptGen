@@ -36,7 +36,9 @@ class AppState:
             'openrouter/anthropic/claude-3.7-sonnet',
             'anthropic/claude-3-5-sonnet-20240620',
             'deepseek/deepseek-reasoner',
-            'openai/gpt-4o'
+            'deepseek/deepseek-chat',
+            'openai/gpt-4o',
+            'openai/gpt-4o-mini',
         ]
         
         # Signature management
