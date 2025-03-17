@@ -70,11 +70,13 @@
                         <div id="collapse{{ result.sample_id }}" class="accordion-collapse collapse" 
                              aria-labelledby="heading{{ result.sample_id }}" data-bs-parent="#sampleResultsAccordion">
                             <div class="accordion-body">
-                                <!-- Input English -->
+                                <!-- Input Fields -->
+                                {% for field in app_state.get_current_signature().input_fields %}
                                 <div class="mb-3">
-                                    <h6>English Input:</h6>
-                                    <pre class="bg-light p-2">{{ result.input_english|default('N/A') }}</pre>
+                                    <h6>{{ field|replace('_', ' ')|title }} Input:</h6>
+                                    <pre class="bg-light p-2">{{ result['input_' + field]|default('N/A') }}</pre>
                                 </div>
+                                {% endfor %}
                                 
                                 <!-- Output Fields -->
                                 {% for field in app_state.get_current_signature().output_fields %}
