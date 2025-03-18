@@ -23,8 +23,9 @@
                     {% for field in signature.input_fields %}
                     <div class="mb-3">
                         <label for="{{ field }}" class="form-label">{{ field|title }}:</label>
-                        <textarea class="form-control {% if field != 'english' %}font-monospace{% endif %}" 
-                                 id="{{ field }}" name="{{ field }}" rows="3" required>{{ sample[field] }}</textarea>
+                        <textarea class="form-control {% if field != 'english' %}font-monospace{% endif %}"
+                                 id="{{ field }}" name="{{ field }}" rows="3" required 
+                                 data-is-list="{{ sample[field] is iterable and sample[field] is not string }}">{{ sample[field]|format_for_edit }}</textarea>
                     </div>
                     {% endfor %}
                     
@@ -32,7 +33,8 @@
                     <div class="mb-3">
                         <label for="{{ field }}" class="form-label">{{ field|title }}:</label>
                         <textarea class="form-control font-monospace" id="{{ field }}" name="{{ field }}" 
-                                 rows="{% if 'statements' in field %}8{% elif 'types' in field %}5{% else %}3{% endif %}">{{ sample[field] }}</textarea>
+                                 rows="{% if 'statements' in field %}8{% elif 'types' in field %}5{% else %}3{% endif %}"
+                                 data-is-list="{{ sample[field] is iterable and sample[field] is not string }}">{{ sample[field]|format_for_edit }}</textarea>
                         {% if not field in signature.required_output_fields|default([]) %}
                         <div class="form-text">Optional. Leave blank if not needed.</div>
                         {% endif %}
@@ -47,4 +49,24 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the form
+    const form = document.querySelector('form');
+    
+    // Add submit event listener
+    form.addEventListener('submit', function(e) {
+        // Mark all textareas that contain list data
+        document.querySelectorAll('textarea[data-is-list="True"]').forEach(function(textarea) {
+            // Add a hidden input to mark this field as a list
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = textarea.name + '_is_list';
+            hiddenInput.value = 'true';
+            form.appendChild(hiddenInput);
+        });
+    });
+});
+</script>
 {% endblock %}

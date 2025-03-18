@@ -1,12 +1,7 @@
 """
 Module for optimizing DSPy programs
 """
-from typing import List, Dict, Any, Optional
-import os
-import json
-import time
-import importlib
-import inspect
+from typing import List, Dict, Optional
 
 import dspy
 
@@ -117,32 +112,17 @@ class Optimizer:
                 print(error_msg)
                 raise ValueError(error_msg)
             
-            # Create a new program directory
-            program_id = f"program_{int(time.time())}"
-            program_dir = Config.PROGRAM_DIR / program_id
+            # Save the optimized program using the utility function
+            from ..utils.program_utils import save_program
             
-            # Create directory if it doesn't exist
-            program_dir.mkdir(exist_ok=True)
-            
-            # Save program to the directory
-            print(f"Saving optimized program to {program_dir}")
-            optimized_task.save(str(program_dir), save_program=True)
-            
-            # Add additional metadata
-            metadata_path = program_dir / "metadata.json"
-            if metadata_path.exists():
-                with open(metadata_path, "r") as f:
-                    metadata = json.load(f)
-                
-                # Add additional metadata
-                metadata["model"] = model_name
-                metadata["created_at"] = time.time()
-                metadata["task_name"] = signature.description
-                metadata["base_program_id"] = self.app_state.current_program_id
-                metadata["signature_name"] = sig_name
-                
-                with open(metadata_path, "w") as f:
-                    json.dump(metadata, f, indent=2)
+            print("Saving optimized program")
+            program_id = save_program(
+                optimized_task,
+                model_name,
+                sig_name,
+                signature.description,
+                self.app_state.current_program_id
+            )
             
             # Update current program in app state
             self.app_state.current_program_id = program_id

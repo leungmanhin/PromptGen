@@ -17,4 +17,4 @@ class Config:
     SIGNATURES_DIR.mkdir(exist_ok=True)
     
     # Default model
-    DEFAULT_MODEL = 'anthropic/claude-3-5-sonnet-20240620'
+    DEFAULT_MODEL = 'anthropic/claude-3-7-sonnet-20250219'

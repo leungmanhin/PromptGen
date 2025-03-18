@@ -2,7 +2,7 @@
 API routes for the application
 """
 import dspy
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, redirect, url_for, flash
 
 def create_api_routes(app_state, sample_manager, optimizer, evaluator):
     bp = Blueprint('api', __name__)
@@ -92,7 +92,6 @@ def create_api_routes(app_state, sample_manager, optimizer, evaluator):
             return jsonify(response)
             
         # Check if the program exists
-        from pathlib import Path
         from ..config import Config
         program_path = Config.PROGRAM_DIR / app_state.current_program_id / "program.pkl"
         if not program_path.exists():
@@ -175,5 +174,57 @@ def create_api_routes(app_state, sample_manager, optimizer, evaluator):
             app_state.evaluation_results = results
             
         return jsonify(results)
+    
+    @bp.route('/generate_sample_from_evaluation', methods=['GET', 'POST'])
+    def generate_sample_from_evaluation():
+        """Generate a new sample using DSPy based on evaluation results and redirect to add_sample page"""
+        # Get the sample ID and model name
+        sample_id = request.args.get('sample_id') or request.form.get('sample_id')
+        model_name = request.args.get('model') or request.form.get('model', app_state.current_model)
+        
+        # Verify we have evaluation results
+        if not app_state.evaluation_results or not app_state.evaluation_results.get('results'):
+            flash("No evaluation results available. Please run an evaluation first.")
+            return redirect(url_for('main.index'))
+        
+        # Find the result for the specified sample ID
+        sample_id = int(sample_id) if sample_id else None
+        eval_result = None
+        
+        for result in app_state.evaluation_results.get('results', []):
+            if result.get('sample_id') == sample_id:
+                eval_result = result
+                break
+                
+        if not eval_result:
+            flash(f"Sample #{sample_id} not found in evaluation results.")
+            return redirect(url_for('main.evaluation_results'))
+            
+        # Get the program instructions
+        program_instructions = ""
+        if app_state.current_program_id:
+            try:
+                from ..config import Config
+                program_path = Config.PROGRAM_DIR / app_state.current_program_id
+                program = dspy.load(str(program_path))
+                if hasattr(program, 'predict') and hasattr(program.predict, 'signature'):
+                    program_instructions = program.predict.signature.instructions
+            except Exception as e:
+                print(f"Failed to load program instructions: {e}")
+        
+        # Generate a new sample
+        new_sample = sample_manager.generate_new_sample_from_evaluation(
+            eval_result=eval_result,
+            model_name=model_name,
+            program_instructions=program_instructions
+        )
+        
+        # Store the new sample in the session for the add_sample page
+        from flask import session
+        session['generated_sample'] = new_sample
+        session['from_evaluation'] = True
+        
+        # Redirect to the add_sample page
+        return redirect(url_for('samples.add_sample'))
         
     return bp

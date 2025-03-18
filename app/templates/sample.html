@@ -21,7 +21,7 @@
                 <h5 class="mb-0">{{ field|title }}</h5>
             </div>
             <div class="card-body">
-                <div class="code-block">{{ sample[field] }}</div>
+                <div class="code-block">{{ sample[field]|format_output|safe }}</div>
             </div>
         </div>
         {% endfor %}
@@ -33,7 +33,7 @@
             </div>
             <div class="card-body">
                 {% if sample[field] %}
-                <div class="code-block">{{ sample[field] }}</div>
+                <div class="code-block">{{ sample[field]|format_output|safe }}</div>
                 {% else %}
                 <p class="text-muted">No {{ field }} provided for this sample.</p>
                 {% endif %}

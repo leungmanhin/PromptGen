@@ -71,8 +71,10 @@
       "(: Furniture (-> (: $f Object) Type))"
     ],
     "statements": [
-      "(: CarIsVehicle (Implication (Car $car_obj) (Vehicle $car_obj) (STV 0.9 0.9)))",
-      "(: BicycleIsVehicle (Implication (Bicycle $bike_obj) (Vehicle $bike_obj) (STV 0.9 0.9)))"
+      "(: CarIsVehicle (Implication (Car $c) (Vehicle $c) (STV 0.95 0.9)))",
+      "(: VehicleCanBeCar (Implication (Vehicle $v) (Car $v) (STV 0.2 0.8)))",
+      "(: BicycleIsVehicle (Implication (Bicycle $b) (Vehicle $b) (STV 0.95 0.9)))",
+      "(: VehicleCanBeBicycle (Implication (Vehicle $v) (Bicycle $v) (STV 0.15 0.8)))"
     ]
   },
   {
@@ -119,11 +121,15 @@
       "(: Simultaneous (-> (: $t1 Object) (: $t2 Object) Type))"
     ],
     "statements": [
-      "(: BeforeEqAfter (Equivalence (Before $time1_obj $time2_obj) (After $time2_obj $time1_obj) (STV 1 0.9)))",
       "(: BeforeNotAfter (Equivalence (Before $t1 $t2) (Not (After $t1 $t2)) (STV 1 0.9)))",
       "(: AfterNotBefore (Equivalence (After $t1 $t2) (Not (Before $t1 $t2)) (STV 1 0.9)))",
-      "(: BeforToNotSimultaneous (Implication (Before $t1_obj $t2_obj) (Not (Simultaneous $t1_obj $t2_obj)) (STV 1 0.9)))",
-      "(: AfterToNotSimultaneous (Implication (After $t1_obj $t2_obj) (Not (Simultaneous $t1_obj $t2_obj)) (STV 1 0.9)))"
+      "(: BeforeImpliesTimePoints (Implication (Before $t1 $t2) (And (TimePoint $t1) (TimePoint $t2)) (STV 0.95 0.9)))",
+      "(: AfterImpliesTimePoints (Implication (After $t1 $t2) (And (TimePoint $t1) (TimePoint $t2)) (STV 0.95 0.9)))",
+      "(: BeforeAfterInverse (Equivalence (Before $t1 $t2) (After $t2 $t1) (STV 0.99 0.95)))",
+      "(: BeforeNotSimultaneous (Implication (Before $t1 $t2) (Not (Simultaneous $t1 $t2)) (STV 0.99 0.95)))",
+      "(: AfterNotSimultaneous (Implication (After $t1 $t2) (Not (Simultaneous $t1 $t2)) (STV 0.99 0.95)))",
+      "(: SimultaneousNotBefore (Implication (Simultaneous $t1 $t2) (Not (Before $t1 $t2)) (STV 0.99 0.95)))",
+      "(: SimultaneousNotAfter (Implication (Simultaneous $t1 $t2) (Not (After $t1 $t2)) (STV 0.99 0.95)))"
     ]
   },
   {
@@ -139,10 +145,15 @@
       "(: EatsMeat (-> (: $animal Object) Type))"
     ],
     "statements": [
-      "(: MammalIsAnimal (Implication (Mammal $mammal_obj) (Animal $mammal_obj) (STV 0.9 0.9)))",
-      "(: MammalIsVertebrate (Implication (Mammal $mammal_obj) (Vertebrate $mammal_obj) (STV 0.9 0.9)))",
-      "(: CarnivoreEatsMeat (Implication (Carnivore $carn_obj) (EatsMeat $carn_obj) (STV 0.9 0.9)))",
-      "(: HerbivoreEatsPlants (Implication (Herbivore $herb_obj) (EatsPlants $herb_obj) (STV 0.9 0.9)))"
+      "(: MammalIsAnimal (Implication (Mammal $m) (Animal $m) (STV 0.99 0.95)))",
+      "(: MammalIsVertebrate (Implication (Mammal $m) (Vertebrate $m) (STV 0.99 0.95)))",
+      "(: AnimalMayBeVertebrate (Implication (Animal $a) (Vertebrate $a) (STV 0.05 0.9)))",
+      "(: CarnivoreEatsMeat (Implication (Carnivore $c) (EatsMeat $c) (STV 0.99 0.95)))",
+      "(: HerbivoreEatsPlants (Implication (Herbivore $h) (EatsPlants $h) (STV 0.99 0.95)))",
+      "(: CarnivoreNotHerbivore (Equivalence (Carnivore $a) (Not (Herbivore $a))(STV 0.9 0.85)))",
+      "(: HerbivoreNotCarnivore (Equivalence (Herbivore $a) (Not (Carnivore $a))(STV 0.9 0.85)))",
+      "(: CarnivoreIsAnimal (Implication (Carnivore $c) (Animal $c) (STV 0.99 0.95)))",
+      "(: HerbivoreIsAnimal (Implication (Herbivore $h) (Animal $h) (STV 0.99 0.95)))"
     ]
   },
   {
@@ -171,13 +182,14 @@
       "(: RequiresDegree (-> (: $position Object) (: $degree Object) Type))"
     ],
     "similar_types": [
-      "(: Enrolls (-> (: $student Object) (: $course Object) Type))",
+      "(: Enrolled (-> (: $student Object) (: $course Object) Type))",
       "(: Teaches (-> (: $teacher Object) (: $subject Object) Type))"
     ],
     "statements": [
       "(: DegreeQualifiesPerson (Implication (And (HasDegree $person_obj $degree_obj) (RequiresDegree $position_obj $degree_obj)) (QualifiedFor $person_obj $position_obj) (STV 0.9 0.9)))",
-      "(: EnrollsToStudies (Implication (Enrolls $student_obj $course_obj) (Studies $student_obj $course_obj) (STV 0.9 0.9)))",
-      "(: CompletesToNotEnrolls (Implication (Completes $student_obj $course_obj) (Not (Enrolls $student_obj $course_obj)) (STV 0.9 0.9)))"
+      "(: EnrollsToStudies (Implication (Enrolled $student_obj $course_obj) (Studies $student_obj $course_obj) (STV 0.9 0.9)))",
+      "(: CompletesToEnrolledBefore (Implication (Context (Completes $student_obj $course_obj) $ctx1) (And (Before $ctx1 $ctx2) (Context (Not (Enrolled $student_obj $course_obj)) $ctx2)) (STV 0.9 0.9)))",
+      "(: CompletesToNotEnrolled (Implication (Completes $student_obj $course_obj) (Not (Enrolls $student_obj $course_obj)) (STV 0.9 0.9)))"
     ]
   },
   {
@@ -192,8 +204,8 @@
       "(: Transports (-> (: $carrier Object) (: $cargo Object) Type))"
     ],
     "statements": [
-      "(: ProductionNeedsMaterial (Implication (And (Produces $manuf_obj $product_obj) (Uses $product_obj $material_obj)) (RequiresMaterial $manuf_obj $material_obj) (STV 0.9 0.9)))",
-      "(: SuppliesToRequiresMaterial (Implication (And (Supplies $supplier_obj $material_obj $manuf_obj) (RequiresMaterial $manuf_obj $material_obj)) (STV 0.9 0.9)))"
+      "(: ProductionRequiresMaterials (Implication (And (Produces $manufacturer $product) (Uses $product $material)) (RequiresMaterial $manufacturer $material) (STV 0.95 0.9)))",
+      "(: SupplierFulfillsRequirement (Implication (Supplies $supplier $material $manufacturer) (RequiresMaterial $manufacturer $material) (STV 0.8 0.85)))"
     ]
   },
   {
@@ -248,9 +260,20 @@
       "(: Available (-> (: $pkg Object) Type))"
     ],
     "statements": [
-      "(: DependencyMustBeInstalled (Implication (And (DependsOn $pkg_obj $dep_obj) (Installed $pkg_obj)) (Installed $dep_obj) (STV 1 0.9)))",
-      "(: IncompatibleIsSymmetric (Implication (Incompatible $pkg1_obj $pkg2_obj) (Incompatible $pkg2_obj $pkg1_obj) (STV 1 0.9)))",
-      "(: IncompatibleNotInstalled (Implication (And (Incompatible $pkg1_obj $pkg2_obj) (Installed $pkg1_obj)) (Not (Installed $pkg2_obj)) (STV 1 0.9)))"
+      "(: DependencyRequiresInstallation (Implication (And (DependsOn $pkg $dep) (Installed $pkg)) (Installed $dep) (STV 0.95 0.9)))",
+      "(: IncompatibleCannotBeInstalledTogether (Implication (Incompatible $pkg1 $pkg2) (Not (And (Installed $pkg1) (Installed $pkg2))) (STV 0.99 0.95)))",
+      "(: InstalledMustBeAvailable (Implication (Installed $pkg) (Available $pkg) (STV 0.99 0.95)))",
+      "(: DependencyOnUnavailableBlocksInstallation (Implication (And (DependsOn $pkg $dep) (Not (Available $dep))) (Not (Installed $pkg)) (STV 0.95 0.9)))"
     ]
+  },
+  {
+    "new_types": "(: Old (-> (: $old Object) Type))\r\n",
+    "similar_types": "(: Young (-> (: $young Object) Type))",
+    "statements": "(: YoungBeforeOld (Implication (Context (Young $x) $ctx) (And (Before $ctx $after) (Context (Old $x) $after)) (STV 0.99 0.9)))\r\n(: OldImpliesNotYoung (Implication (Old $person) (Not (Young $person)) (STV 0.9 0.8)))\r\n(: YoungImpliesNotOld (Implication (Young $person) (Not (Old $person)) (STV 0.9 0.8)))\r\n\r\n"
+  },
+  {
+    "new_types": "(: Acute (-> (: $condition Object) Type))",
+    "similar_types": "(: Chronic (-> (: $condition Object) Type))",
+    "statements": "(: ChronicImpliesNotAcute (Implication (Chronic $condition) (Not (Acute $condition)) (STV 0.95 0.9)))\r\n(: AcuteImpliesNotChronic (Implication (Acute $condition) (Not (Chronic $condition)) (STV 0.95 0.9)))\r\n(: ChronicPersistsOverTime (Implication (Context (Chronic $condition) $ctx1) (And (After $ctx1 $ctx2) (Context (Chronic $condition) $ctx2)) (STV 0.8 0.75)))"
   }
 ]

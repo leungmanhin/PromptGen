@@ -116,6 +116,9 @@
                                             <small class="d-block {% if program_id == app_state.current_program_id %}text-light{% else %}text-muted{% endif %}">
                                                 Created: {{ metadata.get('created_at')|timestamp_to_date }}
                                             </small>
+                                            <small class="d-block {% if program_id == app_state.current_program_id %}text-light{% else %}text-muted{% endif %}">
+                                                Id: {{ program_id }}
+                                            </small>
                                             {% if metadata.get('base_program_id') %}
                                             <small class="d-block {% if program_id == app_state.current_program_id %}text-light{% else %}text-muted{% endif %}">
                                                 Based on: {{ metadata.get('base_program_id') }}

@@ -5,9 +5,7 @@ import threading
 import os
 import json
 import time
-import importlib
-from typing import Dict, Optional, List
-from pathlib import Path
+from typing import Dict, Optional
 
 from ..models.signature import SignatureDefinition
 from ..config import Config
@@ -34,7 +32,6 @@ class AppState:
         self.AVAILABLE_MODELS = [
             'anthropic/claude-3-7-sonnet-20250219',
             'openrouter/anthropic/claude-3.7-sonnet',
-            'anthropic/claude-3-5-sonnet-20240620',
             'deepseek/deepseek-reasoner',
             'deepseek/deepseek-chat',
             'openai/gpt-4o',
@@ -223,6 +220,7 @@ class AppState:
         """
         import dspy
         import importlib.util
+        from ..utils.program_utils import save_program
         
         # Use provided signature name or current signature
         sig_name = signature_name or self.current_signature_name
@@ -246,31 +244,14 @@ class AppState:
         # Create a new task using the signature
         task = dspy.ChainOfThought(signature_class)
         
-        # Generate a unique ID for the program
-        program_id = f"program_{int(time.time())}"
-        program_dir = Config.PROGRAM_DIR / program_id
-        
-        # Create directory if it doesn't exist
-        program_dir.mkdir(exist_ok=True)
-        
-        # Save program to the directory
-        task.save(str(program_dir), save_program=True)
-        
-        # Add additional metadata
-        metadata_path = program_dir / "metadata.json"
-        if metadata_path.exists():
-            with open(metadata_path, "r") as f:
-                metadata = json.load(f)
-            
-            # Add additional metadata
-            metadata["model"] = model_name
-            metadata["created_at"] = time.time()
-            metadata["task_name"] = signature_def.description
-            metadata["base_program_id"] = base_program_id
-            metadata["signature_name"] = sig_name
-            
-            with open(metadata_path, "w") as f:
-                json.dump(metadata, f, indent=2)
+        # Save the program using the utility function
+        program_id = save_program(
+            task,
+            model_name,
+            sig_name,
+            signature_def.description,
+            base_program_id
+        )
         
         # Update current program in app state
         self.current_program_id = program_id

@@ -9,7 +9,7 @@
         <div class="mb-3">
             <a href="{{ url_for('samples.view_signature_samples', signature_name=signature_name) }}" class="btn btn-outline-secondary btn-sm">← Back to Samples</a>
             {% if from_evaluation %}
-            <a href="{{ url_for('api.get_evaluation_results') }}" class="btn btn-outline-info btn-sm">← Back to Evaluation Results</a>
+            <a href="{{ url_for('main.evaluation_results') }}" class="btn btn-outline-info btn-sm">← Back to Evaluation Results</a>
             {% endif %}
         </div>
     </div>
@@ -30,7 +30,8 @@
                         <div class="input-group">
                             <textarea class="form-control {% if field != 'english' %}font-monospace{% endif %}" 
                                      id="{{ field }}" name="{{ field }}" rows="3" required 
-                                     placeholder="Enter {{ field|title }}...">{{ sample[field] }}</textarea>
+                                     data-is-list="{{ sample[field] is iterable and sample[field] is not string }}"
+                                     placeholder="Enter {{ field|title }}...">{{ sample[field]|format_for_edit }}</textarea>
                             <div class="input-group-append">
                                 <button type="button" id="generate-btn" class="btn btn-primary h-100">Generate</button>
                             </div>
@@ -38,7 +39,8 @@
                         {% else %}
                         <textarea class="form-control {% if field != 'english' %}font-monospace{% endif %}" 
                                  id="{{ field }}" name="{{ field }}" rows="3" required 
-                                 placeholder="Enter {{ field|title }}...">{{ sample[field] }}</textarea>
+                                 data-is-list="{{ sample[field] is iterable and sample[field] is not string }}"
+                                 placeholder="Enter {{ field|title }}...">{{ sample[field]|format_for_edit }}</textarea>
                         {% endif %}
                     </div>
                     {% endfor %}
@@ -60,7 +62,8 @@
                         <label for="{{ field }}" class="form-label">{{ field|title }}:</label>
                         <textarea class="form-control font-monospace" id="{{ field }}" name="{{ field }}" 
                                  rows="{% if 'statements' in field %}8{% elif 'types' in field %}5{% else %}3{% endif %}" 
-                                 placeholder="Enter {{ field|title }}...">{{ sample[field] }}</textarea>
+                                 data-is-list="{{ sample[field] is iterable and sample[field] is not string }}"
+                                 placeholder="Enter {{ field|title }}...">{{ sample[field]|format_for_edit }}</textarea>
                         {% if not field in signature.required_output_fields|default([]) %}
                         <div class="form-text">Optional. Leave blank if not needed.</div>
                         {% endif %}
@@ -81,6 +84,19 @@
 {% block scripts %}
 <script>
     $(document).ready(function() {
+        // Handle form submission for list fields
+        $("#add-sample-form").on("submit", function(e) {
+            // Mark all textareas that contain list data
+            document.querySelectorAll('textarea[data-is-list="True"]').forEach(function(textarea) {
+                // Add a hidden input to mark this field as a list
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = textarea.name + '_is_list';
+                hiddenInput.value = 'true';
+                $("#add-sample-form").append(hiddenInput);
+            });
+        });
+        
         // Handle generate button click
         $("#generate-btn").click(function() {
             const primary_input = $("#{{ signature.input_fields[0] }}").val().trim();

@@ -91,7 +91,7 @@
                                 {% for field in signature.input_fields %}
                                     <div class="mb-3">
                                         <label class="fw-bold">{{ field }}:</label>
-                                        <div class="border p-2 bg-light">{{ sample.get(field, "") }}</div>
+                                        <div class="border p-2 bg-light">{{ sample.get(field, "")|format_output|safe }}</div>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -102,7 +102,7 @@
                                 {% for field in signature.output_fields %}
                                     <div class="mb-3">
                                         <label class="fw-bold">{{ field }}:</label>
-                                        <div class="border p-2 bg-light">{{ sample.get(field, "") }}</div>
+                                        <div class="border p-2 bg-light">{{ sample.get(field, "")|format_output|safe }}</div>
                                     </div>
                                 {% endfor %}
                             </div>

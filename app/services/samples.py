@@ -120,11 +120,12 @@ class SampleManager:
             
         return sample
     
-    def _create_sample_generator_for_signature(self, signature: SignatureDefinition) -> type:
+    def _create_sample_generator_for_signature(self, signature: SignatureDefinition, eval_result: Dict) -> type:
         """Create a dynamic sample generator class for a signature
         
         Args:
             signature (SignatureDefinition): The signature to create a generator for
+            eval_result (Dict): The evaluation result to base field types on
             
         Returns:
             type: A dynamic dspy.Signature class for generating samples
@@ -140,29 +141,54 @@ class SampleManager:
     \"\"\"
     You are helping to create a new sample for training a system.
     
-    Based on the evaluation of a previous sample, generate a NEW sample that addresses similar concepts 
+    Based on the evaluation of a previous sample, generate a COMPLETELY NEW sample that addresses similar concepts 
     but is different in content. The new sample should:
-    1. Cover similar concepts but with different content
-    2. Address the weaknesses identified in the evaluation
-    3. Have clear outputs that follow the format shown in the examples
+    1. Have BOTH new inputs and new outputs that are different from the original sample
+    2. Cover similar concepts but with different content, examples, and scenarios
+    3. Address the weaknesses identified in the evaluation
+    4. Have clear inputs and outputs that follow the format shown in the examples
+    5. Be well-formed and complete
     \"\"\"
 """
         
         # Add input fields for original sample and evaluation
         for field in signature.input_fields:
-            class_def += f"    input_{field} = dspy.InputField(desc=\"Original {field} input\")\n"
+            # Check if the field is a list in the original sample
+            original_value = eval_result.get(f"input_{field}", "")
+            is_list = isinstance(original_value, list)
+            type_annotation = "list[str]" if is_list else "str"
+            
+            class_def += f"    input_{field}: {type_annotation} = dspy.InputField(desc=\"Original {field} input\")\n"
         
         for field in signature.output_fields:
-            class_def += f"    expected_{field} = dspy.InputField(desc=\"Expected {field} from the original sample\")\n"
-            class_def += f"    predicted_{field} = dspy.InputField(desc=\"Model's predicted {field}\")\n"
+            # Check if the field is a list in the original sample
+            expected_value = eval_result.get(f"expected_{field}", "")
+            is_list = isinstance(expected_value, list)
+            type_annotation = "list[str]" if is_list else "str"
+            
+            class_def += f"    expected_{field}: {type_annotation} = dspy.InputField(desc=\"Expected {field} from the original sample\")\n"
+            class_def += f"    predicted_{field}: {type_annotation} = dspy.InputField(desc=\"Model's predicted {field}\")\n"
         
-        class_def += "    similarity_explanation = dspy.InputField(desc=\"Explanation of the similarity between expected and predicted outputs\")\n"
-        class_def += "    overall_score = dspy.InputField(desc=\"Overall similarity score\")\n"
-        class_def += "    program_instructions = dspy.InputField(desc=\"Instructions for the program\")\n"
+        class_def += "    similarity_explanation: str = dspy.InputField(desc=\"Explanation of the similarity between expected and predicted outputs\")\n"
+        class_def += "    overall_score: str = dspy.InputField(desc=\"Overall similarity score\")\n"
+        class_def += "    program_instructions: str = dspy.InputField(desc=\"Instructions for the program\")\n"
         
-        # Add output fields for new sample
+        # Add output fields for new sample (both input and output fields)
+        for field in signature.input_fields:
+            # Check if the field is a list in the original sample
+            original_value = eval_result.get(f"input_{field}", "")
+            is_list = isinstance(original_value, list)
+            type_annotation = "list[str]" if is_list else "str"
+            
+            class_def += f"    {field}: {type_annotation} = dspy.OutputField(desc=\"New {field} input that is different from the original but covers similar concepts\")\n"
+            
         for field in signature.output_fields:
-            class_def += f"    {field} = dspy.OutputField(desc=\"New {field}\")\n"
+            # Check if the field is a list in the original sample
+            expected_value = eval_result.get(f"expected_{field}", "")
+            is_list = isinstance(expected_value, list) 
+            type_annotation = "list[str]" if is_list else "str"
+            
+            class_def += f"    {field}: {type_annotation} = dspy.OutputField(desc=\"New {field} output appropriate for the new input\")\n"
         
         # Execute the class definition in the module's context
         exec(class_def, module.__dict__)
@@ -194,7 +220,7 @@ class SampleManager:
         
         try:
             # Create a sample generator for the signature
-            generator_class = self._create_sample_generator_for_signature(signature)
+            generator_class = self._create_sample_generator_for_signature(signature, eval_result)
             sample_generator = dspy.ChainOfThought(generator_class)
             
             # Get a model instance
@@ -222,12 +248,21 @@ class SampleManager:
             
             # Create a new sample from the predicted values
             new_sample = {}
-            for field in signature.input_fields:
-                new_sample[field] = eval_result.get(f"input_{field}", "")
             
+            # Get input fields from the prediction
+            for field in signature.input_fields:
+                field_value = getattr(pred, field, "")
+                # Fall back to original input if the prediction is empty
+                if not field_value:
+                    field_value = eval_result.get(f"input_{field}", "")
+                new_sample[field] = field_value
+            
+            # Get output fields from the prediction
             for field in signature.output_fields:
                 field_value = getattr(pred, field, "")
                 new_sample[field] = field_value
+            
+            dspy.inspect_history(n=1)
             
             return new_sample
             
@@ -236,7 +271,12 @@ class SampleManager:
             # Fall back to using the evaluation data directly
             new_sample = {}
             for field in signature.input_fields:
-                new_sample[field] = eval_result.get(f"input_{field}", "")
+                original_input = eval_result.get(f"input_{field}", "")
+                # Add a note to encourage the user to modify the input
+                if original_input:
+                    new_sample[field] = f"[PLEASE MODIFY THIS TO MAKE A NEW SAMPLE]\n\n{original_input}"
+                else:
+                    new_sample[field] = ""
             
             for field in signature.output_fields:
                 new_sample[field] = eval_result.get(f"predicted_{field}", "")
