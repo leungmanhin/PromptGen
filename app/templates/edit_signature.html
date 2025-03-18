@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Signature{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Edit Signature: {{ signature.name }}</h1>
+    
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" readonly
+                           value="{{ signature.name }}">
+                    <div class="form-text">The name cannot be changed after creation.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="description" name="description" rows="2" required>{{ signature.description }}</textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="input_fields" class="form-label">Input Fields <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="input_fields" name="input_fields" required
+                           value="{{ signature.input_fields|join(', ') }}">
+                    <div class="form-text">Comma-separated list of input field names.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="output_fields" class="form-label">Output Fields <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="output_fields" name="output_fields" required
+                           value="{{ signature.output_fields|join(', ') }}">
+                    <div class="form-text">Comma-separated list of output field names.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="field_processors" class="form-label">Field Processors</label>
+                    <input type="text" class="form-control" id="field_processors" name="field_processors"
+                           placeholder="field1:processor1, field2:processor2 (e.g., pln_statements:clean_pln_list, pln_query:clean_pln_list)"
+                           value="{{ ((signature.field_processors.items()|list)|map('join', ':'))|join(', ') if signature.field_processors else '' }}">
+                    <div class="form-text">
+                        <p>Comma-separated list of field:processor pairs.</p>
+                        <p>Available processors:</p>
+                        <ul>
+                            <li><code>clean_pln_list</code>: Clean and score a list of PLN statements or queries</li>
+                            <li><code>cleanAndScore</code>: Clean and score a single PLN statement</li>
+                            <li><code>cleanPLN</code>: Clean a single PLN statement without scoring</li>
+                            <li><code>balance_parentheses</code>: Balance parentheses in an expression</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="signature_class_def" class="form-label">Class Definition <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="signature_class_def" name="signature_class_def" rows="15" required>{{ signature.signature_class_def }}</textarea>
+                    <div class="form-text">The complete DSPy signature class definition.</div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('signatures.view_signatures') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Update Signature</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

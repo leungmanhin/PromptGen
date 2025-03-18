@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}NL2PLN Promptgen - Evaluation Results{% endblock %}
+
+{% block styles %}
+<style>
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1100;
+        border-radius: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4">Evaluation Results</h1>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary mb-4">← Back to Dashboard</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Summary Metrics</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if app_state.evaluation_results and app_state.evaluation_results.metrics %}
+                                {% for metric, value in app_state.evaluation_results.metrics.items() %}
+                                <tr>
+                                    <td>{{ metric }}</td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center">No evaluation results available</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {% if app_state.evaluation_results and app_state.evaluation_results.results %}
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Sample Results</h5>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-light" id="sortByScoreBtn">Sort by Score</button>
+                    <button class="btn btn-sm btn-outline-light" id="sortByDifficultyBtn">Sort by Difficulty</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="sampleResultsAccordion">
+                    {% for result in app_state.evaluation_results.results|sort(reverse=true, attribute='overall_score') %}
+                    <div class="accordion-item result-item" data-score="{{ result.overall_score }}">
+                        <h2 class="accordion-header" id="heading{{ result.sample_id }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#collapse{{ result.sample_id }}" aria-expanded="false" 
+                                    aria-controls="collapse{{ result.sample_id }}">
+                                Sample #{{ result.sample_id + 1 }} - Score: {{ result.overall_score }}
+                                {% if result.error %}
+                                <span class="badge bg-danger ms-2">Error</span>
+                                {% endif %}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ result.sample_id }}" class="accordion-collapse collapse" 
+                             aria-labelledby="heading{{ result.sample_id }}" data-bs-parent="#sampleResultsAccordion">
+                            <div class="accordion-body">
+                                <!-- Input Fields -->
+                                {% for field in app_state.get_current_signature().input_fields %}
+                                <div class="mb-3">
+                                    <h6>{{ field|replace('_', ' ')|title }} Input:</h6>
+                                    <pre class="bg-light p-2">{{ result['input_' + field]|default('N/A')|format_output|safe }}</pre>
+                                </div>
+                                {% endfor %}
+                                
+                                <!-- Output Fields -->
+                                {% for field in app_state.get_current_signature().output_fields %}
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <h6>Expected {{ field|replace('_', ' ')|title }}:</h6>
+                                        <pre class="bg-light p-2">{{ result['expected_' + field]|default('N/A')|format_output|safe }}</pre>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Predicted {{ field|replace('_', ' ')|title }}:</h6>
+                                        <pre class="bg-light p-2">{{ result['predicted_' + field]|default('N/A')|format_output|safe }}</pre>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                
+                                <div class="card border-info mb-3">
+                                    <div class="card-header bg-info text-white">
+                                        Similarity Assessment
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Score: {{ result.overall_score }}</h5>
+                                        <p class="card-text">{{ result.similarity_result.explanation }}</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-end">
+                                    <a href="{{ url_for('samples.view_sample', sample_id=result.sample_id) }}" class="btn btn-sm btn-primary">View Sample</a>
+                                    <a href="{{ url_for('samples.edit_sample', sample_id=result.sample_id) }}" class="btn btn-sm btn-warning">Edit Sample</a>
+                                    <a href="{{ url_for('api.generate_sample_from_evaluation', sample_id=result.sample_id) }}" class="btn btn-sm btn-success">
+                                        Create New Sample
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No detailed evaluation results available. Please run an evaluation first.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sorting functionality
+    document.getElementById('sortByScoreBtn').addEventListener('click', function() {
+        sortResults('score', true);
+    });
+    
+    document.getElementById('sortByDifficultyBtn').addEventListener('click', function() {
+        sortResults('score', false);
+    });
+    
+    function sortResults(attr, descending) {
+        const container = document.getElementById('sampleResultsAccordion');
+        const items = Array.from(container.querySelectorAll('.result-item'));
+        
+        items.sort((a, b) => {
+            const aVal = parseInt(a.getAttribute(`data-${attr}`));
+            const bVal = parseInt(b.getAttribute(`data-${attr}`));
+            return descending ? bVal - aVal : aVal - bVal;
+        });
+        
+        items.forEach(item => container.appendChild(item));
+    }
+});
+</script>
+{% endblock %}

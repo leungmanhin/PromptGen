@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Add New Signature{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Add New Signature</h1>
+    
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="name" name="name" required 
+                           placeholder="Enter signature class name (e.g., MyTask)"
+                           value="{{ signature.name if signature else '' }}">
+                    <div class="form-text">The name of the signature class (e.g., PLNTask).</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="description" name="description" rows="2" required
+                              placeholder="Enter a short description of what this signature does">{{ signature.description if signature else '' }}</textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="input_fields" class="form-label">Input Fields <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="input_fields" name="input_fields" required
+                           placeholder="Comma-separated list of input fields (e.g., english, context)"
+                           value="{{ signature.input_fields|join(', ') if signature and signature.input_fields else '' }}">
+                    <div class="form-text">Comma-separated list of input field names.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="output_fields" class="form-label">Output Fields <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="output_fields" name="output_fields" required
+                           placeholder="Comma-separated list of output fields (e.g., pln_types, pln_statements, pln_query)"
+                           value="{{ signature.output_fields|join(', ') if signature and signature.output_fields else '' }}">
+                    <div class="form-text">Comma-separated list of output field names.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="field_processors" class="form-label">Field Processors</label>
+                    <input type="text" class="form-control" id="field_processors" name="field_processors"
+                           placeholder="field1:processor1, field2:processor2 (e.g., pln_statements:clean_pln_list, pln_query:clean_pln_list)"
+                           value="{{ ((signature.field_processors.items()|list)|map('join', ':'))|join(', ') if signature and signature.field_processors else '' }}">
+                    <div class="form-text">
+                        <p>Comma-separated list of field:processor pairs.</p>
+                        <p>Available processors:</p>
+                        <ul>
+                            <li><code>clean_pln_list</code>: Clean and score a list of PLN statements or queries</li>
+                            <li><code>cleanAndScore</code>: Clean and score a single PLN statement</li>
+                            <li><code>cleanPLN</code>: Clean a single PLN statement without scoring</li>
+                            <li><code>balance_parentheses</code>: Balance parentheses in an expression</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="signature_class_def" class="form-label">Class Definition <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="signature_class_def" name="signature_class_def" rows="15" required
+                              placeholder="class MyTask(dspy.Signature):
+    """
+    Description of the task.
+    """
+    input_field = dspy.InputField(desc="Description of input field")
+    output_field = dspy.OutputField(desc="Description of output field")
+">{{ signature.signature_class_def if signature else '' }}</textarea>
+                    <div class="form-text">The complete DSPy signature class definition.</div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('signatures.view_signatures') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Signature</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+[
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "I only eat vegetables on days when I exercise.",
+    "pln_types": "(: Day (-> (: $day Object) Type))\r\n(: Vegetable (-> (: $vegetable Object) Type))\r\n(: Eats (-> (: $eater Object) (: $food Object) Type))\r\n(: Exercises (-> (: $person Object) Type))",
+    "pln_statements": "(: vegetables_exercise_rule (Implication (Context (Exercises authorSpeaker) $day) (Implication (Context (Eats authorSpeaker $food) $day) (Vegetable $food) (STV 0.99 0.9)) (STV 0.99 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Every boy on Vashon owns a Dog that each girl on Vashon calls by a special name.",
+    "pln_types": "(: Boy (-> (: $boy Object) Type))\r\n(: Girl (-> (: $girl Object) Type))\r\n(: Dog (-> (: $dog Object) Type))\r\n(: OnVashon (-> (: $obj Object) Type))\r\n(: SpecialName (-> (: $name Object) Type))\r\n(: Calls (-> (: $caller Object) (: $called Object) (: $name Object) Type))\r\n(: Owns (-> (: $owner Object) (: $owned Object) Type))",
+    "pln_statements": "(: ebvodegvcsn (Implication (And (Boy $b) (OnVashon $b)) (And (Dog $d) (And (Owns $b $d) (Implication (And (Girl $g) (OnVashon $g)) (And (SpecialName $n) (Calls $g $d $n))))))",
+    "pln_queries": ""
+  }
+]

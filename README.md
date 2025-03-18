@@ -1,79 +1,135 @@
-# NL2PLN Promptgen Web Frontend
+# DSPy Prompt Generator
 
-A web-based frontend for generating, viewing, editing, and evaluating NL2PLN (Natural Language to PLN) samples.
+A Flask web application for generating and optimizing prompts using DSPy.
+
+## Project Structure
+
+```
+promptgen/
+├── app/                    # Main application package
+│   ├── __init__.py         # Application factory
+│   ├── config.py           # Configuration settings
+│   ├── models/             # Data models
+│   │   ├── __init__.py
+│   │   └── signature.py    # Signature definition model
+│   ├── routes/             # Flask route definitions
+│   │   ├── __init__.py
+│   │   ├── api.py          # API routes
+│   │   ├── main.py         # Main routes
+│   │   ├── programs.py     # Program management routes
+│   │   ├── samples.py      # Sample management routes
+│   │   └── signatures.py   # Signature management routes
+│   ├── services/           # Business logic services
+│   │   ├── __init__.py
+│   │   ├── evaluation.py   # Evaluator service
+│   │   ├── optimization.py # Optimizer service
+│   │   ├── samples.py      # Sample management service
+│   │   └── state.py        # Application state service
+│   ├── static/             # Static assets
+│   │   ├── css/
+│   │   └── js/
+│   ├── templates/          # Jinja2 templates
+│   └── utils/              # Utility functions
+│       ├── __init__.py
+│       ├── filters.py      # Template filters
+│       └── metrics.py      # Evaluation metrics
+├── programs/               # Storage for DSPy programs
+├── samples/                # Storage for samples
+├── signatures/             # Storage for signatures
+├── CLAUDE.md               # Instructions for Claude
+├── pyproject.toml          # Project metadata and dependencies
+├── README.md               # Project documentation
+└── wsgi.py                 # WSGI entry point
+```
 
 ## Features
 
-- View and manage samples in the browser
-- Add new samples through a web form
-- Edit existing samples
-- Trigger model optimization
-- Run evaluation and view results
-- User-friendly interface
+- Create and manage DSPy signatures for different tasks
+- Generate programs for different signature types
+- Collect training samples for each signature
+- Optimize programs using DSPy optimizers
+- Evaluate program performance
+- Import and export samples
 
 ## Setup
 
-1. Install the required dependencies:
-
+1. Install dependencies:
 ```bash
 uv sync && source .venv/bin/activate
 ```
-
-Run the app
-
+2. Run the development server:
 ```bash
+flask --app wsgi run --debug
+or
 FLASK_APP=app.py flask run
 ```
 
-3. Open your browser and navigate to:
+3. Access the application at http://localhost:5000
 
-```
-http://localhost:5000
-```
+### Note for Upgraders
 
-## Usage
+The codebase has been restructured with routes organized into blueprints:
+- `main`: Main dashboard and redirects
+- `signatures`: Signature management
+- `samples`: Sample management
+- `programs`: Program management
+- `api`: JSON API endpoints
 
-### Dashboard
+URL references in templates and code should be updated to reflect these changes, but backward compatibility redirects have been added for common routes.
 
-The dashboard provides an overview of your samples and allows you to:
-- Start optimization
-- Run evaluation
-- View recent samples
+## Creating a New Signature
 
-### Samples
+1. Navigate to the Signatures page
+2. Click "Add New Signature"
+3. Fill in the signature details:
+   - Name (class name)
+   - Description
+   - Input Fields (comma-separated)
+   - Output Fields (comma-separated)
+   - Full DSPy signature class definition
 
-The samples page shows all available examples with options to:
-- View detailed information
-- Edit samples
-- Add new samples
+## Working with Samples
 
-### Adding Samples
+Samples can be created, imported, and exported for each signature:
 
-When adding a new sample, provide:
-- Input (English text)
-- Types (MeTTa PLN Light types)
-- Statements (MeTTa PLN Light statements)
-- Questions (optional)
+- Add new samples manually through the UI
+- Import samples from JSON files
+- Export samples to JSON files for sharing or backup
 
-### Optimizing the Model
+## Optimization
 
-Click the "Start Optimization" button on the dashboard to begin model optimization using the current samples. This process may take a few minutes.
-
-### Evaluating the Model
-
-After optimization, click the "Run Evaluation" button to evaluate the model against the samples. Results will be displayed on the dashboard.
-
-## Files
-
-- `app.py`: The Flask web application
-- `promptgen.py`: The optimization script
-- `evaluate.py`: The evaluation script
-- `samples/generated_samples.json`: The samples database
+1. Select a signature and ensure it has samples
+2. Click "Start Optimization" to begin DSPy optimization
+3. Once complete, the new program will be automatically selected
 
 ## Dependencies
 
-- Flask
-- DSPy
-- Tabulate
-- Bootstrap 5 (CDN)
-- jQuery (CDN)
+- Flask: Web framework
+- DSPy: Deep learning framework for prompting
+- Bootstrap 5: Frontend framework (via CDN)
+- jQuery: JavaScript library (via CDN)
+
+## Testing
+
+The project includes tests for core components:
+
+```bash
+# Run all tests
+pytest
+
+# Run tests with verbose output
+pytest -v
+
+# Run specific test categories
+pytest tests/test_state.py
+pytest tests/test_metrics.py
+pytest tests/test_cleanpln.py
+pytest tests/test_samples.py
+```
+
+Tests cover the following components:
+
+- **AppState**: Singleton pattern, directory initialization, signature management
+- **Metrics**: Evaluation metrics, dynamic judge creation, PLN statement processing
+- **CleanPLN**: PLN statement cleaning and validation
+- **Samples**: Sample creation, validation, and storage

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Import Samples for {{ signature_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Import Samples for "{{ signature_name }}"</h1>
+    
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('signatures.view_signatures') }}">Signatures</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('samples.view_signature_samples', signature_name=signature_name) }}">{{ signature_name }} Samples</a></li>
+            <li class="breadcrumb-item active">Import Samples</li>
+        </ol>
+    </nav>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Upload JSON Sample File</h5>
+        </div>
+        <div class="card-body">
+            <p>Upload a JSON file containing sample data for the {{ signature_name }} signature.</p>
+            <p>The JSON file should contain an array of sample objects with the following fields:</p>
+            
+            <div class="bg-light p-3 rounded mb-3">
+                <h6>Expected Fields:</h6>
+                <ul>
+                    <li>Input fields: <strong>{{ signature.input_fields|join(', ') }}</strong></li>
+                    <li>Output fields: <strong>{{ signature.output_fields|join(', ') }}</strong></li>
+                </ul>
+            </div>
+            
+            <form method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="samples_file" class="form-label">Sample JSON File</label>
+                    <input type="file" class="form-control" id="samples_file" name="samples_file" accept=".json">
+                    <div class="form-text">Upload a JSON file with sample data.</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="merge_strategy" class="form-label">Import Strategy</label>
+                    <select class="form-select" id="merge_strategy" name="merge_strategy">
+                        <option value="append">Append to existing samples</option>
+                        <option value="replace">Replace all existing samples</option>
+                    </select>
+                    <div class="form-text">Choose how to handle existing samples.</div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('samples.view_signature_samples', signature_name=signature_name) }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Import Samples</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Sample JSON Format Example</h5>
+        </div>
+        <div class="card-body">
+            <p>Here's an example of the expected JSON format:</p>
+            <pre><code>[
+  {
+    {% for field in signature.input_fields %}
+    "{{ field }}": "sample {{ field }} value"{% if not loop.last %},{% endif %}
+    {% endfor %}{% if signature.input_fields and signature.output_fields %},{% endif %}
+    {% for field in signature.output_fields %}
+    "{{ field }}": "sample {{ field }} value"{% if not loop.last %},{% endif %}
+    {% endfor %}
+  },
+  {
+    // Additional samples...
+  }
+]</code></pre>
+        </div>
+    </div>
+</div>
+{% endblock %}

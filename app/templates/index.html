@@ -1,0 +1,545 @@
+{% extends "base.html" %}
+
+{% block title %}NL2PLN Promptgen - Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4">DSPy Program Dashboard</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Signatures</h5>
+                <div>
+                    <a href="{{ url_for('signatures.view_signatures') }}" class="btn btn-sm btn-light">
+                        <i class="fas fa-list"></i> View All
+                    </a>
+                    <a href="{{ url_for('signatures.add_signature') }}" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus"></i> New Signature
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <h6>Current Signature: 
+                    {% if app_state.current_signature_name %}
+                        <span class="badge bg-info">
+                            {{ app_state.current_signature_name }}
+                        </span>
+                        <a href="{{ url_for('signatures.edit_signature', signature_name=app_state.current_signature_name) }}" class="btn btn-sm btn-outline-secondary ms-2">Edit Signature</a>
+                        <a href="{{ url_for('samples.view_signature_samples', signature_name=app_state.current_signature_name) }}" class="btn btn-sm btn-outline-primary ms-2">View Samples</a>
+                    {% else %}
+                        <span class="badge bg-warning">None Selected</span>
+                        <div class="alert alert-warning mt-2">
+                            <strong>Warning:</strong> You must select or create a signature first.
+                        </div>
+                    {% endif %}
+                </h6>
+                
+                {% if app_state.signatures %}
+                    <div class="list-group mt-3">
+                        {% for name, signature in app_state.signatures.items() %}
+                            <div class="list-group-item {% if name == app_state.current_signature_name %}active{% endif %}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ url_for('signatures.select_signature', signature_name=name) }}" 
+                                       class="text-decoration-none {% if name == app_state.current_signature_name %}text-white{% endif %} flex-grow-1">
+                                        <div>
+                                            <strong>{{ name }}</strong>
+                                            <small class="d-block {% if name == app_state.current_signature_name %}text-light{% else %}text-muted{% endif %}">
+                                                {{ signature.description }}
+                                            </small>
+                                            <small class="d-block {% if name == app_state.current_signature_name %}text-light{% else %}text-muted{% endif %}">
+                                                Input: {{ signature.input_fields|join(', ') }} | Output: {{ signature.output_fields|join(', ') }}
+                                            </small>
+                                        </div>
+                                    </a>
+                                    <div class="d-flex">
+                                        {% if name == app_state.current_signature_name %}
+                                        <span class="badge bg-primary rounded-pill me-2">Current</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info mt-3">
+                        <strong>No signatures found!</strong> Click the "New Signature" button above to create your first signature.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Programs</h5>
+                <div>
+                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#createProgramModal" type="button">
+                        <i class="fas fa-plus"></i> New Program
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <h6>Current Program: 
+                    {% if app_state.current_program_id %}
+                        <span class="badge bg-success">
+                            {{ app_state.programs[app_state.current_program_id].get('task_name', 'Unknown') }} 
+                            ({{ app_state.programs[app_state.current_program_id].get('model', 'Unknown Model') }})
+                        </span>
+                        <a href="{{ url_for('programs.edit_program_instructions') }}" class="btn btn-sm btn-outline-secondary ms-2">Edit Instructions</a>
+                    {% else %}
+                        <span class="badge bg-warning">None Selected</span>
+                        <div class="alert alert-warning mt-2">
+                            <strong>Warning:</strong> You must select or create a program to generate samples and perform optimization.
+                        </div>
+                    {% endif %}
+                </h6>
+                
+                {% set compatible_programs = app_state.get_programs_for_signature(app_state.current_signature_name) if app_state.current_signature_name else {} %}
+                {% if compatible_programs %}
+                    <div class="list-group mt-3" id="program-list">
+                        {% for program_id, metadata in compatible_programs.items() %}
+                            <div class="list-group-item {% if program_id == app_state.current_program_id %}active{% endif %}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ url_for('programs.select_program', program_id=program_id) }}" 
+                                       class="text-decoration-none {% if program_id == app_state.current_program_id %}text-white{% endif %} flex-grow-1">
+                                        <div>
+                                            <strong>{{ metadata.get('task_name', 'Unknown') }}</strong> - 
+                                            {{ metadata.get('model', 'Unknown Model') }}
+                                            <small class="d-block {% if program_id == app_state.current_program_id %}text-light{% else %}text-muted{% endif %}">
+                                                Created: {{ metadata.get('created_at')|timestamp_to_date }}
+                                            </small>
+                                            <small class="d-block {% if program_id == app_state.current_program_id %}text-light{% else %}text-muted{% endif %}">
+                                                Id: {{ program_id }}
+                                            </small>
+                                            {% if metadata.get('base_program_id') %}
+                                            <small class="d-block {% if program_id == app_state.current_program_id %}text-light{% else %}text-muted{% endif %}">
+                                                Based on: {{ metadata.get('base_program_id') }}
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                    </a>
+                                    <div class="d-flex">
+                                        {% if program_id == app_state.current_program_id %}
+                                        <span class="badge bg-primary rounded-pill me-2">Current</span>
+                                        {% endif %}
+                                        <form method="POST" action="{{ url_for('programs.delete_program', program_id=program_id) }}" 
+                                              onsubmit="return confirm('Are you sure you want to delete this program?')">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info mt-3">
+                        <strong>No compatible programs found for this signature!</strong> Click the "New Program" button above to create a program for this signature.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Samples Overview</h5>
+            </div>
+            <div class="card-body">
+                <p>Total samples: <strong>{{ samples|length }}</strong></p>
+                <a href="/samples" class="btn btn-outline-primary">View All Samples</a>
+                <a href="/add_sample" class="btn btn-outline-success">Add New Sample</a>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Optimization</h5>
+            </div>
+            <div class="card-body">
+                <p>Optimize the model using the current samples.</p>
+                <div class="mb-3">
+                    <label for="optimization-signature" class="form-label">Signature:</label>
+                    <select class="form-select" id="optimization-signature">
+                        {% for name, signature in app_state.signatures.items() %}
+                        <option value="{{ name }}" {% if name == app_state.current_signature_name %}selected{% endif %}>
+                            {{ name }} - {{ signature.description }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="optimization-model" class="form-label">Model:</label>
+                    <select class="form-select" id="optimization-model">
+                        {% for model in models %}
+                        <option value="{{ model }}" {% if model == current_model %}selected{% endif %}>{{ model }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button id="optimize-btn" class="btn btn-success" {% if optimization_running %}disabled{% endif %}>
+                    {% if optimization_running %}Optimization Running...{% else %}Start Optimization{% endif %}
+                </button>
+                <div id="optimization-status" class="mt-3" style="{% if not optimization_running %}display: none;{% endif %}">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                    </div>
+                    <p class="text-center mt-1">Optimization in progress...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Evaluation</h5>
+            </div>
+            <div class="card-body">
+                <p>Evaluate the current model against the samples.</p>
+                <div class="mb-3">
+                    <label for="evaluation-model" class="form-label">Evaluation Model:</label>
+                    <select class="form-select" id="evaluation-model">
+                        {% for model in models %}
+                        <option value="{{ model }}" {% if model == current_model %}selected{% endif %}>{{ model }}</option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">Model used to run the optimized task</small>
+                </div>
+                <div class="mb-3">
+                    <label for="similarity-model" class="form-label">Similarity Scoring Model:</label>
+                    <select class="form-select" id="similarity-model">
+                        <option value="">Same as Evaluation Model</option>
+                        {% for model in models %}
+                        <option value="{{ model }}">{{ model }}</option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">Model used to calculate similarity scores (defaults to evaluation model if not selected)</small>
+                </div>
+                <button id="evaluate-btn" class="btn btn-info">Run Evaluation</button>
+                <div id="evaluation-status" class="mt-3" style="display: none;">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: 100%"></div>
+                    </div>
+                    <p class="text-center mt-1">Evaluation in progress...</p>
+                </div>
+                <div id="evaluation-results" class="mt-3" style="{% if not evaluation_results %}display: none;{% endif %}">
+                    <h6>Evaluation Results:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if evaluation_results and evaluation_results.metrics %}
+                                    {% for metric, value in evaluation_results.metrics.items() %}
+                                    <tr>
+                                        <td>{{ metric }}</td>
+                                        <td>{{ value }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    {% if evaluation_results %}
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('main.evaluation_results') }}" class="btn btn-primary">View Detailed Results</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Recent Samples</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% if samples %}
+                        {% for sample in samples[:3] %}
+                            <a href="{{ url_for('samples.view_sample', sample_id=loop.index0) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">{{ sample.english|default('No input')|truncate(50) }}</h5>
+                                </div>
+                                <p class="mb-1">Types: {{ sample.pln_types|default('N/A')|truncate(50) }}</p>
+                            </a>
+                        {% endfor %}
+                        {% if samples|length > 3 %}
+                            <a href="{{ url_for('samples.view_samples') }}" class="list-group-item list-group-item-action text-center">View all samples</a>
+                        {% endif %}
+                    {% else %}
+                        <div class="list-group-item">No samples available.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Program Modal -->
+<div class="modal fade" id="createProgramModal" tabindex="-1" aria-labelledby="createProgramModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createProgramModalLabel">Create New Program</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('programs.create_program') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="signature-name" class="form-label">Signature:</label>
+                        <select class="form-select" id="signature-name" name="signature_name">
+                            {% for name, signature in app_state.signatures.items() %}
+                            <option value="{{ name }}" {% if name == app_state.current_signature_name %}selected{% endif %}>
+                                {{ name }} - {{ signature.description }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Signature to use for the new program</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="create-program-model" class="form-label">Program Model:</label>
+                        <select class="form-select" id="create-program-model" name="model">
+                            {% for model in models %}
+                            <option value="{{ model }}" {% if model == current_model %}selected{% endif %}>{{ model }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Model to use for the new program</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="base-program-id" class="form-label">Base Program (Optional):</label>
+                        <select class="form-select" id="base-program-id" name="base_program_id">
+                            <option value="">None (Create Empty Program)</option>
+                            <!-- Dynamic base program options will be populated based on selected signature -->
+                        </select>
+                        <small class="form-text text-muted">Base program to use as a starting point</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Program</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Store current selections in localStorage
+        const storeSelections = function() {
+            if ("{{ app_state.current_signature_name }}") {
+                localStorage.setItem('current_signature', "{{ app_state.current_signature_name }}");
+            }
+            if ("{{ app_state.current_program_id }}") {
+                localStorage.setItem('current_program', "{{ app_state.current_program_id }}");
+            }
+        };
+        
+        // Initial storage of current selections
+        storeSelections();
+        
+        // Check if we need to restore selections from localStorage
+        const restoreSelections = function() {
+            const storedSignature = localStorage.getItem('current_signature');
+            const storedProgram = localStorage.getItem('current_program');
+            
+            // Only restore if current selections don't match stored selections
+            if (storedSignature && storedSignature !== "{{ app_state.current_signature_name }}") {
+                // Redirect to select the stored signature
+                window.location.href = "{{ url_for('signatures.select_signature', signature_name='REPLACE_ME') }}".replace('REPLACE_ME', storedSignature);
+                return true;
+            } else if (storedProgram && storedProgram !== "{{ app_state.current_program_id }}") {
+                // Redirect to select the stored program
+                window.location.href = "{{ url_for('programs.select_program', program_id='REPLACE_ME') }}".replace('REPLACE_ME', storedProgram);
+                return true;
+            }
+            return false;
+        };
+        
+        // Try to restore selections if needed (only proceed with other code if not redirecting)
+        if (!restoreSelections()) {
+            // Program data mapping (signature name -> program list)
+            const programData = {
+                {% for signature_name in app_state.signatures %}
+                "{{ signature_name }}": [
+                    {% set programs_for_sig = app_state.get_programs_for_signature(signature_name) %}
+                    {% for program_id, metadata in programs_for_sig.items() %}
+                    {
+                        id: "{{ program_id }}",
+                        name: "{{ metadata.get('task_name', 'Unknown') }} ({{ program_id }})",
+                        isCurrent: {% if program_id == app_state.current_program_id %}true{% else %}false{% endif %}
+                    },
+                    {% endfor %}
+                ],
+                {% endfor %}
+            };
+        
+        // Update base program options when signature is changed
+        $('#signature-name').change(function() {
+            const signatureName = $(this).val();
+            updateBaseProgramOptions(signatureName);
+        });
+        
+        // Initial load of base program options
+        updateBaseProgramOptions($('#signature-name').val());
+        
+        function updateBaseProgramOptions(signatureName) {
+            const $select = $('#base-program-id');
+            $select.empty();
+            $select.append('<option value="">None (Create Empty Program)</option>');
+            
+            const programs = programData[signatureName] || [];
+            programs.forEach(function(program) {
+                const $option = $('<option></option>')
+                    .attr('value', program.id)
+                    .text(program.name);
+                
+                if (program.isCurrent) {
+                    $option.attr('selected', 'selected');
+                }
+                
+                $select.append($option);
+            });
+            
+            // Show message if no programs available
+            if (programs.length === 0) {
+                $select.parent().append(
+                    '<div class="alert alert-info mt-2">No existing programs for this signature. A new one will be created.</div>'
+                );
+            } else {
+                $select.parent().find('.alert').remove();
+            }
+        }
+
+        // Optimization handling
+        $('#optimize-btn').click(function() {
+            $(this).prop('disabled', true);
+            $(this).text('Optimization Running...');
+            $('#optimization-status').show();
+            
+            // Get the selected model and signature
+            var model = $('#optimization-model').val();
+            var signature_name = $('#optimization-signature').val();
+            
+            $.ajax({
+                url: '/programs/optimize',
+                type: 'POST',
+                data: {
+                    model: model,
+                    signature_name: signature_name
+                },
+                success: function(data) {
+                    if (data.status === 'started') {
+                        checkOptimizationStatus();
+                    } else if (data.status === 'error') {
+                        alert('Error: ' + data.message);
+                        
+                        // If the error is about program selection, ask if they want to create a program
+                        if (data.message && data.message.includes("No program selected")) {
+                            if (confirm("No program selected. Would you like to create one now?")) {
+                                $('#createProgramModal').modal('show');
+                            }
+                        }
+                        
+                        $('#optimize-btn').prop('disabled', false);
+                        $('#optimize-btn').text('Start Optimization');
+                        $('#optimization-status').hide();
+                    } else {
+                        alert('Optimization already running');
+                    }
+                },
+                error: function() {
+                    alert('Error starting optimization');
+                    $('#optimize-btn').prop('disabled', false);
+                    $('#optimize-btn').text('Start Optimization');
+                    $('#optimization-status').hide();
+                }
+            });
+        });
+        
+        function checkOptimizationStatus() {
+            $.ajax({
+                url: "{{ url_for('api.optimization_status') }}",
+                type: 'GET',
+                success: function(data) {
+                    if (data.running) {
+                        setTimeout(checkOptimizationStatus, 2000);
+                    } else {
+                        $('#optimize-btn').prop('disabled', false);
+                        $('#optimize-btn').text('Start Optimization');
+                        $('#optimization-status').hide();
+                        location.reload();
+                    }
+                },
+                error: function() {
+                    $('#optimize-btn').prop('disabled', false);
+                    $('#optimize-btn').text('Start Optimization');
+                    $('#optimization-status').hide();
+                }
+            });
+        }
+        
+        // Evaluation handling
+        $('#evaluate-btn').click(function() {
+            $(this).prop('disabled', true);
+            $('#evaluation-status').show();
+            $('#evaluation-results').hide();
+            
+            // Get the selected model
+            var model = $('#evaluation-model').val();
+            
+            $.ajax({
+                url: "{{ url_for('api.evaluate') }}",
+                type: 'POST',
+                data: {
+                    model: model,
+                    similarity_model: $('#similarity-model').val()
+                },
+                success: function(data) {
+                    $('#evaluate-btn').prop('disabled', false);
+                    $('#evaluation-status').hide();
+                    
+                    if (data.status === 'success') {
+                        // Reload the page to show the summary metrics
+                        location.reload();
+                    } else {
+                        alert('Error running evaluation: ' + (data.error || data.message || 'Unknown error'));
+                    }
+                },
+                error: function() {
+                    alert('Error running evaluation');
+                    $('#evaluate-btn').prop('disabled', false);
+                    $('#evaluation-status').hide();
+                }
+            });
+        });
+        
+        {% if optimization_running %}
+        // Check status if optimization is already running
+        checkOptimizationStatus();
+        {% endif %}
+        } // Close the if(!restoreSelections()) block
+    });
+</script>
+{% endblock %}
+

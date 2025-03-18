@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}NL2PLN Promptgen - Sample Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4">Sample #{{ sample_id + 1 }}</h1>
+        <div class="mb-3">
+            <a href="/samples/{{ signature_name }}" class="btn btn-outline-secondary btn-sm">← Back to Samples</a>
+            <a href="/samples/edit/{{ signature_name }}/{{ sample_id }}" class="btn btn-outline-primary btn-sm">Edit Sample</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        {% for field in signature.input_fields %}
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">{{ field|title }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="code-block">{{ sample[field]|format_output|safe }}</div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% for field in signature.output_fields %}
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">{{ field|title }}</h5>
+            </div>
+            <div class="card-body">
+                {% if sample[field] %}
+                <div class="code-block">{{ sample[field]|format_output|safe }}</div>
+                {% else %}
+                <p class="text-muted">No {{ field }} provided for this sample.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
