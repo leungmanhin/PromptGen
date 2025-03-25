@@ -4,7 +4,7 @@
     "previous": "\"\"",
     "english": "I only eat vegetables on days when I exercise.",
     "pln_types": "(: I (-> (: $i Object) Type))\r\n(: Eat (-> (: $eater Object) (: $eaten Object) Type))\r\n(: Vegetable (-> (: $veg Object) Type))\r\n(: On (-> (: $activity Type) (: $day Object) Type))\r\n(: Day (-> (: $day Object) Type))\r\n(: Exercise (-> (: $exerciser Object) Type))",
-    "pln_statements": "(: i_is_i (WithTV (I i) (STV 0.95 0.9)))\r\n(: eat_veg_exercise (Implication (And (Day $d) (On (Exercise i) $d)) (Implication (On (Eat i $v) $d) (Vegetable $v) (STV 0.95 0.9)) (STV 0.95 0.9)))",
+    "pln_statements": "(: i_is_i (WithTV (I i) (STV 0.95 0.9)))\r\n(: eat_veg_exercise (WithTV (Implication (And (Day $d) (On (Exercise i) $d)) (Implication (On (Eat i $v) $d) (Vegetable $v))) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
@@ -12,7 +12,7 @@
     "previous": "\"\"",
     "english": "Every boy on Vashon owns a dog that each girl on Vashon calls by a special name.",
     "pln_types": "(: Boy (-> (: $boy Object) Type))\r\n(: Girl (-> (: $girl Object) Type))\r\n(: Dog (-> (: $dog Object) Type))\r\n(: Special (-> (: $name Object) Type))\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: CallsBy (-> (: $caller Object) (: $called Object) (: $name Object) Type))\r\n(: Calls (-> (: $caller Object) (: $called Object) Type))\r\n(: By (-> (: $activity Type) (: $name Object) Type))\r\n(: Owns (-> (: $owner Object) (: $owned Object) Type))\r\n(: On (-> (: $obj1 Object) (: $obj2 Object) Type))",
-    "pln_statements": "(: ebvodegvcsn (Implication (And (Boy $b) (And (Name $n \"Vashon\") (And (NameOf $v $n) (On $b $v)))) (And (Dog $d) (And (Owns $b $d) (Implication (And (Girl $g) (On $g $v)) (And ((& Special Name) $sn $sn_str) (CallsBy $g $d $sn)) (STV 0.95 0.9)))) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: callsby_means (Equivalence (CallsBy $x $y $z) (By (Calls $x $y) $z) (STV 0.95 0.9)))",
+    "pln_statements": "(: ebvodegvcsn (WithTV (Implication (And (Boy $b) (And (Name $n \"Vashon\") (And (NameOf $v $n) (On $b $v)))) (And (Dog $d) (And (Owns $b $d) (Implication (And (Girl $g) (On $g $v)) (And ((& Special Name) $sn $sn_str) (CallsBy $g $d $sn)))))) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: callsby_means (Equivalence (CallsBy $x $y $z) (By (Calls $x $y) $z) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
@@ -36,7 +36,7 @@
     "previous": "\"\"",
     "english": "All birds can fly.",
     "pln_types": "(: Bird (-> (: $bird Object) Type))\r\n(: Can (-> (: $activity Type) Type))\r\n(: Fly (-> (: $flyer Object) Type))",
-    "pln_statements": "(: bird_can_fly (Implication (Bird $x) (Can (Fly $x)) (STV 0.95 0.9)))",
+    "pln_statements": "(: bird_can_fly (WithTV (Implication (Bird $x) (Can (Fly $x))) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
@@ -52,7 +52,7 @@
     "previous": "\"\"",
     "english": "Some students who study hard will pass the exam.",
     "pln_types": "(: Student (-> (: $student Object) Type))\r\n(: Study (-> (: $studier Object) Type))\r\n(: Hard (-> (: $hard Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Pass (-> (: $passer Object) (: $passed Object) Type))\r\n(: Exam (-> (: $exam Object) Type))",
-    "pln_statements": "(: e_is_the_exam (WithTV (Exam e) (STV 0.95 0.9)))\r\n(: student_pass_exam (Implication (And (Student $s) ((& Hard Study) $s)) (Will (Pass $s e)) (STV 0.35 0.9)))",
+    "pln_statements": "(: e_is_the_exam (WithTV (Exam e) (STV 0.95 0.9)))\r\n(: student_pass_exam (WithTV (Implication (And (Student $s) ((& Hard Study) $s)) (Will (Pass $s e))) (STV 0.35 0.9)))",
     "pln_queries": ""
   },
   {
@@ -60,7 +60,7 @@
     "previous": "\"\"",
     "english": "Every teacher either likes mathematics or teaches science.",
     "pln_types": "(: Teacher (-> (: $teacher Object) Type))\r\n(: Likes (-> (: $liker Object) (: $liked Object) Type))\r\n(: Teaches (-> (: $teacher Object) (: $teached Object) Type))\r\n(: Mathematics (-> (: $math Object) Type))\r\n(: Science (-> (: $science Object) Type))",
-    "pln_statements": "(: teach_math_science (Implication (Teacher $t) (Or (And (Mathematics $m) (Likes $t $m)) (And (Science $s) (Teaches $t $s))) (STV 0.95 0.9)))",
+    "pln_statements": "(: teach_math_science (WithTV (Implication (Teacher $t) (Or (And (Mathematics $m) (Likes $t $m)) (And (Science $s) (Teaches $t $s)))) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
@@ -76,7 +76,7 @@
     "previous": "\"\"",
     "english": "All dogs chase some cat.",
     "pln_types": "(: Dog (-> (: $dog Object) Type))\r\n(: Cat (-> (: $cat Object) Type))\r\n(: Chase (-> (: $chaser Object) (: $chased Object) Type))",
-    "pln_statements": "(: dog_chase_cat (Implication (Dog $d) (And (Cat $c) (Chase $d $c)) (STV 0.95 0.9)))",
+    "pln_statements": "(: dog_chase_cat (WithTV (Implication (Dog $d) (And (Cat $c) (Chase $d $c))) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
@@ -84,7 +84,7 @@
     "previous": "\"\"",
     "english": "If it rains tomorrow, the outdoor concert will be canceled.",
     "pln_types": "(: Rain (-> (: $rain Object) Type))\r\n(: Tomorrow (-> (: $day Object) Type))\r\n(: On (-> (: $event Type) (: $day Object) Type))\r\n(: Outdoor (-> (: $event Object) Type))\r\n(: Concert (-> (: $concert Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: BeCanceled (-> (: $event Object) Type))",
-    "pln_statements": "(: oc_is_the_outdoor_concert (WithTV ((& Outdoor Concert) oc) (STV 0.95 0.9)))\r\n(: rain_cancel_concert (Implication (And (Tomorrow $tmr) (On (Rain $r) $tmr)) (Will (BeCanceled oc)) (STV 0.95 0.9)))",
+    "pln_statements": "(: oc_is_the_outdoor_concert (WithTV ((& Outdoor Concert) oc) (STV 0.95 0.9)))\r\n(: rain_cancel_concert (WithTV (Implication (And (Tomorrow $tmr) (On (Rain $r) $tmr)) (Will (BeCanceled oc))) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
@@ -100,7 +100,7 @@
     "previous": "\"\"",
     "english": "Alice visits her grandmother every Sunday afternoon.",
     "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: GrandmotherOf (-> (: $grandmother Object) (: $grandchild Object) Type))\r\n(: Visits (-> (: $visitor Object) (: $visited Object) Type))\r\n(: Sunday (-> (: $day Object) Type))\r\n(: Afternoon (-> (: $day Object) Type))\r\n(: On (-> (: $event Type) (: $day Object) Type))",
-    "pln_statements": "(: n_is_name (WithTV (Name n \"Alice\") (STV 0.95 0.9)))\r\n(: alice_named_n (WithTV (NameOf alice n) (STV 0.95 0.9)))\r\n(: alice_grandmother (WithTV (GrandmotherOf grandmother alice) (STV 0.95 0.9)))\r\n(: alice_visits_grandmother_sunday_afternoon (Implication ((& Sunday Afternoon) $sa) (On (Visits alice grandmother) $sa) (STV 0.95 0.9)))",
+    "pln_statements": "(: n_is_name (WithTV (Name n \"Alice\") (STV 0.95 0.9)))\r\n(: alice_named_n (WithTV (NameOf alice n) (STV 0.95 0.9)))\r\n(: alice_grandmother (WithTV (GrandmotherOf grandmother alice) (STV 0.95 0.9)))\r\n(: alice_visits_grandmother_sunday_afternoon (WithTV (Implication ((& Sunday Afternoon) $sa) (On (Visits alice grandmother) $sa)) (STV 0.95 0.9)))\r\n",
     "pln_queries": ""
   },
   {
@@ -117,7 +117,7 @@
     "english": "Is an apple a fruit?",
     "pln_types": "(: Apple (-> (: $apple Object) Type))\r\n(: Fruit (-> (: $fruit Object) Type))",
     "pln_statements": "",
-    "pln_queries": "(: $prf (Implication (Apple $x) (Fruit $x) $tv))"
+    "pln_queries": "(: $prf (WithTV (Implication (Apple $x) (Fruit $x)) $tv))"
   },
   {
     "similar": "\"\"",
@@ -125,14 +125,14 @@
     "english": "If a student studies for at least 5 hours and gets enough sleep, what is the probability they will pass the exam?",
     "pln_types": "(: Student (-> (: $student Object) Type))\r\n(: StudiesFor (-> (: $studier Object) Number String Type))\r\n(: Studies (-> (: $studier Object) Type))\r\n(: For (-> (: $event Type) Number String Type))\r\n(: GreaterThanEqualTo (-> Number Number Type))\r\n(: Gets (-> (: $getter Object) (: $got Object) Type))\r\n(: Enough (-> (: $obj Object) Type))\r\n(: Sleep (-> (: $obj Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Pass (-> (: $obj Object) (: $exam Object) Type))\r\n(: Exam (-> (: $exam Object) Type))",
     "pln_statements": "(: e_is_the_exam (WithTV (Exam e) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: studiesfor_meaning (Equivalence (StudiesFor $x $time $unit) (For (Studies $x) $time $unit) (STV 0.95 0.9)))",
-    "pln_queries": "(: $prf (Implication (And (Student $s) (And (StudiesFor $s $h \"Hour\") (And (GreaterThanEqualTo $h 5) (And ((& Enough Sleep) $es) (Gets $s $es))))) (Will (Pass $s e)) $tv))"
+    "pln_queries": "(: $prf (WithTV (Implication (And (Student $s) (And (StudiesFor $s $h \"Hour\") (And (GreaterThanEqualTo $h 5) (And ((& Enough Sleep) $es) (Gets $s $es))))) (Will (Pass $s e))) $tv))"
   },
   {
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "If the barometric pressure drops rapidly and dark clouds form, there is an 80% chance it will rain within the next 3 hours.",
     "pln_types": "(: Barometric (-> (: $pressure Object) Type))\r\n(: Pressure (-> (: $pressure Object) Type))\r\n(: Drops (-> (: $pressure Object) Type))\r\n(: Rapidly (-> (: $pressure Object) Type))\r\n(: Dark (-> (: $cloud Object) Type))\r\n(: Cloud (-> (: $cloud Object) Type))\r\n(: Form (-> (: $cloud Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Rain (-> (: $rain Object) Type))\r\n(: Within (-> (: $event Type) Number String Type))\r\n(: In (-> (: $event Type) Number String Type))\r\n(: LessThanEqualTo (-> Number Number Type))",
-    "pln_statements": "(: pressure_cloud_rain (Implication (And ((& Barometric Pressure) $bp) (And ((& Rapidly Drop) $bp) (And ((& Dark Cloud) $dc) (Form $dc)))) (Within (Will (Rain $r)) 3 \"Hour\") (STV 0.8 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: within_meaning (Equivalence (Within $event $time $unit) (And (In $event $h $unit) (LessThanEqualTo $h $time)) (STV 0.95 0.9)))",
+    "pln_statements": "(: pressure_cloud_rain (WithTV (Implication (And ((& Barometric Pressure) $bp) (And ((& Rapidly Drop) $bp) (And ((& Dark Cloud) $dc) (Form $dc)))) (Within (Will (Rain $r)) 3 \"Hour\")) (STV 0.8 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: within_meaning (Equivalence (Within $event $time $unit) (And (In $event $h $unit) (LessThanEqualTo $h $time)) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
