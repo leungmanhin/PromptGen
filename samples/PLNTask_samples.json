@@ -3,7 +3,7 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "I only eat vegetables on days when I exercise.",
-    "pln_types": "(: I (-> (: $i Object) Type))\r\n(: Eat (-> (: $eater Object) (: $eaten Object) Type))\r\n(: Vegetable (-> (: $veg Object) Type))\r\n(: On (-> (: $pred (-> (: $activity Object) Type)) (: $day Object) Type))\r\n(: On (-> (: $pred (-> (: $sub Object) (: $obj Object) Type)) (: $day Object) Type))\r\n(: Day (-> (: $day Object) Type))\r\n(: Exercise (-> (: $exerciser Object) Type))",
+    "pln_types": "(: I (-> (: $i Object) Type))\r\n(: Eat (-> (: $eater Object) (: $eaten Object) Type))\r\n(: Vegetable (-> (: $veg Object) Type))\r\n(: On (-> (: $activity Type) (: $day Object) Type))\r\n(: Day (-> (: $day Object) Type))\r\n(: Exercise (-> (: $exerciser Object) Type))",
     "pln_statements": "(: i_is_i (WithTV (I i) (STV 0.95 0.9)))\r\n(: eat_veg_exercise (Implication (And (Day $d) (On (Exercise i) $d)) (Implication (On (Eat i $v) $d) (Vegetable $v) (STV 0.95 0.9)) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
@@ -11,8 +11,176 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "Every boy on Vashon owns a dog that each girl on Vashon calls by a special name.",
-    "pln_types": "(: Boy (-> (: $boy Object) Type))\r\n(: Girl (-> (: $girl Object) Type))\r\n(: Dog (-> (: $dog Object) Type))\r\n(: Special (-> (: $name Object) Type))\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: CallsBy (-> (: $caller Object) (: $called Object) (: $name Object) Type))\r\n(: Calls (-> (: $caller Object) (: $called Object) Type))\r\n(: By (-> (: $pred (-> (: $sub Object) (: $obj Object) Type)) (: $name Object) Type))\r\n(: Owns (-> (: $owner Object) (: $owned Object) Type))\r\n(: On (-> (: $obj1 Object) (: $obj2 Object) Type))",
-    "pln_statements": "(: ebvodegvcsn (Implication (And (Boy $b) (And (Name $n \"Vashon\") (And (NameOf $v $n) (On $b $v)))) (And (Dog $d) (And (Owns $b $d) (Implication (And (Girl $g) (On $g $v)) (And ((& Special Name) $sn $sn_str) (CallsBy $g $d $sn)) (STV 0.95 0.9)))) (STV 0.95 0.9)))\r\n\r\n;; Unpack multi-word predicates\r\n(: callsby_means (Implication (CallsBy $x $y $z) (By (Calls $x $y) $z) (STV 0.95 0.9)))",
+    "pln_types": "(: Boy (-> (: $boy Object) Type))\r\n(: Girl (-> (: $girl Object) Type))\r\n(: Dog (-> (: $dog Object) Type))\r\n(: Special (-> (: $name Object) Type))\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: CallsBy (-> (: $caller Object) (: $called Object) (: $name Object) Type))\r\n(: Calls (-> (: $caller Object) (: $called Object) Type))\r\n(: By (-> (: $activity Type) (: $name Object) Type))\r\n(: Owns (-> (: $owner Object) (: $owned Object) Type))\r\n(: On (-> (: $obj1 Object) (: $obj2 Object) Type))",
+    "pln_statements": "(: ebvodegvcsn (Implication (And (Boy $b) (And (Name $n \"Vashon\") (And (NameOf $v $n) (On $b $v)))) (And (Dog $d) (And (Owns $b $d) (Implication (And (Girl $g) (On $g $v)) (And ((& Special Name) $sn $sn_str) (CallsBy $g $d $sn)) (STV 0.95 0.9)))) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: callsby_means (Equivalence (CallsBy $x $y $z) (By (Calls $x $y) $z) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Max is a dog.",
+    "pln_types": "(: Dog (-> (: $dog Object) Type))\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))",
+    "pln_statements": "(: n_is_name (WithTV (Name n \"Max\") (STV 0.95 0.9)))\r\n(: max_named_n (WithTV (NameOf max n) (STV 0.95 0.9)))\r\n(: max_dog (WithTV (Dog max) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "John likes Mary.",
+    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Likes (-> (: $liker Object) (: $liked Object) Type))",
+    "pln_statements": "(: nj_is_name (WithTV (Name nj \"John\") (STV 0.95 0.9)))\r\n(: nm_is_name (WithTV (Name nm \"Mary\") (STV 0.95 0.9)))\r\n(: john_named_john (WithTV (NameOf john nj) (STV 0.95 0.9)))\r\n(: mary_named_mary (WithTV (NameOf mary nm) (STV 0.95 0.9)))\r\n(: john_likes_mary (WithTV (Likes john mary) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "All birds can fly.",
+    "pln_types": "(: Bird (-> (: $bird Object) Type))\r\n(: Can (-> (: $activity Type) Type))\r\n(: Fly (-> (: $flyer Object) Type))",
+    "pln_statements": "(: bird_can_fly (Implication (Bird $x) (Can (Fly $x)) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "The red car is not faster than the blue truck.",
+    "pln_types": "(: Car (-> (: $car Object) Type))\r\n(: Truck (-> (: $truck Object) Type))\r\n(: Red (-> (: $red_obj Object) Type))\r\n(: Blue (-> (: $blue_obj Object) Type))\r\n(: FasterThan (-> (: $obj1 Object) (: $obj2 Object) Type))",
+    "pln_statements": "(: c_is_the_car (WithTV (Car c) (STV 0.95 0.9)))\r\n(: t_is_the_truck (WithTV (Truck t) (STV 0.95 0.9)))\r\n(: c_is_red (WithTV (Red c) (STV 0.95 0.9)))\r\n(: t_is_blue (WithTV (Blue t) (STV 0.95 0.9)))\r\n(: c_not_faster_t (WithTV (FasterThan c t) (STV 0.0 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Some students who study hard will pass the exam.",
+    "pln_types": "(: Student (-> (: $student Object) Type))\r\n(: Study (-> (: $studier Object) Type))\r\n(: Hard (-> (: $hard Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Pass (-> (: $passer Object) (: $passed Object) Type))\r\n(: Exam (-> (: $exam Object) Type))",
+    "pln_statements": "(: e_is_the_exam (WithTV (Exam e) (STV 0.95 0.9)))\r\n(: student_pass_exam (Implication (And (Student $s) ((& Hard Study) $s)) (Will (Pass $s e)) (STV 0.35 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Every teacher either likes mathematics or teaches science.",
+    "pln_types": "(: Teacher (-> (: $teacher Object) Type))\r\n(: Likes (-> (: $liker Object) (: $liked Object) Type))\r\n(: Teaches (-> (: $teacher Object) (: $teached Object) Type))\r\n(: Mathematics (-> (: $math Object) Type))\r\n(: Science (-> (: $science Object) Type))",
+    "pln_statements": "(: teach_math_science (Implication (Teacher $t) (Or (And (Mathematics $m) (Likes $t $m)) (And (Science $s) (Teaches $t $s))) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "A number is even if and only if it is divisible by 2.",
+    "pln_types": "(: Even (-> Number Type))\r\n(: DivisibleBy (-> Number Number Type))",
+    "pln_statements": "(: even_iff_div_by_2 (Equivalence (Even $x) (DivisibleBy $x 2) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "All dogs chase some cat.",
+    "pln_types": "(: Dog (-> (: $dog Object) Type))\r\n(: Cat (-> (: $cat Object) Type))\r\n(: Chase (-> (: $chaser Object) (: $chased Object) Type))",
+    "pln_statements": "(: dog_chase_cat (Implication (Dog $d) (And (Cat $c) (Chase $d $c)) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "If it rains tomorrow, the outdoor concert will be canceled.",
+    "pln_types": "(: Rain (-> (: $rain Object) Type))\r\n(: Tomorrow (-> (: $day Object) Type))\r\n(: On (-> (: $event Type) (: $day Object) Type))\r\n(: Outdoor (-> (: $event Object) Type))\r\n(: Concert (-> (: $concert Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: BeCanceled (-> (: $event Object) Type))",
+    "pln_statements": "(: oc_is_the_outdoor_concert (WithTV ((& Outdoor Concert) oc) (STV 0.95 0.9)))\r\n(: rain_cancel_concert (Implication (And (Tomorrow $tmr) (On (Rain $r) $tmr)) (Will (BeCanceled oc)) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "The Empire State Building is more than 380 meters tall.",
+    "pln_types": "(: Building (-> (: $building Object) Type))\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: HeightOf (-> (: $obj Object) Number String Type))\r\n(: GreaterThan (-> Number Number Type))",
+    "pln_statements": "(: b_is_the_building (WithTV (Building b) (STV 0.95 0.9)))\r\n(: n_is_name (WithTV (Name n \"Empire State Buildling\") (STV 0.95 0.9)))\r\n(: b_name (WithTV (NameOf b n) (STV 0.95 0.9)))\r\n(: b_height (WithTV (And (HeightOf b $h \"Meter\") (GreaterThan $h 380)) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Alice visits her grandmother every Sunday afternoon.",
+    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: GrandmotherOf (-> (: $grandmother Object) (: $grandchild Object) Type))\r\n(: Visits (-> (: $visitor Object) (: $visited Object) Type))\r\n(: Sunday (-> (: $day Object) Type))\r\n(: Afternoon (-> (: $day Object) Type))\r\n(: On (-> (: $event Type) (: $day Object) Type))",
+    "pln_statements": "(: n_is_name (WithTV (Name n \"Alice\") (STV 0.95 0.9)))\r\n(: alice_named_n (WithTV (NameOf alice n) (STV 0.95 0.9)))\r\n(: alice_grandmother (WithTV (GrandmotherOf grandmother alice) (STV 0.95 0.9)))\r\n(: alice_visits_grandmother_sunday_afternoon (Implication ((& Sunday Afternoon) $sa) (On (Visits alice grandmother) $sa) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Alice visits her grandmother every Sunday afternoon.",
+    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: GrandmotherOf (-> (: $grandmother Object) (: $grandchild Object) Type))\r\n(: Visits (-> (: $visitor Object) (: $visited Object) Type))\r\n(: Sunday (-> (: $day Object) Type))\r\n(: Afternoon (-> (: $day Object) Type))\r\n(: On (-> (: $pred (-> (: $sub Object) (: $obj Object) Type)) (: $day Object) Type))",
+    "pln_statements": "(: n_is_name (WithTV (Name n \"Alice\") (STV 0.95 0.9)))\r\n(: alice_named_n (WithTV (NameOf alice n) (STV 0.95 0.9)))\r\n(: alice_grandmother (WithTV (GrandmotherOf grandmother alice) (STV 0.95 0.9)))\r\n(: alice_visits_grandmother_sunday_afternoon (Implication ((& Sunday Afternoon) $sa) (On (Visits alice grandmother) $sa) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Is an apple a fruit?",
+    "pln_types": "(: Apple (-> (: $apple Object) Type))\r\n(: Fruit (-> (: $fruit Object) Type))",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (Implication (Apple $x) (Fruit $x) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "If a student studies for at least 5 hours and gets enough sleep, what is the probability they will pass the exam?",
+    "pln_types": "(: Student (-> (: $student Object) Type))\r\n(: StudiesFor (-> (: $studier Object) Number String Type))\r\n(: Studies (-> (: $studier Object) Type))\r\n(: For (-> (: $event Type) Number String Type))\r\n(: GreaterThanEqualTo (-> Number Number Type))\r\n(: Gets (-> (: $getter Object) (: $got Object) Type))\r\n(: Enough (-> (: $obj Object) Type))\r\n(: Sleep (-> (: $obj Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Pass (-> (: $obj Object) (: $exam Object) Type))\r\n(: Exam (-> (: $exam Object) Type))",
+    "pln_statements": "(: e_is_the_exam (WithTV (Exam e) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: studiesfor_meaning (Equivalence (StudiesFor $x $time $unit) (For (Studies $x) $time $unit) (STV 0.95 0.9)))",
+    "pln_queries": "(: $prf (Implication (And (Student $s) (And (StudiesFor $s $h \"Hour\") (And (GreaterThanEqualTo $h 5) (And ((& Enough Sleep) $es) (Gets $s $es))))) (Will (Pass $s e)) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "If the barometric pressure drops rapidly and dark clouds form, there is an 80% chance it will rain within the next 3 hours.",
+    "pln_types": "(: Barometric (-> (: $pressure Object) Type))\r\n(: Pressure (-> (: $pressure Object) Type))\r\n(: Drops (-> (: $pressure Object) Type))\r\n(: Rapidly (-> (: $pressure Object) Type))\r\n(: Dark (-> (: $cloud Object) Type))\r\n(: Cloud (-> (: $cloud Object) Type))\r\n(: Form (-> (: $cloud Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Rain (-> (: $rain Object) Type))\r\n(: Within (-> (: $event Type) Number String Type))\r\n(: In (-> (: $event Type) Number String Type))\r\n(: LessThanEqualTo (-> Number Number Type))",
+    "pln_statements": "(: pressure_cloud_rain (Implication (And ((& Barometric Pressure) $bp) (And ((& Rapidly Drop) $bp) (And ((& Dark Cloud) $dc) (Form $dc)))) (Within (Will (Rain $r)) 3 \"Hour\") (STV 0.8 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: within_meaning (Equivalence (Within $event $time $unit) (And (In $event $h $unit) (LessThanEqualTo $h $time)) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "This ball is bright red.",
+    "pln_types": "(: Ball (-> (: $ball Object) Type))\r\n(: Bright (-> (: $obj Object) Type))\r\n(: Red (-> (: $obj Object) Type))",
+    "pln_statements": "(: b_is_this_ball (WithTV (Ball b) (STV 0.95 0.9)))\r\n(: b_is_bright_red (WithTV ((& Bright Red) b) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "What attributes does a house have?",
+    "pln_types": "(: House (-> (: $house Object) Type))",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (WithTV (And (House $house) ($attrib $house)) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "What relationships do John and Mark have?",
+    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (WithTV (And (Name $nj \"John\") (And (NameOf $j $nj) (And (Name $nm \"Mark\") (And (NameOf $m $nm) ($relation $j $m))))) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "What properties does a car have?",
+    "pln_types": "(: Car (-> (: $car Object) Type))",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (WithTV (And (Car $car) ($property $car)) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "Henry said, \"This is my house.\"\r\n\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: House (-> (: $house Object) Type))\r\n\r\n(: h37_is_house (WithTV (House h37) (STV 0.95 0.9)))\r\n(: nh_is_name (WithTV (Name nh \"Henry\") (STV 0.95 0.9)))\r\n(: henry_named_nh (WithTV (NameOf henry89 nh) (STV 0.95 0.9)))\r\n(: henry_possess_h (WithTV (Possess henry89 h37) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: possess_meaning (Equivalence (Possess $x $y) (PossessedBy $y $x) (STV 0.95 0.9)))",
+    "english": "How is this house related to me?",
+    "pln_types": "",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (WithTV ($relation h37 henry89) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "John believes that Mark is angry.",
+    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Believes (-> (: $believer Object) (: $belief Type) Type))\r\n(: Angry (-> (: $obj Object) Type))",
+    "pln_statements": "(: nj_is_name (WithTV (Name nj \"John\") (STV 0.95 0.9)))\r\n(: john_named_nj (WithTV (NameOf john nj) (STV 0.95 0.9)))\r\n(: nm_is_name (WithTV (Name nm \"Mark\") (STV 0.95 0.9)))\r\n(: mark_named_nm (WithTV (NameOf mark nm) (STV 0.95 0.9)))\r\n(: john_believes_mark_angry (WithTV (Believes john (Angry mark)) (STV 0.95 0.9)))",
     "pln_queries": ""
   }
 ]
