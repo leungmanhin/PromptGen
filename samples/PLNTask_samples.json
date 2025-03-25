@@ -3,8 +3,8 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "I only eat vegetables on days when I exercise.",
-    "pln_types": "(: Day (-> (: $day Object) Type))\r\n(: Vegetable (-> (: $vegetable Object) Type))\r\n(: Eats (-> (: $eater Object) (: $food Object) Type))\r\n(: Exercises (-> (: $person Object) Type))",
-    "pln_statements": "(: vegetables_exercise_rule (Implication (Context (Exercises authorSpeaker) $day) (Implication (Context (Eats authorSpeaker $food) $day) (Vegetable $food) (STV 0.99 0.9)) (STV 0.99 0.9)))",
+    "pln_types": "(: I (-> (: $i Object) Type))\r\n(: Eat (-> (: $eater Object) (: $eaten Object) Type))\r\n(: Vegetable (-> (: $veg Object) Type))\r\n(: On (-> (: $pred (-> (: $activity Object) Type)) (: $day Object) Type))\r\n(: On (-> (: $pred (-> (: $obj1 Object) (: $obj2 Object) Type)) (: $day Object) Type))\r\n(: Day (-> (: $day Object) Type))\r\n(: Exercise (-> (: $exerciser Object) Type))",
+    "pln_statements": "(: i_is_i (WithTV (I i) (STV 0.95 0.9)))\r\n(: eat_veg_exercise (Implication (And (Day $d) (On (Exercise i) $d)) (Implication (On (Eat i $v) $d) (Vegetable $v) (STV 0.95 0.9)) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
