@@ -3,16 +3,16 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "I only eat vegetables on days when I exercise.",
-    "pln_types": "(: I (-> (: $i Object) Type))\r\n(: Eat (-> (: $eater Object) (: $eaten Object) Type))\r\n(: Vegetable (-> (: $veg Object) Type))\r\n(: On (-> (: $pred (-> (: $activity Object) Type)) (: $day Object) Type))\r\n(: On (-> (: $pred (-> (: $obj1 Object) (: $obj2 Object) Type)) (: $day Object) Type))\r\n(: Day (-> (: $day Object) Type))\r\n(: Exercise (-> (: $exerciser Object) Type))",
+    "pln_types": "(: I (-> (: $i Object) Type))\r\n(: Eat (-> (: $eater Object) (: $eaten Object) Type))\r\n(: Vegetable (-> (: $veg Object) Type))\r\n(: On (-> (: $pred (-> (: $activity Object) Type)) (: $day Object) Type))\r\n(: On (-> (: $pred (-> (: $sub Object) (: $obj Object) Type)) (: $day Object) Type))\r\n(: Day (-> (: $day Object) Type))\r\n(: Exercise (-> (: $exerciser Object) Type))",
     "pln_statements": "(: i_is_i (WithTV (I i) (STV 0.95 0.9)))\r\n(: eat_veg_exercise (Implication (And (Day $d) (On (Exercise i) $d)) (Implication (On (Eat i $v) $d) (Vegetable $v) (STV 0.95 0.9)) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
     "similar": "\"\"",
     "previous": "\"\"",
-    "english": "Every boy on Vashon owns a Dog that each girl on Vashon calls by a special name.",
-    "pln_types": "(: Boy (-> (: $boy Object) Type))\r\n(: Girl (-> (: $girl Object) Type))\r\n(: Dog (-> (: $dog Object) Type))\r\n(: OnVashon (-> (: $obj Object) Type))\r\n(: SpecialName (-> (: $name Object) Type))\r\n(: Calls (-> (: $caller Object) (: $called Object) (: $name Object) Type))\r\n(: Owns (-> (: $owner Object) (: $owned Object) Type))",
-    "pln_statements": "(: ebvodegvcsn (Implication (And (Boy $b) (OnVashon $b)) (And (Dog $d) (And (Owns $b $d) (Implication (And (Girl $g) (OnVashon $g)) (And (SpecialName $n) (Calls $g $d $n))))))",
+    "english": "Every boy on Vashon owns a dog that each girl on Vashon calls by a special name.",
+    "pln_types": "(: Boy (-> (: $boy Object) Type))\r\n(: Girl (-> (: $girl Object) Type))\r\n(: Dog (-> (: $dog Object) Type))\r\n(: Special (-> (: $name Object) Type))\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: CallsBy (-> (: $caller Object) (: $called Object) (: $name Object) Type))\r\n(: Calls (-> (: $caller Object) (: $called Object) Type))\r\n(: By (-> (: $pred (-> (: $sub Object) (: $obj Object) Type)) (: $name Object) Type))\r\n(: Owns (-> (: $owner Object) (: $owned Object) Type))\r\n(: On (-> (: $obj1 Object) (: $obj2 Object) Type))",
+    "pln_statements": "(: ebvodegvcsn (Implication (And (Boy $b) (And (Name $n \"Vashon\") (And (NameOf $v $n) (On $b $v)))) (And (Dog $d) (And (Owns $b $d) (Implication (And (Girl $g) (On $g $v)) (And ((& Special Name) $sn $sn_str) (CallsBy $g $d $sn)) (STV 0.95 0.9)))) (STV 0.95 0.9)))\r\n\r\n;; Unpack multi-word predicates\r\n(: callsby_means (Implication (CallsBy $x $y $z) (By (Calls $x $y) $z) (STV 0.95 0.9)))",
     "pln_queries": ""
   }
 ]
