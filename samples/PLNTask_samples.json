@@ -12,7 +12,7 @@
     "previous": "\"\"",
     "english": "Every boy on Vashon owns a dog that each girl on Vashon calls by a special name.",
     "pln_types": "(: Boy (-> (: $boy Object) Type))\r\n(: Girl (-> (: $girl Object) Type))\r\n(: Dog (-> (: $dog Object) Type))\r\n(: Special (-> (: $name Object) Type))\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: CallsBy (-> (: $caller Object) (: $called Object) (: $name Object) Type))\r\n(: Calls (-> (: $caller Object) (: $called Object) Type))\r\n(: By (-> (: $activity Type) (: $name Object) Type))\r\n(: Owns (-> (: $owner Object) (: $owned Object) Type))\r\n(: On (-> (: $obj1 Object) (: $obj2 Object) Type))",
-    "pln_statements": "(: ebvodegvcsn (WithTV (Implication (And (Boy $b) (And (Name $n \"Vashon\") (And (NameOf $v $n) (On $b $v)))) (And (Dog $d) (And (Owns $b $d) (Implication (And (Girl $g) (On $g $v)) (And ((& Special Name) $sn $sn_str) (CallsBy $g $d $sn)))))) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: callsby_means (Equivalence (CallsBy $x $y $z) (By (Calls $x $y) $z) (STV 0.95 0.9)))",
+    "pln_statements": "(: ebvodegvcsn (WithTV (Implication (And (Boy $b) (And (Name $n \"Vashon\") (And (NameOf $v $n) (On $b $v)))) (And (Dog $d) (And (Owns $b $d) (Implication (And (Girl $g) (On $g $v)) (And ((& Special Name) $sn $sn_str) (CallsBy $g $d $sn)))))) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: callsby_means (WithTV (Equivalence (CallsBy $x $y $z) (By (Calls $x $y) $z)) (STV 0.95 0.9)))\r\n",
     "pln_queries": ""
   },
   {
@@ -68,7 +68,7 @@
     "previous": "\"\"",
     "english": "A number is even if and only if it is divisible by 2.",
     "pln_types": "(: Even (-> Number Type))\r\n(: DivisibleBy (-> Number Number Type))",
-    "pln_statements": "(: even_iff_div_by_2 (Equivalence (Even $x) (DivisibleBy $x 2) (STV 0.95 0.9)))",
+    "pln_statements": "(: even_iff_div_by_2 (WithTV (Equivalence (Even $x) (DivisibleBy $x 2)) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
@@ -124,7 +124,7 @@
     "previous": "\"\"",
     "english": "If a student studies for at least 5 hours and gets enough sleep, what is the probability they will pass the exam?",
     "pln_types": "(: Student (-> (: $student Object) Type))\r\n(: StudiesFor (-> (: $studier Object) Number String Type))\r\n(: Studies (-> (: $studier Object) Type))\r\n(: For (-> (: $event Type) Number String Type))\r\n(: GreaterThanEqualTo (-> Number Number Type))\r\n(: Gets (-> (: $getter Object) (: $got Object) Type))\r\n(: Enough (-> (: $obj Object) Type))\r\n(: Sleep (-> (: $obj Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Pass (-> (: $obj Object) (: $exam Object) Type))\r\n(: Exam (-> (: $exam Object) Type))",
-    "pln_statements": "(: e_is_the_exam (WithTV (Exam e) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: studiesfor_meaning (Equivalence (StudiesFor $x $time $unit) (For (Studies $x) $time $unit) (STV 0.95 0.9)))",
+    "pln_statements": "(: e_is_the_exam (WithTV (Exam e) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: studiesfor_meaning (WithTV (Equivalence (StudiesFor $x $time $unit) (For (Studies $x) $time $unit)) (STV 0.95 0.9)))\r\n",
     "pln_queries": "(: $prf (WithTV (Implication (And (Student $s) (And (StudiesFor $s $h \"Hour\") (And (GreaterThanEqualTo $h 5) (And ((& Enough Sleep) $es) (Gets $s $es))))) (Will (Pass $s e))) $tv))"
   },
   {
@@ -132,7 +132,7 @@
     "previous": "\"\"",
     "english": "If the barometric pressure drops rapidly and dark clouds form, there is an 80% chance it will rain within the next 3 hours.",
     "pln_types": "(: Barometric (-> (: $pressure Object) Type))\r\n(: Pressure (-> (: $pressure Object) Type))\r\n(: Drops (-> (: $pressure Object) Type))\r\n(: Rapidly (-> (: $pressure Object) Type))\r\n(: Dark (-> (: $cloud Object) Type))\r\n(: Cloud (-> (: $cloud Object) Type))\r\n(: Form (-> (: $cloud Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Rain (-> (: $rain Object) Type))\r\n(: Within (-> (: $event Type) Number String Type))\r\n(: In (-> (: $event Type) Number String Type))\r\n(: LessThanEqualTo (-> Number Number Type))",
-    "pln_statements": "(: pressure_cloud_rain (WithTV (Implication (And ((& Barometric Pressure) $bp) (And ((& Rapidly Drop) $bp) (And ((& Dark Cloud) $dc) (Form $dc)))) (Within (Will (Rain $r)) 3 \"Hour\")) (STV 0.8 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: within_meaning (Equivalence (Within $event $time $unit) (And (In $event $h $unit) (LessThanEqualTo $h $time)) (STV 0.95 0.9)))",
+    "pln_statements": "(: pressure_cloud_rain (WithTV (Implication (And ((& Barometric Pressure) $bp) (And ((& Rapidly Drop) $bp) (And ((& Dark Cloud) $dc) (Form $dc)))) (Within (Will (Rain $r)) 3 \"Hour\")) (STV 0.8 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: within_meaning (WithTV (Equivalence (Within $event $time $unit) (And (In $event $h $unit) (LessThanEqualTo $h $time))) (STV 0.95 0.9)))\r\n",
     "pln_queries": ""
   },
   {
@@ -169,7 +169,7 @@
   },
   {
     "similar": "\"\"",
-    "previous": "Henry said, \"This is my house.\"\r\n\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: House (-> (: $house Object) Type))\r\n\r\n(: h37_is_house (WithTV (House h37) (STV 0.95 0.9)))\r\n(: nh_is_name (WithTV (Name nh \"Henry\") (STV 0.95 0.9)))\r\n(: henry_named_nh (WithTV (NameOf henry89 nh) (STV 0.95 0.9)))\r\n(: henry_possess_h (WithTV (Possess henry89 h37) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: possess_meaning (Equivalence (Possess $x $y) (PossessedBy $y $x) (STV 0.95 0.9)))",
+    "previous": "Henry said, \"This is my house.\"\r\n\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: House (-> (: $house Object) Type))\r\n\r\n(: h37_is_house (WithTV (House h37) (STV 0.95 0.9)))\r\n(: nh_is_name (WithTV (Name nh \"Henry\") (STV 0.95 0.9)))\r\n(: henry_named_nh (WithTV (NameOf henry89 nh) (STV 0.95 0.9)))\r\n(: henry_possess_h (WithTV (Possess henry89 h37) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: possess_meaning (WithTV (Equivalence (Possess $x $y) (PossessedBy $y $x)) (STV 0.95 0.9)))",
     "english": "How is this house related to me?",
     "pln_types": "",
     "pln_statements": "",
