@@ -276,7 +276,7 @@
     "previous": "\"\"",
     "english": "Nearly all experts agree that about half of the research findings apply to most real-world situations.",
     "pln_types": "(: Expert (-> (: $expert Object) Type))\r\n(: Agree (-> (: $agreer Object) (: $agreed Type) Type))\r\n(: Research (-> (: $research Object) Type))\r\n(: Finding (-> (: $finding Object) Type))\r\n(: ApplyTo (-> (: $applier Object) (: $applied Object) Type))\r\n(: Apply (-> (: $applier Object) Type))\r\n(: To (-> (: $act Type) Type))\r\n(: RealWorld (-> (: $realworld Object) Type))\r\n(: Situation (-> (: $situation Object) Type))",
-    "pln_statements": "(: expert_finding_situation (WithTV (Implication (Expert $e) (Agree $e (Implication (And ((& Research Finding) $f) ((& RealWorld Situation) $rws)) (ApplyTo $rf $rws)))) (STV 0.5 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: applyto_means (WithTV (Implication (ApplyTo $x $y) (To (Apply $x) $y)) (STV 0.95 0.9)))",
+    "pln_statements": "(: expert_finding_situation (WithTV (Implication (Expert $e) (Agree $e (Implication (And ((& Research Finding) $f) ((& RealWorld Situation) $rws)) (ApplyTo $rf $rws)))) (STV 0.5 0.9)))",
     "pln_queries": ""
   },
   {
