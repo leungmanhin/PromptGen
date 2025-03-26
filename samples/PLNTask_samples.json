@@ -294,5 +294,13 @@
     "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Plays (-> (: $player Object) (: $played Object) Type))\r\n(: Guiter (-> (: $guiter Object) Type))",
     "pln_statements": "(: np_is_name (WithTV (Name np \"Paul\") (STV 0.95 0.9)))\r\n(: nk_is_name (WithTV (Name nk \"Kitty\") (STV 0.95 0.9)))\r\n(: p_named_np (WithTV (NameOf p np) (STV 0.95 0.9)))\r\n(: k_named_nk (WithTV (NameOf k nk) (STV 0.95 0.9)))\r\n(: p_play_guiter (WithTV (And (Guiter $g) (Plays p $g)) (STV 0.95 0.9)))\r\n(: k_play_guiter (WithTV (And (Guiter $g) (Plays k $g)) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "The chair is new.\r\n\r\n(: Chair (-> (: $chair Object) Type))\r\n(: New (-> (: $new_obj Object) Type))\r\n\r\n(: c_is_the_chair (WithTV (Chair c) (STV 0.95 0.9)))\r\n(: c_is_new (WithTV (New c) (STV 0.95 0.9)))",
+    "english": "It is red, and she likes it.",
+    "pln_types": "(: Red (-> (: $red_obj Object) Type))\r\n(: Likes (-> (: $liker Object) (: $liked Object) Type))",
+    "pln_statements": "(: c_is_red (WithTV (Red c) (STV 0.95 0.9)))\r\n(: s_is_she (WithTV (She s) (STV 0.95 0.9)))   ;; Unresolved she\r\n(: s_likes_c (WithTV (Likes s c) (STV 0.95 0.9)))",
+    "pln_queries": ""
   }
 ]
