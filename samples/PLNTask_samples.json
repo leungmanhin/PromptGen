@@ -318,5 +318,13 @@
     "pln_types": "(: Rat (-> (: $rat Object) Type))\r\n(: Cat (-> (: $cat Object) Type))\r\n(: Man (-> (: $man Object) Type))\r\n(: Hit (-> (: $hitter Object) (: $hit Object) Type))\r\n(: Chased (-> (: $chaser Object) (: $chased Object) Type))\r\n(: RanInto (-> (: $runner Object) (: $ran Object) Type))\r\n(: Trap (-> (: $trap Object) Type))",
     "pln_statements": "(: r_is_the_rat (WithTV (Rat r) (STV 0.95 0.9)))\r\n(: c_is_the_cat (WithTV (Cat c) (STV 0.95 0.9)))\r\n(: m_is_the_man (WithTV (Man m) (STV 0.95 0.9)))\r\n(: t_is_the_trap (WithTV (Trap t) (STV 0.95 0.9)))\r\n(: r_raninto_t (WithTV (RanInto r t) (STV 0.95 0.9)))\r\n(: c_chased_r (WithTV (Chased c r) (STV 0.95 0.9)))\r\n(: m_hit_c (WithTV (Hit m c) (STV 0.95 0.9)))\r\n\r\n;; Location info\r\n(: r_loc_t (WithTV (LocationOf r t) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "Selly hides behind the door.\r\n\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Hide (-> (: $hider Object) (: $hid Type) Type))\r\n(: Behind (-> (: $obj Object) Type))\r\n(: Door (-> (: $door Object) Type))\r\n\r\n(: ns_is_name (WithTV (Name ns \"Selly\") (STV 0.95 0.9)))\r\n(: s_named_ns (WithTV (NameOf s ns) (STV 0.95 0.9)))\r\n(: d_is_the_door (WithTV (Door d) (STV 0.95 0.9)))\r\n(: s_hide_behind_d (WithTV (Hide s (Behind d)) (STV 0.95 0.9)))\r\n\r\n;; Location info\r\n(: hide_behind_means (WithTV (Implication (Hide $someone (Behind $obj)) (LocationOf $someone (Behind $obj))) (STV 0.95 0.9)))",
+    "english": "Where is she?",
+    "pln_types": "",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (WithTV (LocationOf s $where) $tv))"
   }
 ]
