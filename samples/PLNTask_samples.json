@@ -270,5 +270,13 @@
     "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Date (-> (: $date Object) Type))\r\n(: Month (-> (: $month Object) String Type))\r\n(: Day (-> (: $day Object) String Type))",
     "pln_statements": "(: may_4th_star_wars_day (WithTV (Implication (And (Date $d) (And (Month $d \"May\") (Day $d \"4\"))) (And (Name $n \"Star Wars Day\") (NameOf $d $n))) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Nearly all experts agree that about half of the research findings apply to most real-world situations.",
+    "pln_types": "(: Expert (-> (: $expert Object) Type))\r\n(: Agree (-> (: $agreer Object) (: $agreed Type) Type))\r\n(: Research (-> (: $research Object) Type))\r\n(: Finding (-> (: $finding Object) Type))\r\n(: ApplyTo (-> (: $applier Object) (: $applied Object) Type))\r\n(: Apply (-> (: $applier Object) Type))\r\n(: To (-> (: $act Type) Type))\r\n(: RealWorld (-> (: $realworld Object) Type))\r\n(: Situation (-> (: $situation Object) Type))",
+    "pln_statements": "(: expert_finding_situation (WithTV (Implication (Expert $e) (Agree $e (Implication (And ((& Research Finding) $f) ((& RealWorld Situation) $rws)) (ApplyTo $rf $rws)))) (STV 0.5 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: applyto_means (WithTV (Implication (ApplyTo $x $y) (To (Apply $x) $y)) (STV 0.95 0.9)))",
+    "pln_queries": ""
   }
 ]
