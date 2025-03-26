@@ -310,5 +310,13 @@
     "pln_types": "(: They (-> (: $they Object) Type))\r\n(: GoHiking (-> (: $hiker Object) Type))\r\n(: Together (-> (: $tgt Object) Type))\r\n(: Go (-> (: $goer Object) (: $gone Object) Type))",
     "pln_statements": "(: t_is_they (WithTV (They t) (STV 0.95 0.9)))\r\n(: a_belongsto_t (WithTV (BelongsTo a t) (STV 0.95 0.9)))\r\n(: k_belongsto_t (WithTV (BelongsTo k t) (STV 0.95 0.9)))\r\n(: ak_gohike_all_time (WithTV ((& Together GoHiking) t) (STV 0.9 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: gohiking_means (WithTV (Implication (GoHiking $x) (And (Hiking $h) (Go $x $h))) (STV 0.95 0.9)))\r\n(: together_means (WithTV (Implication ((& Together $act) $ppl) (And (BelongsTo $x $ppl) (And (AtTime ($act $x) $time) (LocationOf ($act $x) $location)))) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "The rat the cat the man hit chased ran into the trap.",
+    "pln_types": "(: Rat (-> (: $rat Object) Type))\r\n(: Cat (-> (: $cat Object) Type))\r\n(: Man (-> (: $man Object) Type))\r\n(: Hit (-> (: $hitter Object) (: $hit Object) Type))\r\n(: Chased (-> (: $chaser Object) (: $chased Object) Type))\r\n(: RanInto (-> (: $runner Object) (: $ran Object) Type))\r\n(: Trap (-> (: $trap Object) Type))",
+    "pln_statements": "(: r_is_the_rat (WithTV (Rat r) (STV 0.95 0.9)))\r\n(: c_is_the_cat (WithTV (Cat c) (STV 0.95 0.9)))\r\n(: m_is_the_man (WithTV (Man m) (STV 0.95 0.9)))\r\n(: t_is_the_trap (WithTV (Trap t) (STV 0.95 0.9)))\r\n(: r_raninto_t (WithTV (RanInto r t) (STV 0.95 0.9)))\r\n(: c_chased_r (WithTV (Chased c r) (STV 0.95 0.9)))\r\n(: m_hit_c (WithTV (Hit m c) (STV 0.95 0.9)))\r\n\r\n;; Location info\r\n(: r_loc_t (WithTV (LocationOf r t) (STV 0.95 0.9)))",
+    "pln_queries": ""
   }
 ]
