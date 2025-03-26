@@ -1,0 +1,9 @@
+{
+  "name": "o3-mini",
+  "provider": "openai",
+  "description": "o3-mini - OpenAI's o3 mini model",
+  "parameters": {
+    "temperature": 1.0,
+    "max_tokens": 5000
+  }
+}

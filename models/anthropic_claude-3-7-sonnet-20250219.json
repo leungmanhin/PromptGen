@@ -1,0 +1,9 @@
+{
+  "name": "claude-3-7-sonnet-20250219",
+  "provider": "anthropic",
+  "description": "Claude 3.7 Sonnet - Anthropic's powerful model with balanced capabilities",
+  "parameters": {
+    "temperature": 0.7,
+    "max_tokens": 4000
+  }
+}

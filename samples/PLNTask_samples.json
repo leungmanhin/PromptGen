@@ -3,8 +3,8 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "I only eat vegetables on days when I exercise.",
-    "pln_types": "(: I (-> (: $i Object) Type))\r\n(: Eat (-> (: $eater Object) (: $eaten Object) Type))\r\n(: Vegetable (-> (: $veg Object) Type))\r\n(: On (-> (: $activity Type) (: $day Object) Type))\r\n(: Day (-> (: $day Object) Type))\r\n(: Exercise (-> (: $exerciser Object) Type))",
-    "pln_statements": "(: i_is_i (WithTV (I i) (STV 0.95 0.9)))\r\n(: eat_veg_exercise (WithTV (Implication (And (Day $d) (On (Exercise i) $d)) (Implication (On (Eat i $v) $d) (Vegetable $v))) (STV 0.95 0.9)))",
+    "pln_types": "(: Eat (-> (: $eater Object) (: $eaten Object) Type))\r\n(: Vegetable (-> (: $veg Object) Type))\r\n(: On (-> (: $activity Type) (: $day Object) Type))\r\n(: Day (-> (: $day Object) Type))\r\n(: Exercise (-> (: $exerciser Object) Type))",
+    "pln_statements": "(: eat_veg_exercise (WithTV (Implication (And (Day $d) (On $d (Exercise authorSpeaker))) (Implication (On $d (Eat authorSpeaker $v)) (Vegetable $v))) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
@@ -181,6 +181,62 @@
     "english": "John believes that Mark is angry.",
     "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Believes (-> (: $believer Object) (: $belief Type) Type))\r\n(: Angry (-> (: $obj Object) Type))",
     "pln_statements": "(: nj_is_name (WithTV (Name nj \"John\") (STV 0.95 0.9)))\r\n(: john_named_nj (WithTV (NameOf john nj) (STV 0.95 0.9)))\r\n(: nm_is_name (WithTV (Name nm \"Mark\") (STV 0.95 0.9)))\r\n(: mark_named_nm (WithTV (NameOf mark nm) (STV 0.95 0.9)))\r\n(: john_believes_mark_angry (WithTV (Believes john (Angry mark)) (STV 0.95 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Every boy on Vashon owns a Dog that each girl on Vashon calls by a special name.",
+    "pln_types": "(: Boy (-> (: $boy Object) Type))\r\n(: Girl (-> (: $girl Object) Type))\r\n(: Dog (-> (: $dog Object) Type))\r\n(: OnVashon (-> (: $obj Object) Type))\r\n(: SpecialName (-> (: $name Object) Type))\r\n(: Calls (-> (: $caller Object) (: $called Object) (: $name Object) Type))\r\n(: Owns (-> (: $owner Object) (: $owned Object) Type))",
+    "pln_statements": "(: ebvodegvcsn (WithTV (Implication (And (Boy $b) (OnVashon $b)) (And (Dog $d) (And (Owns $b $d) (Implication (And (Girl $g) (OnVashon $g)) (And (SpecialName $n) (Calls $g $d $n))))) (STV 0.9 0.9))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "This ball is bright Red.",
+    "pln_types": "(: Ball (-> (: $ball Object) Type))\r\n(: Red (-> (: $red Object) Type))\r\n(: Bright (-> (: $bright Object) Type))",
+    "pln_statements": "(: b_Ball (Ball b))\r\n(: b_BrightRed ((& Bright Red) b))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Are Humans Animals?",
+    "pln_types": "(: Human (-> (: $human Object) Type))\r\n(: Animal (-> (: $animal Object) Type))",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (WithTV (Implication (Human $x) (Animal $x)) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "How is Mary related to John?",
+    "pln_types": "(: Name (-> (: named Object) (: name String) Type))",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (WithTV (And (Name mary \"Mary\") (And (Name john \"John\") ($relation mary john))) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Most birds can fly.",
+    "pln_types": "(: Bird (-> (: $bird Object) Type))\r\n(: Fly (-> (: $flyer Object) Type))\r\n(: Can (-> Type Type))",
+    "pln_statements": "(: birds_can_fly (WithTV (Implication (Bird $b) (Can (Fly $b))) (STV 0.8 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "There exists a Black Dog.",
+    "pln_types": "(: Dog (-> (: $dog Object) Type))\r\n(: Black (-> (: $black Object) Type))\r\n",
+    "pln_statements": "(: d_Dog (WithTV (Dog d) (STV 1 0.9))\r\n(: d_Black (WithTV (Black b) (STV 1 0.9))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Most dogs chase some cat.",
+    "pln_types": "(: Dog (-> (: $dog Object) Type))\r\n(: Cat (-> (: $cat Object) Type))\r\n(: Chase (-> (: $chaser Object) (: $chased Object) Type))",
+    "pln_statements": "(: most_dogs_chase_some_cat (WithTV (Implication (Dog $d) (And (Cat $d) (Chase $d $c))) (STV 0.8 0.8)))",
     "pln_queries": ""
   }
 ]

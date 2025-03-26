@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Model{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Add New Model</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('models.add_model') }}">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Model Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                    <div class="form-text">The name of the model (e.g., "claude-3-7-sonnet-20250219")</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="provider" class="form-label">Provider</label>
+                    <input type="text" class="form-control" id="provider" name="provider" required>
+                    <div class="form-text">The provider of the model (e.g., "anthropic", "openai", "openrouter/anthropic")</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    <div class="form-text">A brief description of the model</div>
+                </div>
+                
+                <h5 class="mb-3">Parameters</h5>
+                
+                <div class="mb-3">
+                    <label for="temperature" class="form-label">Temperature</label>
+                    <input type="number" class="form-control" id="temperature" name="temperature" step="0.1" min="0" max="2">
+                    <div class="form-text">Temperature parameter for the model (e.g., 0.7)</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="max_tokens" class="form-label">Max Tokens</label>
+                    <input type="number" class="form-control" id="max_tokens" name="max_tokens" min="1">
+                    <div class="form-text">Maximum number of tokens (e.g., 4000)</div>
+                </div>
+                
+                <div class="mb-3">
+                    <a href="{{ url_for('models.view_models') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Add Model</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

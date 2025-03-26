@@ -1,0 +1,9 @@
+{
+  "name": "deepseek-reasoner",
+  "provider": "deepseek",
+  "description": "DeepSeek Reasoner - Specialized for reasoning tasks",
+  "parameters": {
+    "temperature": 0.7,
+    "max_tokens": 4000
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "deepseek-chat",
+  "provider": "deepseek",
+  "description": "DeepSeek Chat - General-purpose chat model",
+  "parameters": {
+    "temperature": 0.7,
+    "max_tokens": 4000
+  }
+}

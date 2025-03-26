@@ -1,0 +1,9 @@
+{
+  "name": "claude-3.7-sonnet",
+  "provider": "openrouter/anthropic",
+  "description": "Claude 3.7 Sonnet via OpenRouter - Access through OpenRouter API",
+  "parameters": {
+    "temperature": 0.7,
+    "max_tokens": 4000
+  }
+}

@@ -10,11 +10,13 @@ class Config:
     PROGRAM_DIR = BASE_DIR / 'programs'
     SAMPLES_DIR = BASE_DIR / 'samples'
     SIGNATURES_DIR = BASE_DIR / 'signatures'
+    MODELS_DIR = BASE_DIR / 'models'
     
     # Ensure directories exist
     PROGRAM_DIR.mkdir(exist_ok=True)
     SAMPLES_DIR.mkdir(exist_ok=True)
     SIGNATURES_DIR.mkdir(exist_ok=True)
+    MODELS_DIR.mkdir(exist_ok=True)
     
     # Default model
     DEFAULT_MODEL = 'anthropic/claude-3-7-sonnet-20250219'

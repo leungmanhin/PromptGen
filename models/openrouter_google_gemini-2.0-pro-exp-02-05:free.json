@@ -1,0 +1,9 @@
+{
+  "name": "gemini-2.0-pro-exp-02-05:free",
+  "provider": "openrouter/google",
+  "description": "Google Gemini 2.0 Pro via OpenRouter",
+  "parameters": {
+    "temperature": 0.7,
+    "max_tokens": 4000
+  }
+}

@@ -224,7 +224,8 @@ class SampleManager:
             sample_generator = dspy.ChainOfThought(generator_class)
             
             # Get a model instance
-            sample_lm = dspy.LM(model_name)
+            from ..utils import get_lm
+            sample_lm = get_lm(model_name)
             
             # Prepare kwargs for the generator
             kwargs = {

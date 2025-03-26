@@ -39,6 +39,7 @@
                 <li class="nav-item"><a href="{{ url_for('main.index') }}" class="nav-link {% if request.path == '/' %}active{% endif %}">Dashboard</a></li>
                 <li class="nav-item"><a href="{{ url_for('samples.view_samples') }}" class="nav-link {% if request.path == '/samples' %}active{% endif %}">Samples</a></li>
                 <li class="nav-item"><a href="{{ url_for('samples.add_sample') }}" class="nav-link {% if request.path == '/samples/add' %}active{% endif %}">Add Sample</a></li>
+                <li class="nav-item"><a href="{{ url_for('models.view_models') }}" class="nav-link {% if request.path.startswith('/models') %}active{% endif %}">Models</a></li>
             </ul>
         </header>
 

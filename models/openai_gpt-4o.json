@@ -1,0 +1,9 @@
+{
+  "name": "gpt-4o",
+  "provider": "openai",
+  "description": "GPT-4o - OpenAI's latest multimodal model",
+  "parameters": {
+    "temperature": 0.7,
+    "max_tokens": 4000
+  }
+}
