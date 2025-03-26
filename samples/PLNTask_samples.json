@@ -254,5 +254,13 @@
     "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Said (-> (: $person Object) Type))\r\n(: Human (-> (: $human Object) Type))\r\n(: Can (-> (-> (: $obj Object) Type) Type))\r\n(: Fly (-> (: $flyer Object) Type))\r\n(: Anime (-> (: $anime Object) Type))",
     "pln_statements": "(: np_is_name (WithTV (Name np \"Philip\") (STV 0.95 0.9)))\r\n(: philip_named_np (WithTV (NameOf philip np) (STV 0.95 0.9)))\r\n(: anime_is_the_anime (WithTV (Anime anime) (STV 0.95 0.9))\r\n(: ndb_is_name (WithTV (Name ndb \"Dragon Ball\") (STV 0.95 0.9)))\r\n(: anime_named_ndb (WithTV (NameOf anime ndb) (STV 0.95 0.9)))\r\n(: human_fly_anime (WithTV (Said philip (Context anime (Implication (Human $x) (Can (Fly $x))))) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Jack said, \"I am leaving.\"",
+    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Said (-> (: $someone Object) (: $said Type) Type))\r\n(: Leaving (-> (: $person Object) Type))",
+    "pln_statements": "(: nj_is_name (WithTV (Name nj \"Jack\") (STV 0.95 0.9)))\r\n(: jack_named_nj (WithTV (NameOf jack nj) (STV 0.95 0.9)))\r\n(: jack_leaving (WithTV (Said jack (Leaving jack) (STV 0.95 0.9))))",
+    "pln_queries": ""
   }
 ]
