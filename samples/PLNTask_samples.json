@@ -302,5 +302,13 @@
     "pln_types": "(: Red (-> (: $red_obj Object) Type))\r\n(: Likes (-> (: $liker Object) (: $liked Object) Type))",
     "pln_statements": "(: c_is_red (WithTV (Red c) (STV 0.95 0.9)))\r\n(: s_is_she (WithTV (She s) (STV 0.95 0.9)))   ;; Unresolved she\r\n(: s_likes_c (WithTV (Likes s c) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "Anna and Keith like hiking.\r\n\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Like (-> (: $liker Object) (: $liked Object) Type))\r\n(: Hiking (-> (: $hike Object) Type))\r\n\r\n(: na_is_name (WithTV (Name na \"Anna\") (STV 0.95 0.9)))\r\n(: nk_is_name (WithTV (Name nk \"Keith\") (STV 0.95 0.9)))\r\n(: anna_named_na (WithTV (NameOf anna na) (STV 0.95 0.9)))\r\n(: keith_named_nk (WithTV (NameOf keith nk) (STV 0.95 0.9)))\r\n(: h_is_hiking (WithTV (Hiking h) (STV 0.95 0.9)))\r\n(: a_like_h (WithTV (Like a h) (STV 0.95 0.9)))\r\n(: k_like_h (WithTV (Like k h) (STV 0.95 0.9)))",
+    "english": "They go hiking together all the time.",
+    "pln_types": "(: They (-> (: $they Object) Type))\r\n(: GoHiking (-> (: $hiker Object) Type))\r\n(: Together (-> (: $tgt Object) Type))\r\n(: Go (-> (: $goer Object) (: $gone Object) Type))",
+    "pln_statements": "(: t_is_they (WithTV (They t) (STV 0.95 0.9)))\r\n(: a_belongsto_t (WithTV (BelongsTo a t) (STV 0.95 0.9)))\r\n(: k_belongsto_t (WithTV (BelongsTo k t) (STV 0.95 0.9)))\r\n(: ak_gohike_all_time (WithTV ((& Together GoHiking) t) (STV 0.9 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: gohiking_means (WithTV (Implication (GoHiking $x) (And (Hiking $h) (Go $x $h))) (STV 0.95 0.9)))\r\n(: together_means (WithTV (Implication ((& Together $act) $ppl) (And (BelongsTo $x $ppl) (And (AtTime ($act $x) $time) (LocationOf ($act $x) $location)))) (STV 0.95 0.9)))",
+    "pln_queries": ""
   }
 ]
