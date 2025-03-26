@@ -278,5 +278,13 @@
     "pln_types": "(: Expert (-> (: $expert Object) Type))\r\n(: Agree (-> (: $agreer Object) (: $agreed Type) Type))\r\n(: Research (-> (: $research Object) Type))\r\n(: Finding (-> (: $finding Object) Type))\r\n(: ApplyTo (-> (: $applier Object) (: $applied Object) Type))\r\n(: Apply (-> (: $applier Object) Type))\r\n(: To (-> (: $act Type) Type))\r\n(: RealWorld (-> (: $realworld Object) Type))\r\n(: Situation (-> (: $situation Object) Type))",
     "pln_statements": "(: expert_finding_situation (WithTV (Implication (Expert $e) (Agree $e (Implication (And ((& Research Finding) $f) ((& RealWorld Situation) $rws)) (ApplyTo $rf $rws)))) (STV 0.5 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: applyto_means (WithTV (Implication (ApplyTo $x $y) (To (Apply $x) $y)) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "The book that Roy read is engaging.",
+    "pln_types": "(: Book (-> (: $book Object) Type))\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Read (-> (: $reader Object) (: $read Object) Type))\r\n(: Engaging (-> (: $obj Object) Type))",
+    "pln_statements": "(: b_is_the_book (WithTV (Book b) (STV 0.95 0.9)))\r\n(: nr_is_name (WithTV (Name nr \"Roy\") (STV 0.95 0.9)))\r\n(: r_named_nr (WithTV (NameOf r nr) (STV 0.95 0.9)))\r\n(: b_engaging (WithTV (And (Read r b) (Engaging b)) (STV 0.95 0.9)))",
+    "pln_queries": ""
   }
 ]
