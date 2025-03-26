@@ -70,7 +70,8 @@ class Optimizer:
                 raise ValueError(f"Signature {sig_name} not found")
             
             # Initialize the LM
-            thread_lm = dspy.LM(model_name)
+            from ..utils import get_lm
+            thread_lm = get_lm(model_name)
             if not thread_lm:
                 return
             

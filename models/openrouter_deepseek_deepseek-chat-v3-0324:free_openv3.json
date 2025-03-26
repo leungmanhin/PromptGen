@@ -1,0 +1,9 @@
+{
+  "name": "openv3",
+  "provider": "openrouter/deepseek/deepseek-chat-v3-0324:free",
+  "description": "",
+  "parameters": {
+    "temperature": 1.0,
+    "max_tokens": 1000
+  }
+}

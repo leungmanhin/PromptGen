@@ -107,7 +107,8 @@ def create_api_routes(app_state, sample_manager, optimizer, evaluator):
             return jsonify(response)
             
         # Get a model instance without configuring DSPy
-        sample_lm = dspy.LM(model_name)
+        from ..utils import get_lm
+        sample_lm = get_lm(model_name)
         if sample_lm is None:
             response = {
                 "error": f"Failed to initialize model {model_name}"

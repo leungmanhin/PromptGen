@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Models{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Model Management</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Available Models</h5>
+                    <a href="{{ url_for('models.add_model') }}" class="btn btn-primary btn-sm">Add New Model</a>
+                </div>
+                <div class="card-body">
+                    {% if models %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Provider</th>
+                                        <th>Description</th>
+                                        <th>Parameters</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for model_name, model in models.items() %}
+                                        <tr {% if current_model and current_model.full_name == model_name %}class="table-active"{% endif %}>
+                                            <td>{{ model.name }}</td>
+                                            <td>{{ model.provider }}</td>
+                                            <td>{{ model.description }}</td>
+                                            <td>
+                                                {% if model.parameters %}
+                                                    {% for param, value in model.parameters.items() %}
+                                                        <span class="badge bg-info">{{ param }}: {{ value }}</span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ url_for('models.select_model', model_name=model_name) }}" class="btn btn-sm btn-primary">Select</a>
+                                                    <a href="{{ url_for('models.edit_model', model_name=model_name) }}" class="btn btn-sm btn-secondary">Edit</a>
+                                                    <form method="POST" action="{{ url_for('models.delete_model', model_name=model_name) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this model?');">
+                                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">No models available. Please add a model.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if current_model %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Current Model: {{ current_model.full_name }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Description:</h6>
+                        <p>{{ current_model.description }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Parameters:</h6>
+                        {% if current_model.parameters %}
+                            <ul>
+                                {% for param, value in current_model.parameters.items() %}
+                                    <li><strong>{{ param }}</strong>: {{ value }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No parameters configured.</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('models.edit_model', model_name=current_model.full_name) }}" class="btn btn-secondary">Edit Model</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

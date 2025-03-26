@@ -74,8 +74,9 @@ class Evaluator:
                 }
             
             # Configure models
-            eval_lm = dspy.LM(model_name)
-            sim_lm = dspy.LM(similarity_model_name) if similarity_model_name else eval_lm
+            from ..utils import get_lm
+            eval_lm = get_lm(model_name)
+            sim_lm = get_lm(similarity_model_name) if similarity_model_name else eval_lm
             
             # Prepare results dictionary
             results = []
@@ -123,11 +124,11 @@ class Evaluator:
                             example_data[field] = sample.get(field, "")
                         
                         example = dspy.Example(**example_data)
-                        
+
                         # Evaluate the prediction using our metric
                         with dspy.context(lm=sim_lm):
                             score, explanation = judge_metric(example, pred)
-                            
+
                         pred_result["overall_score"] = score
                         pred_result["similarity_result"] = {
                             "explanation": explanation
@@ -141,6 +142,7 @@ class Evaluator:
                         
                     except Exception as e:
                         # Handle errors for individual samples
+                        print(e)
                         results.append({
                             "sample_id": i,
                             "error": str(e),

@@ -22,11 +22,13 @@ def create_app(config_class=Config):
     from .routes.samples import create_sample_routes
     from .routes.programs import create_program_routes
     from .routes.api import create_api_routes
+    from .routes.models import create_model_routes
     
     app.register_blueprint(create_main_routes(app_state, sample_manager, optimizer, evaluator))
     app.register_blueprint(create_signature_routes(app_state, sample_manager), url_prefix='/signatures')
     app.register_blueprint(create_sample_routes(app_state, sample_manager), url_prefix='/samples')
     app.register_blueprint(create_program_routes(app_state, optimizer), url_prefix='/programs')
+    app.register_blueprint(create_model_routes(app_state), url_prefix='/models')
     app.register_blueprint(create_api_routes(app_state, sample_manager, optimizer, evaluator), url_prefix='/api')
     
     # Template filters

@@ -5,9 +5,10 @@ import threading
 import os
 import json
 import time
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from ..models.signature import SignatureDefinition
+from ..models.model import ModelDefinition
 from ..config import Config
 
 class AppState:
@@ -28,15 +29,9 @@ class AppState:
         self.optimization_running = False
         self.evaluation_results = {"metrics": {}, "results": []}
         
-        # Available models
-        self.AVAILABLE_MODELS = [
-            'anthropic/claude-3-7-sonnet-20250219',
-            'openrouter/anthropic/claude-3.7-sonnet',
-            'deepseek/deepseek-reasoner',
-            'deepseek/deepseek-chat',
-            'openai/gpt-4o',
-            'openai/gpt-4o-mini',
-        ]
+        # Available models as ModelDefinition objects
+        self.models = {}
+        self._load_default_models()
         
         # Signature management
         self.signatures = {}
@@ -48,12 +43,95 @@ class AppState:
         self.current_program_id = None
         self._ensure_directories()
         self.load_available_programs()
+        
+    def _load_default_models(self):
+        """Load default models if none exist"""
+        # Check if models directory exists
+        if not Config.MODELS_DIR.exists():
+            Config.MODELS_DIR.mkdir(exist_ok=True)
+        
+        # Check if any models exist
+        model_files = list(Config.MODELS_DIR.glob("*.json"))
+        
+        # If no models exist, create default models
+        if not model_files:
+            default_models = [
+                ModelDefinition(
+                    name="claude-3-7-sonnet-20250219",
+                    provider="anthropic",
+                    description="Claude 3.7 Sonnet - Anthropic's powerful model with balanced capabilities",
+                    parameters={"temperature": 0.7, "max_tokens": 4000}
+                ),
+                ModelDefinition(
+                    name="claude-3.7-sonnet",
+                    provider="openrouter/anthropic",
+                    description="Claude 3.7 Sonnet via OpenRouter - Access through OpenRouter API",
+                    parameters={"temperature": 0.7, "max_tokens": 4000}
+                ),
+                ModelDefinition(
+                    name="deepseek-reasoner",
+                    provider="deepseek",
+                    description="DeepSeek Reasoner - Specialized for reasoning tasks",
+                    parameters={"temperature": 0.7, "max_tokens": 4000}
+                ),
+                ModelDefinition(
+                    name="deepseek-chat",
+                    provider="deepseek",
+                    description="DeepSeek Chat - General-purpose chat model",
+                    parameters={"temperature": 0.7, "max_tokens": 4000}
+                ),
+                ModelDefinition(
+                    name="gpt-4o",
+                    provider="openai",
+                    description="GPT-4o - OpenAI's latest multimodal model",
+                    parameters={"temperature": 0.7, "max_tokens": 4000}
+                ),
+                ModelDefinition(
+                    name="gpt-4o-mini",
+                    provider="openai",
+                    description="GPT-4o Mini - Smaller, faster version of GPT-4o",
+                    parameters={"temperature": 0.7, "max_tokens": 4000}
+                ),
+                ModelDefinition(
+                    name="o3-mini",
+                    provider="openai",
+                    description="o3-mini - OpenAI's o3 mini model",
+                    parameters={"temperature": 1.0, "max_tokens": 5000}
+                ),
+                ModelDefinition(
+                    name="gemini-2.0-pro-exp-02-05:free",
+                    provider="openrouter/google",
+                    description="Google Gemini 2.0 Pro via OpenRouter",
+                    parameters={"temperature": 0.7, "max_tokens": 4000}
+                )
+            ]
+            
+            # Save and add each default model
+            for model in default_models:
+                self._save_model(model)
+                self.models[model.full_name] = model
+        else:
+            # Load existing models
+            for filepath in model_files:
+                try:
+                    with open(filepath, "r") as f:
+                        data = json.load(f)
+                        model = ModelDefinition.from_dict(data)
+                        self.models[model.full_name] = model
+                except Exception as e:
+                    print(f"Error loading model from {filepath}: {e}")
+                    
+    @property
+    def AVAILABLE_MODELS(self) -> List[str]:
+        """Get list of available model names"""
+        return list(self.models.keys())
     
     def _ensure_directories(self):
         """Create necessary directories if they don't exist"""
         Config.PROGRAM_DIR.mkdir(exist_ok=True)
         Config.SAMPLES_DIR.mkdir(exist_ok=True)
         Config.SIGNATURES_DIR.mkdir(exist_ok=True)
+        Config.MODELS_DIR.mkdir(exist_ok=True)
     
     def _load_default_signatures(self):
         """Load default signatures if none exist"""
@@ -129,6 +207,81 @@ class AppState:
         except Exception as e:
             print(f"Error saving signature {signature.name}: {e}")
             return False
+    
+    def _save_model(self, model: ModelDefinition) -> bool:
+        """Save model definition to file"""
+        try:
+            # Use a sanitized filename based on the full_name
+            sanitized_name = model.full_name.replace('/', '_')
+            filepath = Config.MODELS_DIR / f"{sanitized_name}.json"
+            with open(filepath, "w") as f:
+                json.dump(model.to_dict(), f, indent=2)
+            return True
+        except Exception as e:
+            print(f"Error saving model {model.full_name}: {e}")
+            return False
+    
+    def add_model(self, model: ModelDefinition) -> bool:
+        """Add a new model definition"""
+        if model.full_name in self.models:
+            return False
+        
+        self.models[model.full_name] = model
+        self._save_model(model)
+        return True
+    
+    def update_model(self, model: ModelDefinition) -> bool:
+        """Update an existing model"""
+        if model.full_name not in self.models:
+            return False
+            
+        self.models[model.full_name] = model
+        self._save_model(model)
+        return True
+        
+    def delete_model(self, model_name: str) -> bool:
+        """Delete a model"""
+        if model_name not in self.models:
+            return False
+            
+        try:
+            # Delete the model file
+            sanitized_name = model_name.replace('/', '_')
+            filepath = Config.MODELS_DIR / f"{sanitized_name}.json"
+            if filepath.exists():
+                filepath.unlink()
+                
+            # Remove from models dictionary
+            del self.models[model_name]
+            
+            # Reset current model if needed
+            if self.current_model == model_name:
+                if self.models:
+                    self.current_model = list(self.models.keys())[0]
+                else:
+                    self.current_model = None
+                    
+            return True
+        except Exception as e:
+            print(f"Error deleting model {model_name}: {e}")
+            return False
+    
+    def get_model(self, name: str) -> Optional[ModelDefinition]:
+        """Get a model definition by name"""
+        return self.models.get(name)
+    
+    def set_current_model(self, name: str) -> bool:
+        """Set the current model"""
+        if name in self.models:
+            self.current_model = name
+            return True
+        return False
+    
+    def get_current_model(self) -> Optional[ModelDefinition]:
+        """Get the current model definition"""
+        if self.current_model:
+            return self.models.get(self.current_model)
+        return None
     
     def add_signature(self, signature: SignatureDefinition) -> bool:
         """Add a new signature definition"""

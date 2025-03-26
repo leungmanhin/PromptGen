@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Model{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Edit Model: {{ model.full_name }}</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('models.edit_model', model_name=model.full_name) }}">
+                <div class="mb-3">
+                    <label class="form-label">Model Name</label>
+                    <input type="text" class="form-control" value="{{ model.name }}" disabled>
+                    <div class="form-text">Model name cannot be changed</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Provider</label>
+                    <input type="text" class="form-control" value="{{ model.provider }}" disabled>
+                    <div class="form-text">Provider cannot be changed</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3">{{ model.description }}</textarea>
+                    <div class="form-text">A brief description of the model</div>
+                </div>
+                
+                <h5 class="mb-3">Parameters</h5>
+                
+                <div class="mb-3">
+                    <label for="temperature" class="form-label">Temperature</label>
+                    <input type="number" class="form-control" id="temperature" name="temperature" 
+                           step="0.1" min="0" max="2" value="{{ model.parameters.get('temperature', '') }}">
+                    <div class="form-text">Temperature parameter for the model (e.g., 0.7)</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="max_tokens" class="form-label">Max Tokens</label>
+                    <input type="number" class="form-control" id="max_tokens" name="max_tokens" 
+                           min="1" value="{{ model.parameters.get('max_tokens', '') }}">
+                    <div class="form-text">Maximum number of tokens (e.g., 4000)</div>
+                </div>
+                
+                <div class="mb-3">
+                    <a href="{{ url_for('models.view_models') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Update Model</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
