@@ -246,5 +246,13 @@
     "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Temple (-> (: $temple Object) Type))\r\n(: In (-> (: $obj Object) (: $location Object) Type))",
     "pln_statements": "(: t_is_the_temple (WithTV (Temple t) (STV 0.95 0.9)))\r\n(: nk_is_name (WithTV (Name nk \"Kathmandu\") (STV 0.95 0.9)))\r\n(: k_named_nk (WithTV (NameOf k nk) (STV 0.95 0.9)))\r\n(: t_in_k (WithTV (In t k) (STV 0.95 0.9)))\r\n\r\n;; Location info\r\n(: t_location (WithTV (LocationOf t k) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Philip said that some humans can fly in the Dragon Ball anime.",
+    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Said (-> (: $person Object) Type))\r\n(: Human (-> (: $human Object) Type))\r\n(: Can (-> (-> (: $obj Object) Type) Type))\r\n(: Fly (-> (: $flyer Object) Type))\r\n(: Anime (-> (: $anime Object) Type))",
+    "pln_statements": "(: np_is_name (WithTV (Name np \"Philip\") (STV 0.95 0.9)))\r\n(: philip_named_np (WithTV (NameOf philip np) (STV 0.95 0.9)))\r\n(: anime_is_the_anime (WithTV (Anime anime) (STV 0.95 0.9))\r\n(: ndb_is_name (WithTV (Name ndb \"Dragon Ball\") (STV 0.95 0.9)))\r\n(: anime_named_ndb (WithTV (NameOf anime ndb) (STV 0.95 0.9)))\r\n(: human_fly_anime (WithTV (Said philip (Context anime (Implication (Human $x) (Can (Fly $x))))) (STV 0.95 0.9)))",
+    "pln_queries": ""
   }
 ]
