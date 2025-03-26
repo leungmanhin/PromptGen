@@ -262,5 +262,13 @@
     "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Said (-> (: $someone Object) (: $said Type) Type))\r\n(: Leaving (-> (: $person Object) Type))",
     "pln_statements": "(: nj_is_name (WithTV (Name nj \"Jack\") (STV 0.95 0.9)))\r\n(: jack_named_nj (WithTV (NameOf jack nj) (STV 0.95 0.9)))\r\n(: jack_leaving (WithTV (Said jack (Leaving jack) (STV 0.95 0.9))))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "May the 4th is the Star Wars Day.",
+    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Date (-> (: $date Object) Type))\r\n(: Month (-> (: $month Object) String Type))\r\n(: Day (-> (: $day Object) String Type))",
+    "pln_statements": "(: may_4th_star_wars_day (WithTV (Implication (And (Date $d) (And (Month $d \"May\") (Day $d \"4\"))) (And (Name $n \"Star Wars Day\") (NameOf $d $n))) (STV 0.95 0.9)))",
+    "pln_queries": ""
   }
 ]
