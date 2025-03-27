@@ -321,7 +321,7 @@
   },
   {
     "similar": "\"\"",
-    "previous": "Selly hides behind the door.\r\n\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Hide (-> (: $hider Object) (: $hid Type) Type))\r\n(: Behind (-> (: $obj Object) Type))\r\n(: Door (-> (: $door Object) Type))\r\n\r\n(: ns_is_name (WithTV (Name ns \"Selly\") (STV 0.95 0.9)))\r\n(: s_named_ns (WithTV (NameOf s ns) (STV 0.95 0.9)))\r\n(: d_is_the_door (WithTV (Door d) (STV 0.95 0.9)))\r\n(: s_hide_behind_d (WithTV (Hide s (Behind d)) (STV 0.95 0.9)))\r\n\r\n;; Location info\r\n(: hide_behind_means (WithTV (Implication (Hide $someone (Behind $obj)) (LocationOf $someone (Behind $obj))) (STV 0.95 0.9)))",
+    "previous": "Selly hides behind the door.\r\n\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Hides (-> (: $hider Object) (: $hid Type) Type))\r\n(: Behind (-> (: $obj Object) Type))\r\n(: Door (-> (: $door Object) Type))\r\n\r\n(: ns_is_name (WithTV (Name ns \"Selly\") (STV 0.95 0.9)))\r\n(: s_named_ns (WithTV (NameOf s ns) (STV 0.95 0.9)))\r\n(: d_is_the_door (WithTV (Door d) (STV 0.95 0.9)))\r\n(: s_hide_behind_d (WithTV (HidesBehind s d) (STV 0.95 0.9)))\r\n\r\n;; Location info\r\n(: hide_behind_means (WithTV (Implication (HidesBehind $x $y) (And (Behind $loc $y) (And (Hides $x) (LocationOf $x $loc)))) (STV 0.95 0.9)))",
     "english": "Where is she?",
     "pln_types": "",
     "pln_statements": "",
