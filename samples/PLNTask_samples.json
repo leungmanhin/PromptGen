@@ -326,5 +326,13 @@
     "pln_types": "",
     "pln_statements": "",
     "pln_queries": "(: $prf (WithTV (LocationOf s $where) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "I saw the man with the telescope.",
+    "pln_types": "(: I (-> (: $i Object) Type))\r\n(: Saw (-> (: $seer Object) (: $seen Object) Type))\r\n(: Man (-> (: $man Object) Type))\r\n(: With (-> (: $activity Type) (: $instrument Object) Type))\r\n(: Has (-> (: $owner Object) (: $owned Object) Type))\r\n(: Telescope (-> (: $telescope Object) Type))",
+    "pln_statements": "(: authorspeaker_is_i (WithTV (I authorSpeaker) (STV 0.95 0.9)))\r\n(: man_is_the_man (WithTV (Man man) (STV 0.95 0.9)))\r\n(: telescope_is_the_telescope (WithTV (Telescope telescope) (STV 0.95 0.9)))\r\n\r\n;; Interpretation 1\r\n(: i_saw_man_with_telescope_1 (WithTV (With (Saw authorSpeaker man) telescope) (STV 0.5 0.8)))\r\n\r\n;; Interpretation 2\r\n(: i_saw_man_with_telescope_2 (WithTV (Saw authorSpeaker man) (STV 0.5 0.8)))\r\n(: man_has_telescope (WithTV (Has man telescope) (STV 0.5 0.8)))",
+    "pln_queries": ""
   }
 ]
