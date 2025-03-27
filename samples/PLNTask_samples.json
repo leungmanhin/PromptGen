@@ -243,8 +243,8 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "The temple is in Kathmandu.",
-    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Temple (-> (: $temple Object) Type))\r\n(: In (-> (: $obj Object) (: $location Object) Type))",
-    "pln_statements": "(: t_is_the_temple (WithTV (Temple t) (STV 0.95 0.9)))\r\n(: nk_is_name (WithTV (Name nk \"Kathmandu\") (STV 0.95 0.9)))\r\n(: k_named_nk (WithTV (NameOf k nk) (STV 0.95 0.9)))\r\n(: t_in_k (WithTV (In t k) (STV 0.95 0.9)))\r\n\r\n;; Location info\r\n(: t_location (WithTV (LocationOf t k) (STV 0.95 0.9)))",
+    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Temple (-> (: $temple Object) Type))",
+    "pln_statements": "(: t_is_the_temple (WithTV (Temple t) (STV 0.95 0.9)))\r\n(: nk_is_name (WithTV (Name nk \"Kathmandu\") (STV 0.95 0.9)))\r\n(: k_named_nk (WithTV (NameOf k nk) (STV 0.95 0.9)))\r\n(: t_location (WithTV (LocationOf t k) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
