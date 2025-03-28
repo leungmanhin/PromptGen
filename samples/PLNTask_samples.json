@@ -212,7 +212,7 @@
     "previous": "\"\"",
     "english": "There exists a Black Dog.",
     "pln_types": "(: Dog (-> (: $dog Object) Type))\r\n(: Black (-> (: $black Object) Type))\r\n",
-    "pln_statements": "(: d_Dog (WithTV (Dog d) (STV 1 0.9))\r\n(: d_Black (WithTV (Black b) (STV 1 0.9))",
+    "pln_statements": "(: d_Dog (WithTV (Dog d) (STV 1 0.9))\r\n(: d_Black (WithTV (Black d) (STV 1 0.9))",
     "pln_queries": ""
   },
   {
