@@ -106,14 +106,6 @@
   {
     "similar": "\"\"",
     "previous": "\"\"",
-    "english": "Alice visits her grandmother every Sunday afternoon.",
-    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: GrandmotherOf (-> (: $grandmother Object) (: $grandchild Object) Type))\r\n(: Visits (-> (: $visitor Object) (: $visited Object) Type))\r\n(: Sunday (-> (: $day Object) Type))\r\n(: Afternoon (-> (: $day Object) Type))\r\n(: On (-> (: $pred (-> (: $sub Object) (: $obj Object) Type)) (: $day Object) Type))",
-    "pln_statements": "(: n_is_name (WithTV (Name n \"Alice\") (STV 0.95 0.9)))\r\n(: alice_named_n (WithTV (NameOf alice n) (STV 0.95 0.9)))\r\n(: alice_grandmother (WithTV (GrandmotherOf grandmother alice) (STV 0.95 0.9)))\r\n(: alice_visits_grandmother_sunday_afternoon (Implication ((& Sunday Afternoon) $sa) (On (Visits alice grandmother) $sa) (STV 0.95 0.9)))",
-    "pln_queries": ""
-  },
-  {
-    "similar": "\"\"",
-    "previous": "\"\"",
     "english": "Is an apple a fruit?",
     "pln_types": "(: Apple (-> (: $apple Object) Type))\r\n(: Fruit (-> (: $fruit Object) Type))",
     "pln_statements": "",
