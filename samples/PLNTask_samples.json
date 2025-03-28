@@ -342,5 +342,13 @@
     "pln_types": "(: Wild (-> (: $wild Object) Type))\r\n(: Duck (-> (: $duck Object) Type))\r\n(: FoundIn (-> (: $found Object) (: $location Object) Type))\r\n(: Habitat (-> (: $habitat Object) Type))\r\n(: Northern (-> (: $northern Object) Type))\r\n(: Hemisphere (-> (: $hemisphere Object) Type))",
     "pln_statements": "(: wild_ducks_found_in_habitats_north_hemisphere (WithTV (Implication ((& Wild Duck) $wd) (And ((& Northern Hemisphere) $nh) (And (Habitat $h) (And (FoundIn $wd $h) (LocationOf $h $nh))))) (STV 0.85 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: foundin_meaning (WithTV (Implication (FoundIn $x $loc) (And (Found $someone $x) (LocationOf $x $loc))) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Wild ducks face many challenges but manage to survive.",
+    "pln_types": "(: Wild (-> (: $wild Object) Type))\r\n(: Duck (-> (: $duck Object) Type))\r\n(: Face (-> (: $facer Object) (: $faced Object) Type))\r\n(: Challenge (-> (: $challenge Object) Type))\r\n(: Survive (-> (: $surviver Object) Type))",
+    "pln_statements": "(: wild_ducks_face_many_challenges (WithTV (Implication ((& Wild Duck) $wd) (And (Challenge $c) (Face $wd $c))) (STV 0.75 0.9)))\r\n(: wild_ducks_manage_to_survive (WithTV (Implication ((& Wild Duck) $wd) (Survive $wd)) (STV 0.7 0.9)))",
+    "pln_queries": ""
   }
 ]
