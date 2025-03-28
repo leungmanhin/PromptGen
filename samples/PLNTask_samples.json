@@ -186,14 +186,6 @@
   {
     "similar": "\"\"",
     "previous": "\"\"",
-    "english": "This ball is bright Red.",
-    "pln_types": "(: Ball (-> (: $ball Object) Type))\r\n(: Red (-> (: $red Object) Type))\r\n(: Bright (-> (: $bright Object) Type))",
-    "pln_statements": "(: b_Ball (Ball b))\r\n(: b_BrightRed ((& Bright Red) b))",
-    "pln_queries": ""
-  },
-  {
-    "similar": "\"\"",
-    "previous": "\"\"",
     "english": "Are Humans Animals?",
     "pln_types": "(: Human (-> (: $human Object) Type))\r\n(: Animal (-> (: $animal Object) Type))",
     "pln_statements": "",
