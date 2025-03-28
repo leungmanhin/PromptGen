@@ -350,5 +350,13 @@
     "pln_types": "(: Wild (-> (: $wild Object) Type))\r\n(: Duck (-> (: $duck Object) Type))\r\n(: Face (-> (: $facer Object) (: $faced Object) Type))\r\n(: Challenge (-> (: $challenge Object) Type))\r\n(: Survive (-> (: $surviver Object) Type))",
     "pln_statements": "(: wild_ducks_face_many_challenges (WithTV (Implication ((& Wild Duck) $wd) (And (Challenge $c) (Face $wd $c))) (STV 0.75 0.9)))\r\n(: wild_ducks_manage_to_survive (WithTV (Implication ((& Wild Duck) $wd) (Survive $wd)) (STV 0.7 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Ben wants everything on the table but that pencil.",
+    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Wants (-> (: $wanter Object) (: $wanted Object) Type))\r\n(: On (-> (: $obj Object) (: $surface Object) Type))\r\n(: Table (-> (: $table Object) Type))\r\n(: Pencil (-> (: $pencil Object) Type))",
+    "pln_statements": "(: n_is_name (WithTV (Name n \"Ben\") (STV 0.95 0.9)))\r\n(: ben_named_n (WithTV (NameOf ben n) (STV 0.95 0.9)))\r\n(: t_is_the_table (WithTV (Table t) (STV 0.95 0.9)))\r\n(: p_is_that_pencil (WithTV (Pencil p) (STV 0.95 0.9)))\r\n(: ben_wants_everything_on_t_except_p (WithTV (Implication (And (On $some_spot t) (And (LocationOf $everything $some_spot) (Not (Equivalence $everything p)))) (Wants ben $everything)) (STV 0.95 0.9)))",
+    "pln_queries": ""
   }
 ]
