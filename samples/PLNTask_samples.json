@@ -326,5 +326,13 @@
     "pln_types": "(: Misery (-> (: $misery Object) Type))\r\n(: StickIn (-> (: $obj1 Object) (: $obj2 Object) Type))\r\n(: You (-> (: $you Object) Type))\r\n(: Like (-> (: $obj1 Object) (: $obj2 Object) Type))\r\n(: Thorn (-> (: $thorn Object) Type))\r\n(: Realize (-> (: $realizer Object) (: $realization Type) Type))\r\n(: YourMaking (-> (: $thing Object) Type))",
     "pln_statements": "(: miseries_like_thorns (WithTV (Implication (Misery $m) (And (You $y) (And (StickIn $m $y) (And (Thorn $t) (Like $m $t))))) (STV 0.85 0.9)))\r\n(: you_realize_joy_yourmaking (WithTV (Implication (And (You $y) (And (Joy $j) (Realize $y (YourMaking $j)))) (And (Breeze $b) (And (ComesAndGoes $j) (Like $j $b)))) (STV 0 0.9)))\r\n(: you_realize_misery_yourmaking (WithTV (Implication (And (You $y) (And (Misery $m) (Realize $y (YourMaking $m)))) (And (Thorn $t) (And (StickIn $m $y) (Like $m $t)))) (STV 0 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: yourmaking_means (WithTV (Implication (YourMaking $x) (And (You $y) (Making $y $x))) (STV 0.9 0.9)))\r\n",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "The mystery of wild duck life expectancy fascinates many.",
+    "pln_types": "(: Mystery (-> (: $mystery Object) Type))\r\n(: Wild (-> (: $wild Object) Type))\r\n(: Duck (-> (: $duck Object) Type))\r\n(: LifeExpectancyOf (-> (: $organism Object) (: $life_expectancy Object) Type))\r\n(: LifeExpectancy (-> (: $animal Object) Type))\r\n(: Possess (-> (: $possessor Object) (: $possessd Object) Type))\r\n(: Fascinates (-> (: $fascinating Object) (: $fascinated Object) Type))\r\n",
+    "pln_statements": "(: wild_duck_life_expectancy_fascinates_many (WithTV (Implication (And (Mystery $wdle) (LifeExpectancyOf $wd $wdle)) (Fascinates $wdle $some_obj)) (STV 0.75 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: lifeexpectancyof_means (WithTV (Implication (LifeExpectancyOf $x $y) (And (LifeExpectancy $y) (Possess $x $y))) (STV 0.9 0.9)))",
+    "pln_queries": ""
   }
 ]
