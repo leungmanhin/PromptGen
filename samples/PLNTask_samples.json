@@ -220,7 +220,7 @@
     "previous": "\"\"",
     "english": "Most dogs chase some cat.",
     "pln_types": "(: Dog (-> (: $dog Object) Type))\r\n(: Cat (-> (: $cat Object) Type))\r\n(: Chase (-> (: $chaser Object) (: $chased Object) Type))",
-    "pln_statements": "(: most_dogs_chase_some_cat (WithTV (Implication (Dog $d) (And (Cat $d) (Chase $d $c))) (STV 0.8 0.8)))",
+    "pln_statements": "(: most_dogs_chase_some_cat (WithTV (Implication (Dog $d) (And (Cat $c) (Chase $d $c))) (STV 0.8 0.8)))",
     "pln_queries": ""
   },
   {
