@@ -358,5 +358,13 @@
     "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Wants (-> (: $wanter Object) (: $wanted Object) Type))\r\n(: On (-> (: $obj Object) (: $surface Object) Type))\r\n(: Table (-> (: $table Object) Type))\r\n(: Pencil (-> (: $pencil Object) Type))",
     "pln_statements": "(: n_is_name (WithTV (Name n \"Ben\") (STV 0.95 0.9)))\r\n(: ben_named_n (WithTV (NameOf ben n) (STV 0.95 0.9)))\r\n(: t_is_the_table (WithTV (Table t) (STV 0.95 0.9)))\r\n(: p_is_that_pencil (WithTV (Pencil p) (STV 0.95 0.9)))\r\n(: ben_wants_everything_on_t_except_p (WithTV (Implication (And (On $some_spot t) (And (LocationOf $everything $some_spot) (Not (Equivalence $everything p)))) (Wants ben $everything)) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "The weather forecast predicted rain, but the sun came out.",
+    "pln_types": "(: Weather (-> (: $weather Object) Type))\r\n(: Forecast (-> (: $forecast Object) Type))\r\n(: Predicted (-> (: $predictor Object) (: $predicted Type) Type))\r\n(: Rain (-> (: $rain Object) Type))\r\n(: Sun (-> (: $sun Object) Type))\r\n(: CameOut (-> (: $event Type) Type))",
+    "pln_statements": "(: wf_is_the_weather_forecast (WithTV ((& Weather Forecast) wf) (STV 0.95 0.9)))\r\n(: sun_is_the_sun (WithTV (Sun sun) (STV 0.95 0.9)))\r\n(: wf_predicted_rain_but_s_cameout (WithTV (And (Rain $r) (And (Predicted wf $r) (CameOut sun))) (STV 0.95 0.9)))",
+    "pln_queries": ""
   }
 ]
