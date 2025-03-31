@@ -382,5 +382,13 @@
     "pln_types": "(: Route (-> (: $route Object) Type))\r\n(: FasterThan (-> (: $obj1 Object) (: $obj2 Object) Type))",
     "pln_statements": "(: r_is_this_route (WithTV (Route r) (STV 0.95 0.9)))\r\n(: r_fastest (WithTV (Implication (Route $r) (FasterThan r $r)) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "They help each other on homework.",
+    "pln_types": "(: They (-> (: $they Object) Type))\r\n(: HelpOn (-> (: $helper Object) (: $helped Object) (: $helped_on Object) Type))\r\n(: Homework (-> (: $homework Object) Type))",
+    "pln_statements": "(: t_is_they (WithTV (They t) (STV 0.95 0.9)))\r\n(: t_help_each_other_on_hw (WithTV (Implication (And (Homework $hw) (And (BelongsTo $p1 t) (And (BelongsTo $p2 t) (Not (Equivalence $p1 $p2))))) (HelpOn $p1 $p2 $hw)) (STV 0.95 0.9)))",
+    "pln_queries": ""
   }
 ]
