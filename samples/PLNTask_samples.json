@@ -398,5 +398,45 @@
     "pln_types": "(: I (-> (: $i Object) Type))\r\n(: You (-> (: $you Object) Type))\r\n(: TryTo (-> (: $try Object) Type))\r\n(: See (-> (: $seer Object) (: $seen Object) Type))\r\n(: Thing (-> (: $thing Object) Type))\r\n(: Perspective (-> (: $perspective Object) Type))\r\n(: FromPerspective (-> (: $event Type) (: $perspective Object) Type))",
     "pln_statements": "(: authorSpeaker_is_i (WithTV (I authorSpeaker) (STV 0.95 0.9)))\r\n(: you_is_you (WithTV (You you) (STV 0.95 0.9)))\r\n(: i_see_from_diff_perspective (WithTV (Implication (And (Thing $t) (And (Perspective $p1) (And (Perspective $p2) (And (Not (Equivalence $p1 $p2)) (And (Equivalence authorSpeaker you) (FromPerspective (See you $t) $p1)))))) (FromPerspective ((& TryTo See) authorSpeaker $t) $p2)) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Did any kids go to the playground?",
+    "pln_types": "(: Kid (-> (: $kid Object) Type))\r\n(: WentTo (-> (: $goer Object) (: $gone Object) Type))\r\n(: Playground (-> (: $playground Object) Type))",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (WithTV (And (Kid $k) (And (Playground $pg) (WentTo $k $pg))) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Who ate the kiwi?",
+    "pln_types": "(: Ate (-> (: $eater Object) (: $ate Object) Type))\r\n(: Kiwi (-> (: $kiwi Object) Type))",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (WithTV (And (Kiwi $kiwi) (Ate $who $kiwi)) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Why is the pear sour?",
+    "pln_types": "(: Pear (-> (: $pear Object) Type))\r\n(: Sour (-> (: $sour Object) Type))",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (WithTV (Implication (And (Pear $p) $why) (Sour $p)) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "When do the Starbucks close?",
+    "pln_types": "(: Starbucks (-> (: $starbucks Object) Type))\r\n(: Close (-> (: $closer Object) Type))",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (WithTV (And (Starbucks $sb) (AtTime (Close $sb) $when)) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "Where is Beijing?",
+    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))",
+    "pln_statements": "",
+    "pln_queries": "(: $prf (WithTV (And (Name $nbj \"Beijing\") (And (NameOf $bj $nbj) (LocationOf $bj $where))) $tv))"
   }
 ]
