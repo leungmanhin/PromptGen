@@ -178,14 +178,6 @@
   {
     "similar": "\"\"",
     "previous": "\"\"",
-    "english": "Every boy on Vashon owns a Dog that each girl on Vashon calls by a special name.",
-    "pln_types": "(: Boy (-> (: $boy Object) Type))\r\n(: Girl (-> (: $girl Object) Type))\r\n(: Dog (-> (: $dog Object) Type))\r\n(: OnVashon (-> (: $obj Object) Type))\r\n(: SpecialName (-> (: $name Object) Type))\r\n(: Calls (-> (: $caller Object) (: $called Object) (: $name Object) Type))\r\n(: Owns (-> (: $owner Object) (: $owned Object) Type))",
-    "pln_statements": "(: ebvodegvcsn (WithTV (Implication (And (Boy $b) (OnVashon $b)) (And (Dog $d) (And (Owns $b $d) (Implication (And (Girl $g) (OnVashon $g)) (And (SpecialName $n) (Calls $g $d $n))))) (STV 0.9 0.9))",
-    "pln_queries": ""
-  },
-  {
-    "similar": "\"\"",
-    "previous": "\"\"",
     "english": "Are Humans Animals?",
     "pln_types": "(: Human (-> (: $human Object) Type))\r\n(: Animal (-> (: $animal Object) Type))",
     "pln_statements": "",
