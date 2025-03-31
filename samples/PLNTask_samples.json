@@ -366,5 +366,21 @@
     "pln_types": "(: Weather (-> (: $weather Object) Type))\r\n(: Forecast (-> (: $forecast Object) Type))\r\n(: Predicted (-> (: $predictor Object) (: $predicted Type) Type))\r\n(: Rain (-> (: $rain Object) Type))\r\n(: Sun (-> (: $sun Object) Type))\r\n(: CameOut (-> (: $event Type) Type))",
     "pln_statements": "(: wf_is_the_weather_forecast (WithTV ((& Weather Forecast) wf) (STV 0.95 0.9)))\r\n(: sun_is_the_sun (WithTV (Sun sun) (STV 0.95 0.9)))\r\n(: wf_predicted_rain_but_s_cameout (WithTV (And (Rain $r) (And (Predicted wf $r) (CameOut sun))) (STV 0.95 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "This route is faster.",
+    "pln_types": "(: Route (-> (: $route Object) Type))\r\n(: FasterThan (-> (: $obj1 Object) (: $obj2 Object) Type))",
+    "pln_statements": "(: r_is_this_route (WithTV (Route r) (STV 0.95 0.9)))\r\n(: r_faster (WithTV (Implication (Route $r) (FasterThan r $r)) (STV 0.8 0.9)))",
+    "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "This route is the fastest.",
+    "pln_types": "(: Route (-> (: $route Object) Type))\r\n(: FasterThan (-> (: $obj1 Object) (: $obj2 Object) Type))",
+    "pln_statements": "(: r_is_this_route (WithTV (Route r) (STV 0.95 0.9)))\r\n(: r_fastest (WithTV (Implication (Route $r) (FasterThan r $r)) (STV 0.95 0.9)))",
+    "pln_queries": ""
   }
 ]
