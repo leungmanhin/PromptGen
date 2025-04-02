@@ -83,8 +83,8 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "If it rains tomorrow, the outdoor concert will be canceled.",
-    "pln_types": "(: Rain (-> (: $rain Object) Type))\r\n(: Tomorrow (-> (: $day Object) Type))\r\n(: AtTime (-> (: $event Type) (: $time Object) Type))\r\n(: Outdoor (-> (: $event Object) Type))\r\n(: Concert (-> (: $concert Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: BeCanceled (-> (: $event Object) Type))",
-    "pln_statements": "(: oc_is_the_outdoor_concert (WithTV ((& Outdoor Concert) oc) (STV 0.95 0.9)))\r\n(: rain_cancel_concert (WithTV (Implication (And (Tomorrow $tmr) (AtTime (Rain $r) $tmr)) (Will (BeCanceled oc))) (STV 0.95 0.9)))",
+    "pln_types": "(: Rain (-> (: $rain Object) Type))\r\n(: Tomorrow (-> (: $day Object) Type))\r\n(: AtTime (-> (: $event Type) (: $time Object) Type))\r\n(: Outdoor (-> (: $event Object) Type))\r\n(: Concert (-> (: $concert Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Cancelled (-> (: $event Object) Type))",
+    "pln_statements": "(: oc_is_the_outdoor_concert (WithTV ((& Outdoor Concert) oc) (STV 0.95 0.9)))\r\n(: rain_cancel_concert (WithTV (Implication (And (Tomorrow $tmr) (AtTime (Rain $r) $tmr)) (Will (Cancelled oc))) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
