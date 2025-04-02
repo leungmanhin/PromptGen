@@ -92,7 +92,7 @@
     "previous": "\"\"",
     "english": "The Empire State Building is more than 380 meters tall.",
     "pln_types": "(: Building (-> (: $building Object) Type))\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: HeightOf (-> (: $obj Object) Number String Type))\r\n(: GreaterThan (-> Number Number Type))",
-    "pln_statements": "(: b_is_the_building (WithTV (Building b) (STV 0.95 0.9)))\r\n(: n_is_name (WithTV (Name n \"Empire State Buildling\") (STV 0.95 0.9)))\r\n(: b_name (WithTV (NameOf b n) (STV 0.95 0.9)))\r\n(: b_height (WithTV (And (HeightOf b $h \"Meter\") (GreaterThan $h 380)) (STV 0.95 0.9)))",
+    "pln_statements": "(: b_is_the_building (WithTV (Building b) (STV 0.95 0.9)))\r\n(: n_is_name (WithTV (Name n \"Empire State Building\") (STV 0.95 0.9)))\r\n(: b_name (WithTV (NameOf b n) (STV 0.95 0.9)))\r\n(: b_height (WithTV (And (HeightOf b $h \"Meter\") (GreaterThan $h 380)) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
