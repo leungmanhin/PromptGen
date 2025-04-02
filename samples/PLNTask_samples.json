@@ -438,5 +438,13 @@
     "pln_types": "(: Staff (-> (: $staff Object) Type))\r\n(: Training (-> (: $training Object) Type))\r\n(: Program (-> (: $program Object) Type))\r\n(: Cancelled (-> (: $cancelled Object) Type))",
     "pln_statements": "(: stp_is_the_stff_training_program (WithTV ((& Staff (& Training Program)) stp) (STV 0.95 0.9)))\r\n(: stp_is_cancelled (WithTV (Cancelled stp) (STV 0.85 0.9)))",
     "pln_queries": ""
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "It rained for 2 hours yesterday.",
+    "pln_types": "(: Rain (-> (: $rain Object) Type))\r\n(: Yesterday (-> (: $day Object) Type))\r\n(: AtTime (-> (: $event Type) (: $time Object) Type))\r\n(: Duration (-> (: $event Object) Number String Type))",
+    "pln_statements": "(: rained_2hrs_yesterday (WithTV (And (Rain $r) (And (Yesterday $y) (And (AtTime $r $y) (Duration $r 2 \"Hour\")))) (STV 0.95 0.9)))",
+    "pln_queries": ""
   }
 ]
