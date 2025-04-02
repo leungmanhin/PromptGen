@@ -430,5 +430,13 @@
     "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: LocationOf (-> (: $obj Object) (: $location Object) Type))",
     "pln_statements": "",
     "pln_queries": "(: $prf (WithTV (And (Name $nbj \"Beijing\") (And (NameOf $bj $nbj) (LocationOf $bj $where))) $tv))"
+  },
+  {
+    "similar": "\"\"",
+    "previous": "\"\"",
+    "english": "The staff training program is cancelled.",
+    "pln_types": "(: Staff (-> (: $staff Object) Type))\r\n(: Training (-> (: $training Object) Type))\r\n(: Program (-> (: $program Object) Type))\r\n(: Cancelled (-> (: $cancelled Object) Type))",
+    "pln_statements": "(: stp_is_the_stff_training_program (WithTV ((& Staff (& Training Program)) stp) (STV 0.95 0.9)))\r\n(: stp_is_cancelled (WithTV (Cancelled stp) (STV 0.85 0.9)))",
+    "pln_queries": ""
   }
 ]
