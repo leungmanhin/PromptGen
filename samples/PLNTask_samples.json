@@ -91,8 +91,8 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "The Empire State Building is more than 380 meters tall.",
-    "pln_types": "(: Building (-> (: $building Object) Type))\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: HeightOf (-> (: $obj Object) Number String Type))\r\n(: GreaterThan (-> Number Number Type))",
-    "pln_statements": "(: b_is_the_building (WithTV (Building b) (STV 0.95 0.9)))\r\n(: n_is_name (WithTV (Name n \"Empire State Building\") (STV 0.95 0.9)))\r\n(: b_name (WithTV (NameOf b n) (STV 0.95 0.9)))\r\n(: b_height (WithTV (And (HeightOf b $h \"Meter\") (GreaterThan $h 380)) (STV 0.95 0.9)))",
+    "pln_types": "(: Building (-> (: $building Object) Type))\r\n(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: HeightOf (-> (: $obj Object) Number String Type))\r\n(: GreaterThan (-> Number Number Type))\r\n(: Unit (-> (: $unit Object) String Type))",
+    "pln_statements": "(: b_is_the_building (WithTV (Building b) (STV 0.95 0.9)))\r\n(: n_is_name (WithTV (Name n \"Empire State Building\") (STV 0.95 0.9)))\r\n(: b_name (WithTV (NameOf b n) (STV 0.95 0.9)))\r\n(: b_height (WithTV (And (Unit $m \"Meter\") (And (HeightOf b $h $m) (GreaterThan $h 380))) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
@@ -115,7 +115,7 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "If a student studies for at least 5 hours and gets enough sleep, what is the probability they will pass the exam?",
-    "pln_types": "(: Student (-> (: $student Object) Type))\r\n(: StudiesFor (-> (: $studier Object) Number String Type))\r\n(: Studies (-> (: $studier Object) Type))\r\n(: For (-> (: $event Type) Number (: $unit Object) Type))\r\n(: Unit (-> (: $unit Object) String Type))\r\n(: GreaterThanEqualTo (-> Number Number Type))\r\n(: Gets (-> (: $getter Object) (: $got Object) Type))\r\n(: Enough (-> (: $obj Object) Type))\r\n(: Sleep (-> (: $obj Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Pass (-> (: $obj Object) (: $exam Object) Type))\r\n(: Exam (-> (: $exam Object) Type))",
+    "pln_types": "(: Student (-> (: $student Object) Type))\r\n(: StudiesFor (-> (: $studier Object) Number (: $unit String) Type))\r\n(: Studies (-> (: $studier Object) Type))\r\n(: For (-> (: $event Type) Number (: $unit Object) Type))\r\n(: Unit (-> (: $unit Object) String Type))\r\n(: GreaterThanEqualTo (-> Number Number Type))\r\n(: Gets (-> (: $getter Object) (: $got Object) Type))\r\n(: Enough (-> (: $obj Object) Type))\r\n(: Sleep (-> (: $obj Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Pass (-> (: $obj Object) (: $exam Object) Type))\r\n(: Exam (-> (: $exam Object) Type))",
     "pln_statements": "(: e_is_the_exam (WithTV (Exam e) (STV 0.95 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: studiesfor_meaning (WithTV (Equivalence (StudiesFor $x $time $unit) (For (Studies $x) $time $unit)) (STV 0.95 0.9)))\r\n",
     "pln_queries": "(: $prf (WithTV (Implication (And (Student $s) (And (Unit $hr \"Hour\") (And (StudiesFor $s $h $hr) (And (GreaterThanEqualTo $h 5) (And ((& Enough Sleep) $es) (Gets $s $es)))))) (Will (Pass $s e))) $tv))"
   },
@@ -123,7 +123,7 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "If the barometric pressure drops rapidly and dark clouds form, there is an 80% chance it will rain within the next 3 hours.",
-    "pln_types": "(: Barometric (-> (: $pressure Object) Type))\r\n(: Pressure (-> (: $pressure Object) Type))\r\n(: Drops (-> (: $pressure Object) Type))\r\n(: Rapidly (-> (: $pressure Object) Type))\r\n(: Dark (-> (: $cloud Object) Type))\r\n(: Cloud (-> (: $cloud Object) Type))\r\n(: Form (-> (: $cloud Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Rain (-> (: $rain Object) Type))\r\n(: Within (-> (: $event Type) Number (: $unit String) Type))\r\n(: In (-> (: $event Type) Number String Type))\r\n(: Unit (-> (: $unit Object) String Type))\r\n(: LessThanEqualTo (-> Number Number Type))",
+    "pln_types": "(: Barometric (-> (: $pressure Object) Type))\r\n(: Pressure (-> (: $pressure Object) Type))\r\n(: Drops (-> (: $pressure Object) Type))\r\n(: Rapidly (-> (: $pressure Object) Type))\r\n(: Dark (-> (: $cloud Object) Type))\r\n(: Cloud (-> (: $cloud Object) Type))\r\n(: Form (-> (: $cloud Object) Type))\r\n(: Will (-> (: $event Type) Type))\r\n(: Rain (-> (: $rain Object) Type))\r\n(: Within (-> (: $event Type) Number (: $unit String) Type))\r\n(: In (-> (: $event Type) Number (: $unit Object) Type))\r\n(: Unit (-> (: $unit Object) String Type))\r\n(: LessThanEqualTo (-> Number Number Type))",
     "pln_statements": "(: pressure_cloud_rain (WithTV (Implication (And ((& Barometric Pressure) $bp) (And ((& Rapidly Drop) $bp) (And ((& Dark Cloud) $dc) (Form $dc)))) (And (Unit $hr \"Hour\") (Within (Will (Rain $r)) 3 $hr))) (STV 0.8 0.9)))\r\n\r\n;; Unpack meanings / alternative representations\r\n(: within_meaning (WithTV (Equivalence (Within $event $time $unit) (And (In $event $h $unit) (LessThanEqualTo $h $time))) (STV 0.95 0.9)))\r\n",
     "pln_queries": ""
   },
