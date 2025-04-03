@@ -443,8 +443,8 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "It rained for 2 hours yesterday.",
-    "pln_types": "(: Rain (-> (: $rain Object) Type))\r\n(: For (-> (: $event Object) Number (: $unit Object) Type))\r\n(: Yesterday (-> (: $day Object) Type))\r\n(: AtTime (-> (: $event Type) (: $time Object) Type))\r\n(: Unit (-> (: $unit Object) String Type))",
-    "pln_statements": "(: rained_2hrs_yesterday (WithTV (And (Rain $r) (And (Yesterday $y) (And (AtTime $r $y) (And (Unit $hr \"Hour\") (For $r 2 $hr))))) (STV 0.95 0.9)))",
+    "pln_types": "(: Rain (-> (: $rain Object) Type))\r\n(: For (-> (: $event Type) Number (: $unit Object) Type))\r\n(: Yesterday (-> (: $day Object) Type))\r\n(: AtTime (-> (: $event Type) (: $time Object) Type))\r\n(: Unit (-> (: $unit Object) String Type))",
+    "pln_statements": "(: rained_2hrs_yesterday (WithTV (And (Yesterday $y) (And (AtTime (Rain $r) $y) (And (Unit $hr \"Hour\") (For (Rain $r) 2 $hr)))) (STV 0.95 0.9)))",
     "pln_queries": ""
   }
 ]
