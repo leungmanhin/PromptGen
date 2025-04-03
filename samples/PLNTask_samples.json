@@ -3,8 +3,8 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "I only eat vegetables on days when I exercise.",
-    "pln_types": "(: Eat (-> (: $eater Object) (: $eaten Object) Type))\r\n(: Vegetable (-> (: $veg Object) Type))\r\n(: On (-> (: $activity Type) (: $day Object) Type))\r\n(: Day (-> (: $day Object) Type))\r\n(: Exercise (-> (: $exerciser Object) Type))",
-    "pln_statements": "(: eat_veg_exercise (WithTV (Implication (And (Day $d) (On $d (Exercise authorSpeaker))) (Implication (On $d (Eat authorSpeaker $v)) (Vegetable $v))) (STV 0.95 0.9)))",
+    "pln_types": "(: I (-> (: $i Object) Type))\r\n(: Eat (-> (: $eater Object) (: $eaten Object) Type))\r\n(: Vegetable (-> (: $veg Object) Type))\r\n(: On (-> (: (: $day Object) $activity Type) Type))\r\n(: Day (-> (: $day Object) Type))\r\n(: Exercise (-> (: $exerciser Object) Type))",
+    "pln_statements": "(: authorSpeaker_is_i (WithTV (I authorSpeaker) (STV 0.95 0.9)))\r\n(: eat_veg_exercise (WithTV (Implication (And (Day $d) (On $d (Exercise authorSpeaker))) (Implication (On $d (Eat authorSpeaker $v)) (Vegetable $v))) (STV 0.95 0.9)))",
     "pln_queries": ""
   },
   {
@@ -227,8 +227,8 @@
     "similar": "\"\"",
     "previous": "\"\"",
     "english": "Philip said that some humans can fly in the Dragon Ball anime.",
-    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Said (-> (: $person Object) Type))\r\n(: Human (-> (: $human Object) Type))\r\n(: Can (-> (-> (: $obj Object) Type) Type))\r\n(: Fly (-> (: $flyer Object) Type))\r\n(: Anime (-> (: $anime Object) Type))",
-    "pln_statements": "(: np_is_name (WithTV (Name np \"Philip\") (STV 0.95 0.9)))\r\n(: philip_named_np (WithTV (NameOf philip np) (STV 0.95 0.9)))\r\n(: anime_is_the_anime (WithTV (Anime anime) (STV 0.95 0.9))\r\n(: ndb_is_name (WithTV (Name ndb \"Dragon Ball\") (STV 0.95 0.9)))\r\n(: anime_named_ndb (WithTV (NameOf anime ndb) (STV 0.95 0.9)))\r\n(: human_fly_anime (WithTV (Said philip (Context anime (Implication (Human $x) (Can (Fly $x))))) (STV 0.95 0.9)))",
+    "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Said (-> (: $person Object) Type))\r\n(: Human (-> (: $human Object) Type))\r\n(: Can (-> (-> (: $obj Object) Type) Type))\r\n(: Fly (-> (: $flyer Object) Type))\r\n(: In (-> (: $object Type) (: $context Object) Type))\r\n(: Anime (-> (: $anime Object) Type))",
+    "pln_statements": "(: np_is_name (WithTV (Name np \"Philip\") (STV 0.95 0.9)))\r\n(: philip_named_np (WithTV (NameOf philip np) (STV 0.95 0.9)))\r\n(: anime_is_the_anime (WithTV (Anime anime) (STV 0.95 0.9))\r\n(: ndb_is_name (WithTV (Name ndb \"Dragon Ball\") (STV 0.95 0.9)))\r\n(: anime_named_ndb (WithTV (NameOf anime ndb) (STV 0.95 0.9)))\r\n(: philip_said_humans_fly (WithTV (Said philip (Implication (And (Human $h) (In $h db_anime)) (Can (Fly $h)))) (STV 0.8 0.9)))",
     "pln_queries": ""
   },
   {
@@ -245,14 +245,6 @@
     "english": "May the 4th is the Star Wars Day.",
     "pln_types": "(: Name (-> (: $name Object) String Type))\r\n(: NameOf (-> (: $named Object) (: $name Object) Type))\r\n(: Date (-> (: $date Object) Type))\r\n(: Month (-> (: $month Object) Number Type))\r\n(: Day (-> (: $day Object) Number Type))",
     "pln_statements": "(: may_4th_star_wars_day (WithTV (Implication (And (Date $d) (And (Month $d 5) (Day $d 4))) (And (Name $n \"Star Wars Day\") (NameOf $d $n))) (STV 0.95 0.9)))",
-    "pln_queries": ""
-  },
-  {
-    "similar": "\"\"",
-    "previous": "\"\"",
-    "english": "Nearly all experts agree that about half of the research findings apply to most real-world situations.",
-    "pln_types": "(: Expert (-> (: $expert Object) Type))\r\n(: Agree (-> (: $agreer Object) (: $agreed Type) Type))\r\n(: Research (-> (: $research Object) Type))\r\n(: Finding (-> (: $finding Object) Type))\r\n(: ApplyTo (-> (: $applier Object) (: $applied Object) Type))\r\n(: Apply (-> (: $applier Object) Type))\r\n(: To (-> (: $act Type) Type))\r\n(: RealWorld (-> (: $realworld Object) Type))\r\n(: Situation (-> (: $situation Object) Type))",
-    "pln_statements": "(: expert_finding_situation (WithTV (Implication (Expert $e) (Agree $e (Implication (And ((& Research Finding) $f) ((& RealWorld Situation) $rws)) (ApplyTo $rf $rws)))) (STV 0.5 0.9)))",
     "pln_queries": ""
   },
   {
