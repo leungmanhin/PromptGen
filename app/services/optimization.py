@@ -102,7 +102,7 @@ class Optimizer:
                         optimized_task = dspy.MIPROv2(
                             metric=self._optimization_metric,
                             auto="light"
-                        ).compile(base_task, trainset=training_data, requires_permission_to_run=False)
+                        ).compile(base_task, trainset=training_data, valset=training_data, requires_permission_to_run=False)
                 except Exception as e:
                     error_msg = f"Failed to load program: {e}"
                     print(error_msg)
